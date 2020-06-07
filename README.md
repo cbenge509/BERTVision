@@ -1,4 +1,4 @@
-SQuAD v2 BERT CNN Whatchamacallit Project
+BERTVision
 ==========================================================
 
 ![GitHub](https://img.shields.io/github/license/cbenge509/kaggle_facial_keypoints) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/kaggle_facial_keypoints/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/kaggle_facial_keypoints/keras) ![GitHub contributors](https://img.shields.io/github/contributors/cbenge509/kaggle_facial_keypoints) ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/cbenge509/kaggle_facial_keypoints?include_prereleases)
@@ -11,8 +11,7 @@ SQuAD v2 BERT CNN Whatchamacallit Project
 
 
 U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) <br>
-Summer 2020, W266 - Natural Language Processing - Daniel Cer, PhD <br>
-Section 1 - Tue. 4:00pm PDT
+Summer 2020, W266 - Natural Language Processing - Daniel Cer, PhD - Section 1
 
 ---
 
