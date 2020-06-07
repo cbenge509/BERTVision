@@ -50,7 +50,7 @@ def process_arguments(parsed_args, display_args = False):
     
     args = vars(parser.parse_args())
     if display_args:
-        print("".join(["\GENERATE_SQUAD_FEATURES arguments in use:\n", "-" * 30, "\n"]))
+        print("".join(["*" * 30, "\narguments in use:\n", "*" * 30, "\n"]))
         for arg in args:
             print("Parameter '%s' == %s" % (arg, str(getattr(parser.parse_args(), arg))))
         print("\n")
