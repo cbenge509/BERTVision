@@ -1,7 +1,7 @@
 BERTVision
 ==========================================================
 
-![GitHub](https://img.shields.io/github/license/cbenge509/kaggle_facial_keypoints) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/kaggle_facial_keypoints/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/kaggle_facial_keypoints/keras) ![GitHub contributors](https://img.shields.io/github/contributors/cbenge509/kaggle_facial_keypoints) ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/cbenge509/kaggle_facial_keypoints?include_prereleases)
+![GitHub](https://img.shields.io/github/license/cbenge509/BERTVision) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/cbenge509/BERTVision) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/transformers) ![GitHub contributors](https://img.shields.io/github/contributors/cbenge509/BERTVision) ![GitHub repo size](https://img.shields.io/github/repo-size/cbenge509/BERTVision)
 
 <img align="right" width="180" src="./images/ucb.png"/>
 
