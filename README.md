@@ -10,7 +10,7 @@ SQuAD v2 BERT CNN Whatchamacallit Project
 [![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/0)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/0)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/1)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/1)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/2)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/2)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/3)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/3)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/4)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/4)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/5)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/5)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/6)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/6)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/7)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/7)
 
 
-U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) 
+U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) <br>
 Summer 2020, W266 - Natural Language Processing - Daniel Cer, PhD <br>
 Section 1 - Tue. 4:00pm PDT
 
