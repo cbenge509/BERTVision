@@ -28,4 +28,4 @@ This repo contains the draft work for the evaluation of integrating successful v
   
 License
 -------
-Licensed under the Apache 2.0 License. See [LICENSE](LICENSE.txt) file for more details.
+Licensed under the MIT License. See [LICENSE](LICENSE.txt) file for more details.
