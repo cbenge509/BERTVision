@@ -1,4 +1,3 @@
-#%%
 ############################################################################
 # IMPORTS
 ############################################################################
@@ -21,7 +20,6 @@ tf.random.set_seed(42)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.get_logger().setLevel('ERROR')
 
-#%%
 ############################################################################
 # CONSTANTS & PARAMETERS
 ############################################################################
@@ -33,7 +31,6 @@ SQUAD_TRAIN_FILE = "train-v2.0.json"
 OUTPUT_DEV_FILE = "squad_dev.h5"
 OUTPUT_TRAIN_FILE = "squad_train.h5"
 
-#%%
 ############################################################################
 # CLASS : SQuADv2Utils
 ############################################################################
@@ -47,9 +44,9 @@ class SQuADv2Utils(object):
         """ProcessSquad class initialization routine.
 
         Args:
-            data_path ([str]): OS path location of the SQuAD v2 dev and train files.
-            h5_path ([str]): OS path location of the output folder where the h5 processed SQuAD data should be stored.
-            pretrained_tokenizer ([str]): name of the pretrained tokenizer to use during processing (ref: https://huggingface.co/transformers/main_classes/tokenizer.html).
+            data_path (str): OS path location of the SQuAD v2 dev and train files.
+            h5_path (str): OS path location of the output folder where the h5 processed SQuAD data should be stored.
+            pretrained_tokenizer (str): name of the pretrained tokenizer to use during processing (ref: https://huggingface.co/transformers/main_classes/tokenizer.html).
             verbose (bool, optional): Indicates whether the routine should provide verbose feedback to caller. Defaults to False.
 
         Raises:
@@ -68,7 +65,7 @@ class SQuADv2Utils(object):
         for f, d in [[SQUAD_DEV_FILE, "SQuAD v2 Dev File"], [SQUAD_TRAIN_FILE, "SQuAD v2 Train File"]]:
             f = os.path.join(data_path, f)
             if (not os.path.isfile(f)):
-                raise RuntimeError("%s file specified [%s] does not exist." % (d, f))
+                raise RuntimeError(f"{d} file specified [{f}] does not exist.")
         
         # set the class variables with the dev and train squad file locations
         self.__dev_squad = data_path
@@ -83,7 +80,7 @@ class SQuADv2Utils(object):
         try:
             self.__tokenizer = BertTokenizer.from_pretrained(pretrained_tokenizer)
         except:
-            raise RuntimeError("Failed to load pretrained tokenizer '%s'." % pretrained_tokenizer)
+            raise RuntimeError(f"Failed to load pretrained tokenizer '{pretrained_tokenizer}'.")
 
         # Load the processor
         self.__processor = SquadV2Processor()
@@ -97,18 +94,18 @@ class SQuADv2Utils(object):
         """Common utility function for cleaning and validating path strings
 
         Args:
-            clean_path ([str]): the path string to clean & validate
-            path_title ([str]): the title (or name) of the path; used on error only.
+            clean_path (str): the path string to clean & validate
+            path_title (str): the title (or name) of the path; used on error only.
 
         Returns:
-            [str]: the cleaned path string
+            (str): the cleaned path string
         """
 
         clean_path = str(clean_path).replace('\\', '/').strip()
         if (not clean_path.endswith('/')): clean_path = ''.join((clean_path, '/'))
 
         if (not os.path.isdir(clean_path)):
-            raise RuntimeError("'%s' path specified '%s' is invalid." % (path_title, clean_path))
+            raise RuntimeError(f"'{path_title}' path specified [{clean_path}] is invalid.")
 
         return clean_path
 
@@ -116,13 +113,22 @@ class SQuADv2Utils(object):
     # (Public Method) GenerateFeatures
     #---------------------------------------------------------------------------
     def GenerateFeatures(self, generate_training = True, max_seq_length = 512, max_query_length = 64, doc_stride = 128, verbose = False):
+        """Converts examples into features
+
+        Args:
+            generate_training (bool, optional): Indicates if the examples are from the training set. Defaults to True.
+            max_seq_length (int, optional): Maximum sequence length. Defaults to 512.
+            max_query_length (int, optional): Maximum query length. Defaults to 64.
+            doc_stride (int, optional): Document stride vale. Defaults to 128.
+            verbose (bool, optional): Enables verbose logging to console. Defaults to False.
+        """
 
         if generate_training:
             feature_target = "train"
         else:
             feature_target = "dev"
         
-        if verbose: print("Collecting the raw '%s' examples for processing." % feature_target)
+        if verbose: print(f"Collecting the raw '{feature_target}' examples for processing.")
         if generate_training:
             data_raw = self.__processor.get_train_examples(self.__train_squad)
             data_h5 = self.__dev_h5
@@ -131,7 +137,7 @@ class SQuADv2Utils(object):
             data_h5 = self.__train_h5
         
         # ref: https://huggingface.co/transformers/main_classes/processors.html?highlight=squad_convert_examples_to_features#transformers.data.processors.squad.squad_convert_examples_to_features
-        if verbose: print("Converting list of '%s' examples to list of features..." % feature_target)
+        if verbose: print(f"Converting list of '{feature_target}' examples to list of features...")
         data = squad_convert_examples_to_features(
             examples = data_raw, 
             tokenizer = self.__tokenizer, 
@@ -141,7 +147,7 @@ class SQuADv2Utils(object):
             is_training = generate_training,)
         
         feature_length = len(data)
-        if verbose: print("Conversion complete.  Length of %s dataset: %d" % (feature_target, feature_length))
+        if verbose: print(f"Conversion complete.  Length of {feature_target} dataset: {feature_length}")
         
         # create zero-initialized arrays for storing the featurized training set
         input_ids, input_segs, input_masks = [np.zeros((feature_length, max_seq_length))] * 3
@@ -156,11 +162,11 @@ class SQuADv2Utils(object):
                 a[i] = v
 
         # save the h5 file
-        if verbose: print("writing to %s file '%s'..." % (feature_target, data_h5))
+        if verbose: print(f"writing to {feature_target} file '{data_h5}'...")
         with h5py.File(data_h5, 'w') as hf:
             for a, v in zip(arrz, varz):
                 hf.create_dataset(v, data = a)
-        if verbose: print("%s H5 feature file '%s' written to disk." % (feature_target, data_h5))
+        if verbose: print(f"{feature_target} H5 feature file '{data_h5}' written to disk.")
 
         return
         
