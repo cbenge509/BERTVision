@@ -1,4 +1,3 @@
-#%%
 ############################################################################
 # IMPORTS
 ############################################################################
@@ -8,7 +7,6 @@ from utils import squad
 import argparse
 import os
 
-#%%
 ############################################################################
 # CONSTANTS & PARAMETERS
 ############################################################################
@@ -25,7 +23,6 @@ DOCUMENT_STRIDE = 128
 GENERATE_TARGET = "all"
 VERBOSE = True
 
-#%%
 ############################################################################
 # ARGUMENT SPECIFICATION
 ############################################################################
@@ -44,6 +41,25 @@ parser.add_argument('-t', '--target_to_generate', type = str, default = GENERATE
 # ARGUMENT PARSING
 ############################################################################
 def process_arguments(parsed_args, display_args = False):
+    """Command-line argument parsing
+
+    Args:
+        parsed_args (list): contains the list of arguments parsed by the command-line
+        display_args (bool, optional): Enables verbose logging of the in-use command-line parameters to the console. Defaults to False.
+
+    Raises:
+        RuntimeError: if any of the path strings provided do not exist.
+        RuntimeError: `pretrained_tokenizer` parameter value provided by caller is of the wrong data type.
+        RuntimeError: `pretrained_tokenizer` parameter value provided by caller is in an invalid range.
+        RuntimeError: `target_to_generate` parameter value provided by caller is of the wrong data type.
+        RuntimeError: `target_to_generate` parameter value provided by caller is in an invalid range.
+        RuntimeError: `max_sequence_length` parameter value provided by caller is of the wrong data type.
+        RuntimeError: `max_sequence_length` parameter value provided by caller is in an invalid range.
+        RuntimeError: `max_query_length` parameter value provided by caller is of the wrong data type.
+        RuntimeError: `max_query_length` parameter value provided by caller is in an invalid range.
+        RuntimeError: `document_stride` parameter value provided by caller is of the wrong data type.
+        RuntimeError: `document_stride` parameter value provided by caller is in an invalid range.
+    """
     
     global VERBOSE, SQUAD_PATH, H5_PATH, PRETRAINED_TOKENIZER, MAX_SEQUENCE_LENGTH, MAX_QUERY_LENGTH, \
            DOCUMENT_STRIDE, GENERATE_TARGET
@@ -70,36 +86,48 @@ def process_arguments(parsed_args, display_args = False):
         if not os.path.exists(p):
             raise RuntimeError(" ".join([l, "'%s'" % p, "specified in parameter `%s` does not exist." % v]))
 
-    # validate the parameters entered
-    assert type(PRETRAINED_TOKENIZER) is str, "Parameter 'pretrained_tokenizer' must be of type str."
-    assert 0 < len(PRETRAINED_TOKENIZER) < 50, "Parameter 'pretrained_tokenizer' must be of a length between 1 and 50."
+    # validate type and value of `pretrained_tokenizer` parameter
+    if not (isinstance(PRETRAINED_TOKENIZER, str)): raise RuntimeError("Parameter 'pretrained_tokenizer' must be of type str.")
+    if not (0 < len(PRETRAINED_TOKENIZER) < 50): raise RuntimeError("Parameter 'pretrained_tokenizer' must be of a length between 1 and 50.")
     
-    assert type(GENERATE_TARGET) is str, "Parameter 'target_to_generate' must be of type str."
-    assert GENERATE_TARGET in ["train", "dev", "all"], "Parameter 'target_to_generate' must be one of the following: {'train', 'dev', 'all'}."
+    # validate type and value of `target_to_generate` parameter
+    if not (isinstance(GENERATE_TARGET, str)): raise RuntimeError("Parameter 'target_to_generate' must be of type str.")
+    if not (GENERATE_TARGET in ["train", "dev", "all"]): raise RuntimeError("Parameter 'target_to_generate' must be one of the following: {'train', 'dev', 'all'}.")
 
-    assert type(MAX_SEQUENCE_LENGTH) is int, "Parameter 'max_sequence_length' must be of type int."
-    assert 1 <= MAX_SEQUENCE_LENGTH <= 512, "Parameter 'max_sequence_length' must be between 1 and 512."
+    # validate type and value of `max_sequence_length` parameter
+    if not (isinstance(MAX_SEQUENCE_LENGTH, int)): raise RuntimeError("Parameter 'max_sequence_length' must be of type int.")
+    if not (1 <= MAX_SEQUENCE_LENGTH <= 512): raise RuntimeError("Parameter 'max_sequence_length' must be between 1 and 512.")
 
-    assert type(MAX_QUERY_LENGTH) is int, "Parameter 'max_query_length' must be of type int."
-    assert 1 <= MAX_QUERY_LENGTH <= 128, "Parameter 'max_query_length' must be between 1 and 128."
+    # validate type and value of `max_query_length` parameter
+    if not (isinstance(MAX_QUERY_LENGTH, int)): raise RuntimeError("Parameter 'max_query_length' must be of type int.")
+    if not (1 <= MAX_QUERY_LENGTH <= 128): raise RuntimeError("Parameter 'max_query_length' must be between 1 and 128.")
 
-    assert type(DOCUMENT_STRIDE) is int, "Parameter 'document_stride' must be of type int."
-    assert 1 <= DOCUMENT_STRIDE <= 512, "Parameter 'document_stride' must be between 1 and 512."
+    # validate type and value of `document_stride` parameter
+    if not (isinstance(DOCUMENT_STRIDE, int)): raise RuntimeError("Parameter 'document_stride' must be of type int.")
+    if not (1 <= DOCUMENT_STRIDE <= 512): raise RuntimeError("Parameter 'document_stride' must be between 1 and 512.")
 
-#%%
 ############################################################################
 # PROCESS SQUAD V2 DATA
 ############################################################################
 
 # process the SQuAD v2 data
 def processSquad(processor, generate_training, max_seq_length, max_query_length, doc_stride, verbose = False):
+    """Generates SQuAD features from the provided examples
+
+    Args:
+        processor (squad.SQuADv2Utils): class object; reference to the utilities helper class for processing SQuAD data.
+        generate_training (bool): Indicates if the dataset consists of training examples.
+        max_seq_length (int): Maximum sequence length.
+        max_query_length (int): Maximum query length.
+        doc_stride (int): Document stride.
+        verbose (bool, optional): Enables verbose logging to the console. Defaults to False.
+    """
 
     processor.GenerateFeatures(generate_training = generate_training, max_seq_length = max_seq_length,
         max_query_length = max_query_length, doc_stride = doc_stride, verbose = verbose)
 
     return
 
-#%%
 ############################################################################
 # MAIN FUNCTION
 ############################################################################
