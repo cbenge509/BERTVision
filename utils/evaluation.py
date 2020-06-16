@@ -13,7 +13,7 @@ import os
 from collections import defaultdict, Counter
 
 
-from transformers import BertTokenizer, TFBertModel
+from transformers import BertTokenizer, TFBertModel, BertConfig
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
@@ -336,4 +336,28 @@ class PretrainedBertSquad2(object):
         end_logits = K.squeeze(end_logits, axis=-1)
 
         model = Model(inputs = [input_ids, input_masks], outputs = [start_logits, end_logits])
+        return model
+
+class PretrainedBertSquad2Faster(object):
+    def __init__(self,
+                 weights,
+                 config = Squad2Config()):
+
+        self.config = config
+        self.tokenizer = config.tokenizer
+        self.named_model = config.named_model
+        self.model = self.bert_large_uncased_for_squad2(self.config.max_seq_length)
+        self.model.load_weights(weights)
+
+    def bert_large_uncased_for_squad2(self, max_seq_length):
+        input_ids = Input((max_seq_length,), dtype = tf.int32, name = 'input_ids')
+        input_masks = Input((max_seq_length,), dtype = tf.int32, name = 'input_masks')
+
+        #Load model from huggingface
+        config = BertConfig.from_pretrained(self.config.named_model, output_hidden_states=True)
+        bert_layer = TFBertModel.from_pretrained(self.named_model, config = config)
+
+        outputs, _, embeddings = bert_layer([input_ids, input_masks]) #1 for pooled outputs, 0 for sequence
+
+        model = Model(inputs = [input_ids, input_masks], outputs = [embeddings, outputs])
         return model
