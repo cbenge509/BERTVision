@@ -71,7 +71,7 @@ class BERTImageGenerator(Sequence):
         
     def __len__(self):
         '''Determines the number of batches per epoch'''
-        return int(np.ceil((end_idx - start_idx) / self.batch_size))
+        return int(np.ceil((self.end_idx - self.start_idx) / self.batch_size))
     
     def __getitem__(self, idx):
         '''Retrieves the batch of examples'''
@@ -99,7 +99,8 @@ class BERTImageGenerator(Sequence):
                 else:
                     X[i] = embedding[:-1]
         
-        return X, self.labels[indices]
+        labels = self.labels[indices].T
+        return X, [labels[0], labels[1]]
     
     def on_epoch_end(self):
         '''Performs data shuffling at the end of each epoch'''
