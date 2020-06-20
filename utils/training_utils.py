@@ -101,6 +101,7 @@ class BERTImageGenerator(Sequence):
         
         labels = self.labels[indices].T
         return X, [labels[0], labels[1]]
+        #return np.swapaxes(X, 1, 3), [labels[0], labels[1]]
     
     def on_epoch_end(self):
         '''Performs data shuffling at the end of each epoch'''
