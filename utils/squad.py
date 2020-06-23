@@ -131,10 +131,10 @@ class SQuADv2Utils(object):
         if verbose: print(f"Collecting the raw '{feature_target}' examples for processing.")
         if generate_training:
             data_raw = self.__processor.get_train_examples(self.__train_squad)
-            data_h5 = self.__dev_h5
+            data_h5 = self.__train_h5
         else:
             data_raw = self.__processor.get_dev_examples(self.__dev_squad)
-            data_h5 = self.__train_h5
+            data_h5 = self.__dev_h5
         
         # ref: https://huggingface.co/transformers/main_classes/processors.html?highlight=squad_convert_examples_to_features#transformers.data.processors.squad.squad_convert_examples_to_features
         if verbose: print(f"Converting list of '{feature_target}' examples to list of features...")
