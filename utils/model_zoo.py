@@ -2,7 +2,6 @@
 ## IMPORTS
 ###########################################################################################################
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import math
 import numpy as np
 import pandas as pd
@@ -10,17 +9,19 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import pickle
 
-from tensorflow.keras.models import Sequential, Model, model_from_json
-from tensorflow.keras.layers import Activation, Convolution2D, Conv2D, LocallyConnected2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D, BatchNormalization, Flatten, Dense, Dropout, Input, concatenate, add, Add, ZeroPadding2D, GlobalMaxPooling2D, DepthwiseConv2D, LeakyReLU, ELU, ReLU
-from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.regularizers import l2
-
+from keras.layers.advanced_activations import LeakyReLU, ELU, ReLU
+from keras.models import Sequential, Model, model_from_json
+from keras.layers import Activation, Convolution2D, Conv2D, LocallyConnected2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D, 
+from keras.layers import BatchNormalization, Flatten, Dense, Dropout, Input, concatenate, add, Add, ZeroPadding2D, GlobalMaxPooling2D, DepthwiseConv2D
+from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
+from keras.optimizers import Adam
+from keras.regularizers import l2
 #from keras.activations import linear, elu, tanh, relu
-from tensorflow.keras import metrics, losses, initializers, backend
-from tensorflow.keras.utils import multi_gpu_model
-from tensorflow.keras.initializers import glorot_uniform, Constant, lecun_uniform
-from tensorflow.keras import backend as K
+from keras import metrics, losses, initializers, backend
+from keras.losses import SparseCategoricalCrossentropy
+from keras.utils import multi_gpu_model
+from keras.initializers import glorot_uniform, Constant, lecun_uniform
+from keras import backend as K
 
 #os.environ["PATH"] += os.pathsep + "C:/ProgramData/Anaconda3/GraphViz/bin/"
 #os.environ["PATH"] += os.pathsep + "C:/Anaconda/Graphviz2.38/bin/"
@@ -29,12 +30,13 @@ from keras.utils.vis_utils import plot_model
 from sklearn.model_selection import train_test_split
 
 import tensorflow as tf
+from tensorflow.python.keras import backend, initializers, models, regularizers
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+layers = tf.keras.layers
 np.random.seed(42)
 tf.random.set_seed(42)
-
 tf.get_logger().setLevel('ERROR')
-
 physical_devices = tf.config.list_physical_devices('GPU')
 #for pd_dev in range(len(physical_devices)):
 #    tf.config.experimental.set_memory_growth(physical_devices[pd_dev], True)
@@ -82,10 +84,15 @@ class Models(object):
         self.__models_path = model_path
         self.__GPU_count = len(tf.config.list_physical_devices('GPU'))
         self.__MIN_early_stopping = 10
+        self.__model_tasks = ['QnA', 'binary_classification']
 
-    #------------------------------------------------
-    # Private Methods
-    #------------------------------------------------
+    ######################################################
+    ######################################################
+    ######################################################
+    ### Private Methods
+    ######################################################
+    ######################################################
+    ######################################################
 
     # plotting method for keras history arrays
     def __plot_keras_history(self, history, metric, model_name, file_name, verbose = False):
@@ -147,349 +154,212 @@ class Models(object):
         model.load_weights(model_file)
 
         return model
-
-    # resnet identity block builder
-    def __identity_block(self, model, kernel_size, filters, stage, block):
-        """modularized identity block for resnet"""
-        filters1, filters2, filters3 = filters
-
-        conv_name_base = 'res' + str(stage) + block + '_branch'
-        bn_name_base = 'bn' + str(stage) + block + '_branch'
-
-        x = Conv2D(filters1, (1, 1),
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2a')(model)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2a')(x)
-        x = Activation('relu')(x)
-
-        x = Conv2D(filters2, kernel_size,
-                        padding='same',
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2b')(x)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2b')(x)
-        x = Activation('relu')(x)
-
-        x = Conv2D(filters3, (1, 1),
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2c')(x)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2c')(x)
-
-        x = add([x, model])
-        x = Activation('relu')(x)
+    
+    # BERT "image" layer dedimensionalization
+    def __BERT_image_input_layer(self, input_img, use_l2_regularizer, input_shape = (386, 1024, 3),  verbose = False):
+        
+        x = layers.Conv2D(
+            filters = 3, 
+            kernel_size = (1, 3),
+            strides = (1, 3),
+            padding = 'valid',
+            use_bias = False,
+            data_format = 'channels_last',
+            kernel_initializer = 'he_normal',
+            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            name='input_conv') (input_img)
+        
         return x
 
-    # resnet conv block builder
-    def __conv_block(self, model, kernel_size, filters, stage, block, strides=(2, 2)):
-        """conv block builder for resnet"""
-        filters1, filters2, filters3 = filters
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ### ResNet v1.5 Private Methods
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-        conv_name_base = 'res' + str(stage) + block + '_branch'
-        bn_name_base = 'bn' + str(stage) + block + '_branch'
+    def __gen_l2_regularizer(self, use_l2_regularizer = True, l2_weight_decay=1e-4):
+        return regularizers.l2(l2_weight_decay) if use_l2_regularizer else None
 
-        x = Conv2D(filters1, (1, 1), strides=strides,
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2a')(model)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2a')(x)
-        x =Activation('relu')(x)
 
-        x = Conv2D(filters2, kernel_size, padding='same',
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2b')(x)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2b')(x)
-        x = Activation('relu')(x)
-
-        x = Conv2D(filters3, (1, 1),
-                        kernel_initializer='he_normal',
-                        name=conv_name_base + '2c')(x)
-        x = BatchNormalization(axis=3, name=bn_name_base + '2c')(x)
-
-        shortcut = Conv2D(filters3, (1, 1), strides=strides,
-                                kernel_initializer='he_normal',
-                                name=conv_name_base + '1')(model)
-        shortcut = BatchNormalization(
-            axis=3, name=bn_name_base + '1')(shortcut)
-
-        x = add([x, shortcut])
-        x = Activation('relu')(x)
-
-        return x
-
-    # create a layerable inception module
-    def __inception_module(self, model, filters_1x1, filters_3x3_reduce, filters_3x3,
-            filters_5x5_reduce, filters_5x5, filters_pool_proj, kernel_init, bias_init, name = None):
-        """modularized inception block for layering"""
-
-        # Connection Layer 1 (1x1)
-        conv_1x1 = Convolution2D(filters_1x1, (1, 1), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (model)
-
-        # Connection Layer 2 (3x3)
-        conv_3x3 = Convolution2D(filters_3x3_reduce, (1, 1), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (model)
-        conv_3x3 = Convolution2D(filters_3x3, (3, 3), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (conv_3x3)
-
-        # Connection Layer 3 (5x5)
-        conv_5x5 = Convolution2D(filters_5x5_reduce, (1, 1), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (model)
-        conv_5x5 = Convolution2D(filters_5x5, (5, 5), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (conv_5x5)
-
-        # Connection Layer 4 (pool)
-        pool_proj = MaxPooling2D((3, 3), strides = (1, 1), padding = 'same') (model)
-        pool_proj = Convolution2D(filters_pool_proj, (1, 1), padding = 'same', activation = 'relu',
-            kernel_initializer = kernel_init, bias_initializer = bias_init) (pool_proj)
-
-        # Concatenation layer
-        output = concatenate(inputs = [conv_1x1, conv_3x3, conv_5x5, pool_proj], axis = 3, name = name)
-
-        return output
-
-    # return an InceptionV3 output tensor after applying Conv2D and BatchNormalization
-    def __conv2d_bn(self, x, filters, num_row, num_col, padding = 'same', strides = (1, 1), name = None):
-
-        if name is not None:
-            bn_name = name + '_bn'
-            conv_name = name + '_conv'
-        else:
-            bn_name = None
-            conv_name = None
-
-        bn_axis = 3
-
-        x = Convolution2D(filters, (num_row, num_col), strides = strides,
-            padding = padding, use_bias = False, name = conv_name) (x)
-
-        x = BatchNormalization(axis = bn_axis, scale = False, name = bn_name) (x)
-        x = ReLU(name = name) (x)
-
-        return x
-
-    # a residual block for resnext
-    def __resnext_block(self, x, filters, kernel_size = 3, stride = 1, groups = 32, conv_shortcut = True, name = None):
-
-        if conv_shortcut is True:
-            shortcut = Conv2D((64 // groups) * filters, 1, strides = stride, use_bias = False, name = name + '_0_conv') (x)
-            shortcut = BatchNormalization(axis = 3, epsilon=1.001e-5, name = name + '_0_bn') (shortcut)
-        else:
-            shortcut = x
-
-        x = Conv2D(filters, 1, use_bias = False, name = name + '_1_conv') (x)
-        x = BatchNormalization(axis = 3, epsilon = 1.001e-5, name = name + '_1_bn') (x)
-        x = Activation('relu', name = name + '_1_relu') (x)
-
-        c = filters // groups
-        x = ZeroPadding2D(padding=((1, 1), (1, 1)), name=name + '_2_pad')(x)
-        x = DepthwiseConv2D(kernel_size, strides = stride, depth_multiplier = c, use_bias = False, name = name + '_2_conv') (x)
-        kernel = np.zeros((1, 1, filters * c, filters), dtype = np.float32)
-        for i in range(filters):
-            start = (i // c) * c * c + i % c
-            end = start + c * c
-            kernel[:, :, start:end:c, i] = 1.
-        x = Conv2D(filters, 1, use_bias = False, trainable = False, kernel_initializer = {'class_name': 'Constant','config': {'value': kernel}}, name = name + '_2_gconv') (x)
-        x = BatchNormalization(axis=3, epsilon = 1.001e-5, name = name + '_2_bn') (x)
-        x = Activation('relu', name=name + '_2_relu') (x)
-
-        x = Conv2D((64 // groups) * filters, 1, use_bias = False, name = name + '_3_conv') (x)
-        x = BatchNormalization(axis = 3, epsilon=1.001e-5, name = name + '_3_bn') (x)
-
-        x = Add(name = name + '_add') ([shortcut, x])
-        x = Activation('relu', name = name + '_out') (x)
-        return x
-
-    # a set of stacked residual blocks for ResNeXt
-    def __resnext_stack(self, x, filters, blocks, stride1 = 2, groups = 32, name = None, dropout = None):
-        x = self.__resnext_block(x, filters, stride = stride1, groups = groups, name = name + '_block1')
-        for i in range(2, blocks + 1):
-            x = self.__resnext_block(x, filters, groups = groups, conv_shortcut = False,
-                    name = name + '_block' + str(i))
-        if not dropout is None:
-            x = Dropout(dropout) (x)
-        return x
-
-    def __bn_relu(self, x, bn_name = None, relu_name = None):
-        norm = BatchNormalization(axis = 3, name = bn_name) (x)
-        return Activation("relu", name = relu_name) (norm)
-
-    def __bn_relu_conv(self, **conv_params):
-
-        filters = conv_params["filters"]
-        kernel_size = conv_params["kernel_size"]
-        strides = conv_params.setdefault("strides", (1, 1))
-        dilation_rate = conv_params.setdefault("dilation_rate", (1, 1))
-        conv_name = conv_params.setdefault("conv_name", None)
-        bn_name = conv_params.setdefault("bn_name", None)
-        relu_name = conv_params.setdefault("relu_name", None)
-        kernel_initializer = conv_params.setdefault("kernel_initializer", "he_normal")
-        padding = conv_params.setdefault("padding", "same")
-        kernel_regularizer = conv_params.setdefault("kernel_regularizer", l2(1.e-4))
-
-        def f(x):
-            activation = self.__bn_relu(x, bn_name = bn_name, relu_name = relu_name)
-            return Conv2D(filters = filters, kernel_size = kernel_size,
-                        strides = strides, padding = padding,
-                        dilation_rate = dilation_rate,
-                        kernel_initializer = kernel_initializer,
-                        kernel_regularizer = kernel_regularizer,
-                        name = conv_name) (activation)
-
-        return f
-
-    def __conv_bn_relu(self, **conv_params):
-
-        filters = conv_params["filters"]
-        kernel_size = conv_params["kernel_size"]
-        strides = conv_params.setdefault("strides", (1, 1))
-        dilation_rate = conv_params.setdefault("dilation_rate", (1, 1))
-        conv_name = conv_params.setdefault("conv_name", None)
-        bn_name = conv_params.setdefault("bn_name", None)
-        relu_name = conv_params.setdefault("relu_name", None)
-        kernel_initializer = conv_params.setdefault("kernel_initializer", "he_normal")
-        padding = conv_params.setdefault("padding", "same")
-        kernel_regularizer = conv_params.setdefault("kernel_regularizer", l2(1.e-4))
-
-        def f(x):
-            x = Conv2D(filters = filters, kernel_size = kernel_size,
-                    strides = strides, padding = padding,
-                    dilation_rate = dilation_rate,
-                    kernel_initializer = kernel_initializer,
-                    kernel_regularizer = kernel_regularizer,
-                    name = conv_name) (x)
-            return self.__bn_relu(x, bn_name = bn_name, relu_name = relu_name)
-
-        return f
-
-    def __block_name_base(self, stage, block):
-        if block < 27:
-            block = '%c' % (block + 97)  # 97 is the ascii number for lowercase 'a'
-        conv_name_base = 'res' + str(stage) + block + '_branch'
-        bn_name_base = 'bn' + str(stage) + block + '_branch'
-        return conv_name_base, bn_name_base
-
-    def __shortcut(self, input_feature, residual, conv_name_base = None, bn_name_base = None):
-        input_shape = K.int_shape(input_feature)
-        residual_shape = K.int_shape(residual)
-        stride_width = int(round(input_shape[1] / residual_shape[1]))
-        stride_height = int(round(input_shape[2] / residual_shape[2]))
-        equal_channels = input_shape[3] == residual_shape[3]
-
-        shortcut = input_feature
-        # 1 X 1 conv if shape is different. Else identity.
-        if stride_width > 1 or stride_height > 1 or not equal_channels:
-            print('reshaping via a convolution...')
-            if conv_name_base is not None:
-                conv_name_base = conv_name_base + '1'
-            shortcut = Conv2D(filters=residual_shape[3],
-                            kernel_size=(1, 1),
-                            strides=(stride_width, stride_height),
-                            padding="valid",
-                            kernel_initializer="he_normal",
-                            kernel_regularizer=l2(0.0001),
-                            name=conv_name_base)(input_feature)
-            if bn_name_base is not None:
-                bn_name_base = bn_name_base + '1'
-            shortcut = BatchNormalization(axis=3,
-                                        name=bn_name_base)(shortcut)
-
-        return add([shortcut, residual])
-
-    def __basic_block(self, filters, stage, block, transition_strides = (1, 1),
-                    dilation_rate = (1, 1), is_first_block_of_first_layer = False, dropout = None,
-                    residual_unit = None):
-
-        def f(input_features):
-            conv_name_base, bn_name_base = self.__block_name_base(stage, block)
-            if is_first_block_of_first_layer:
-                # don't repeat bn->relu since we just did bn->relu->maxpool
-                x = Conv2D(filters = filters, kernel_size = (3, 3),
-                        strides = transition_strides, dilation_rate = dilation_rate,
-                        padding = "same", kernel_initializer = "he_normal", kernel_regularizer = l2(1e-4),
-                        name = conv_name_base + '2a') (input_features)
-            else:
-                x = residual_unit(filters = filters, kernel_size = (3, 3),
-                                strides = transition_strides,
-                                dilation_rate = dilation_rate,
-                                conv_name_base = conv_name_base + '2a',
-                                bn_name_base = bn_name_base + '2a') (input_features)
-
-            if dropout is not None:
-                x = Dropout(dropout) (x)
-
-            x = residual_unit(filters = filters, kernel_size = (3, 3),
-                            conv_name_base = conv_name_base + '2b',
-                            bn_name_base = bn_name_base + '2b') (x)
-
-            return self.__shortcut(input_features, x)
-
-        return f
-
-    def __bottleneck(self, filters, stage, block, transition_strides = (1, 1),
-                dilation_rate = (1, 1), is_first_block_of_first_layer = False, dropout = None,
-                residual_unit = None):
-        """Bottleneck architecture for > 34 layer resnet.
-        Follows improved proposed scheme in http://arxiv.org/pdf/1603.05027v2.pdf
+    def __identity_block(self, input_tensor,
+                    kernel_size,
+                    filters,
+                    stage,
+                    block,
+                    use_l2_regularizer=True,
+                    batch_norm_decay=0.9,
+                    batch_norm_epsilon=1e-5):
+        """The identity block is the block that has no conv layer at shortcut.
+        Args:
+            input_tensor: input tensor
+            kernel_size: default 3, the kernel size of middle conv layer at main path
+            filters: list of integers, the filters of 3 conv layer at main path
+            stage: integer, current stage label, used for generating layer names
+            block: 'a','b'..., current block label, used for generating layer names
+            use_l2_regularizer: whether to use L2 regularizer on Conv layer.
+            batch_norm_decay: Moment of batch norm layers.
+            batch_norm_epsilon: Epsilon of batch borm layers.
         Returns:
-            A final conv layer of filters * 4
+            Output tensor for the block.
         """
-        def f(input_feature):
-            conv_name_base, bn_name_base = self.__block_name_base(stage, block)
-            if is_first_block_of_first_layer:
-                # don't repeat bn->relu since we just did bn->relu->maxpool
-                x = Conv2D(filters=filters, kernel_size=(1, 1),
-                        strides=transition_strides,
-                        dilation_rate=dilation_rate,
-                        padding="same",
-                        kernel_initializer="he_normal",
-                        kernel_regularizer=l2(1e-4),
-                        name=conv_name_base + '2a')(input_feature)
-            else:
-                x = residual_unit(filters=filters, kernel_size=(1, 1),
-                                strides=transition_strides,
-                                dilation_rate=dilation_rate,
-                                conv_name_base=conv_name_base + '2a',
-                                bn_name_base=bn_name_base + '2a')(input_feature)
 
-            if dropout is not None:
-                x = Dropout(dropout)(x)
+        filters1, filters2, filters3 = filters
+        if backend.image_data_format() == 'channels_last':
+            bn_axis = 3
+        else:
+            bn_axis = 1
+        conv_name_base = 'res' + str(stage) + block + '_branch'
+        bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-            x = residual_unit(filters=filters, kernel_size=(3, 3),
-                            conv_name_base=conv_name_base + '2b',
-                            bn_name_base=bn_name_base + '2b')(x)
+        x = layers.Conv2D(
+                filters1, (1, 1),
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2a') (input_tensor)
+        
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2a') (x)
+        
+        x = layers.Activation('relu') (x)
 
-            if dropout is not None:
-                x = Dropout(dropout)(x)
+        x = layers.Conv2D(
+                filters2,
+                kernel_size,
+                padding='same',
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2b') (x)
+        
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2b') (x)
+        
+        x = layers.Activation('relu')(x)
 
-            x = residual_unit(filters=filters * 4, kernel_size=(1, 1),
-                            conv_name_base=conv_name_base + '2c',
-                            bn_name_base=bn_name_base + '2c')(x)
+        x = layers.Conv2D(
+                filters3, (1, 1),
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2c') (x)
+        
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2c') (x)
 
-            return self.__shortcut(input_feature, x)
+        x = layers.add([x, input_tensor])
+        x = layers.Activation('relu') (x)
 
-        return f
+        return x
 
-    # builds a residual block for resnet with repeating bottleneck blocks
-    def __residual_block(self, block_function, filters, blocks, stage, transition_strides = None, transition_dilation_rates = None,
-        dilation_rates = None, is_first_layer = False, dropout = None, residual_unit = None):
+    def __conv_block(self, input_tensor,
+                kernel_size,
+                filters,
+                stage,
+                block,
+                strides = (2, 2),
+                use_l2_regularizer = True,
+                batch_norm_decay = 0.9,
+                batch_norm_epsilon = 1e-5):
+        """A block that has a conv layer at shortcut.
+        Note that from stage 3,
+        the second conv layer at main path is with strides=(2, 2)
+        And the shortcut should have strides=(2, 2) as well
+        Args:
+            input_tensor: input tensor
+            kernel_size: default 3, the kernel size of middle conv layer at main path
+            filters: list of integers, the filters of 3 conv layer at main path
+            stage: integer, current stage label, used for generating layer names
+            block: 'a','b'..., current block label, used for generating layer names
+            strides: Strides for the second conv layer in the block.
+            use_l2_regularizer: whether to use L2 regularizer on Conv layer.
+            batch_norm_decay: Moment of batch norm layers.
+            batch_norm_epsilon: Epsilon of batch borm layers.
+        Returns:
+            Output tensor for the block.
+        """
 
-        if transition_dilation_rates is None:
-            transition_dilation_rates = [(1, 1)] * blocks
-        if transition_strides is None:
-            transition_strides = [(1, 1)] * blocks
-        if dilation_rates is None:
-            dilation_rates = [1] * blocks
+        filters1, filters2, filters3 = filters
+        if backend.image_data_format() == 'channels_last':
+            bn_axis = 3
+        else:
+            bn_axis = 1
+        conv_name_base = 'res' + str(stage) + block + '_branch'
+        bn_name_base = 'bn' + str(stage) + block + '_branch'
 
-        def f(x):
-            for i in range(blocks):
-                is_first_block = is_first_layer and i == 0
-                x = block_function(filters=filters, stage=stage, block=i,
-                                transition_strides=transition_strides[i],
-                                dilation_rate=dilation_rates[i],
-                                is_first_block_of_first_layer=is_first_block,
-                                dropout=dropout,
-                                residual_unit=residual_unit)(x)
-            return x
+        x = layers.Conv2D(
+                filters1, (1, 1),
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2a') (input_tensor)
+        
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2a')(x)
+        
+        x = layers.Activation('relu')(x)
 
-        return f
+        x = layers.Conv2D(
+                filters2,
+                kernel_size,
+                strides=strides,
+                padding='same',
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2b') (x)
+        
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2b') (x)
+        
+        x = layers.Activation('relu') (x)
+
+        x = layers.Conv2D(
+                filters3, (1, 1),
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '2c') (x)
+
+        x = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '2c') (x)
+
+        shortcut = layers.Conv2D(
+                filters3, (1, 1),
+                strides=strides,
+                use_bias=False,
+                kernel_initializer = 'he_normal',
+                kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                name=conv_name_base + '1')(input_tensor)
+        
+        shortcut = layers.BatchNormalization(
+                axis=bn_axis,
+                momentum=batch_norm_decay,
+                epsilon=batch_norm_epsilon,
+                name=bn_name_base + '1') (shortcut)
+
+        x = layers.add([x, shortcut])
+        x = layers.Activation('relu') (x)
+
+        return x
 
     ######################################################
     ######################################################
@@ -499,223 +369,163 @@ class Models(object):
     ######################################################
     ######################################################
 
-    #-------------------------------------------------------------
-    # Inception V1
-    # Inspired by : https://arxiv.org/abs/1409.4842
-    #-------------------------------------------------------------
 
-    @staticmethod
-    def __require(**kwargs):
-        needed_args = [key for key,value in kwargs.items() if value is None]
-        raise ValueError("If running in training, must specify following outputs: %s" %(', '.join(needed_args)))
 
-    def get_keras_inception_v1(self,
-                               input_shape,
-                               return_model_only = True,
-                               X = None,
-                               Y = None,
-                               batch_size = None,
-                               epoch_count = None,
-                               val_split = 0.1,
-                               shuffle = True,
-                               recalculate_pickle = True,
-                               X_val = None,
-                               Y_val = None,
-                               verbose = False,
-                               include_head = False):
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ### ResNet v1.5 Model (TensorFlow implementation)
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    # slightly modified variant from tf model garden : https://github.com/tensorflow/models/blob/master/official/vision/image_classification/resnet/resnet_model.py
 
-        if not return_model_only:
-            self.__require(X=X, Y=Y, batch_size=batch_size, epoch_count=epoch_count)
+    def get_resnet50_v1_5(self, X, Y, batch_size, epoch_count, val_split = 0.1, shuffle = True, 
+            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", use_l2_regularizer = True, 
+            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False):
+        """Trains and returns a ResNet50 v1.5 Model
+        Args:
+            X (np.array): Input training data (images in HxWxC format)
+            Y (np.array): [description]
+            batch_size (int): Size of the batches for each step.
+            epoch_count ([type]): [description]
+            val_split (float, optional): [description]. Defaults to 0.1.
+            shuffle (bool, optional): [description]. Defaults to True.
+            recalculate_pickle (bool, optional): [description]. Defaults to True.
+            X_val ([type], optional): [description]. Defaults to None.
+            Y_val ([type], optional): [description]. Defaults to None.
+            task (str, optional): [description]. Defaults to "QnA".
+            use_l2_regularizer (bool, optional): whether to use L2 regularizer on Conv/Dense layer. Defaults to True.
+            batch_norm_decay (float, optional): Moment of batch norm layers. Defaults to 0.9.
+            batch_norm_epsilon ([type], optional): Epsilon of batch borm layers. Defaults to 1e-5.
+            verbose (bool, optional): [description]. Defaults to False.
 
-        __MODEL_NAME = "Keras_Inception_v1"
-        __MODEL_FNAME_PREFIX = "KERAS_INCEPTION/"
+        Raises:
+            RuntimeError: If the 'task' parameter specified is not 'binary_classification' or 'QnA'
 
+        Returns:
+            [tf.keras.Model]: a trained Keras ResNet50 v1.5 Model object
+        """
+
+        if task not in self.__model_tasks:
+            raise RuntimeError(f"parameter task value of '{task}' is not permitted.")
+
+        __MODEL_NAME = "ResNet50_v1_5"
+        __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
+        __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
+        
         nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
         if not os.path.exists(nested_dir):
             os.makedirs(nested_dir)
 
-        __model_file_MAIN_name = "".join([nested_dir, __MODEL_NAME, "_MAIN.h5"])
-        __model_file_AUX1_name = "".join([nested_dir, __MODEL_NAME, "_AUX1.h5"])
-        __model_file_AUX2_name = "".join([nested_dir, __MODEL_NAME, "_AUX2.h5"])
-
-        __model_json_file = "".join([nested_dir, __MODEL_NAME, ".json"])
-        __model_architecture_plot_file = "".join([nested_dir, __MODEL_NAME, "_plot.png"])
-        __history_params_file = "".join([nested_dir, __MODEL_NAME, "_params.csv"])
-        __history_performance_file = "".join([nested_dir, __MODEL_NAME, "_history.csv"])
-        __history_plot_file_main = "".join([nested_dir, __MODEL_NAME, "_main_output_plot.png"])
-        __history_plot_file_auxilliary1 = "".join([nested_dir, __MODEL_NAME, "_auxilliary_output_1_plot.png"])
-        __history_plot_file_auxilliary2 = "".join([nested_dir, __MODEL_NAME, "_auxilliary_output_2_plot.png"])
+        __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
+        __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
+        __model_architecture_plot_file = "".join([nested_dir, __MODEL_NAME_TASK, "_plot.png"])
+        __history_params_file = "".join([nested_dir, __MODEL_NAME_TASK, "_params.csv"])
+        __history_performance_file = "".join([nested_dir, __MODEL_NAME_TASK, "_history.csv"])
+        __history_plot_file = "".join([nested_dir, __MODEL_NAME_TASK, "_output_plot.png"])
 
         if verbose: print(f"Retrieving model: {__MODEL_NAME}...")
 
         # Create or load the model
-        if (not os.path.isfile(__model_file_MAIN_name)) or (not os.path.isfile(__model_file_AUX1_name)) or (not os.path.isfile(__model_file_AUX2_name)) or (not os.path.isfile(__model_json_file)) or recalculate_pickle:
-            if verbose: print(f"Pickle file for '{__MODEL_NAME}' MODEL not found or skipped by caller.")
+        if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)) or recalculate_pickle:
+            if verbose: print(f"Pickle file for {__MODEL_NAME} and task {task} MODEL not found or skipped by caller.")
+
+            opt = Adam(lr = 1e-3, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
+            
+            if task == "binary_classification":
+                mtrc = ['accuracy']
+                cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True, 
+                    mode = 'min', monitor = 'val_accuracy')
+                lss = SparseCategoricalCrossentropy(from_logits = True)
+            elif task == "QnA":
+                mtrc = ['mse']
+                cp_main = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True, 
+                    mode = 'min', monitor = 'val_mse')
+                lss = 'mean_squared_error'
+            
+            stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
+            es = EarlyStopping(patience = stop_at, verbose = verbose)
 
             kernel_init = glorot_uniform()
             bias_init = Constant(value = 0.2)
+            
+            # channels_last
+            bn_axis = 3
+            block_config = dict(
+                use_l2_regularizer = use_l2_regularizer,
+                batch_norm_decay = batch_norm_decay,
+                batch_norm_epsilon = batch_norm_epsilon)
 
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
 
-                # Input image shape (H, W, C)
-                input_img = Input(shape=input_shape)
+                # input image size of 386h x 1024w x 3c
+                input_img = layers.Input(shape = (386, 1024, 3), batch_size = batch_size)
 
-                # Top Layer (Begin MODEL)
-                model = Convolution2D(filters = 64, kernel_size = (7, 7), padding = 'same', strides = (2, 2),
-                    activation = 'relu', name = 'conv_1_7x7/2', kernel_initializer = kernel_init,
-                    bias_initializer = bias_init) (input_img)
-                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name = 'max_pool_1_3x3/2') (model)
-                model = Convolution2D(64, (1, 1), padding = 'same', strides = (1, 1), activation = 'relu', name = 'conv_2a_3x3/1') (model)
-                model = Convolution2D(192, (3, 3), padding = 'same', strides = (1, 1), activation = 'relu', name = 'conv_2b_3x3/1') (model)
-                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name = 'max_pool_2_3x3/2') (model)
+                # downscale our 386x1024 images across the width dimension
+                x = self.__BERT_image_input_layer(
+                    input_img = input_img,
+                    use_l2_regularizer = use_l2_regularizer, 
+                    input_shape = (386, 1024, 3),
+                    verbose = verbose)
+                
+                x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
+                
+                x = layers.Conv2D(
+                    filters = 64, 
+                    kernel_size = (7, 7),
+                    strides = (2, 2),
+                    padding = 'valid',
+                    use_bias = False,
+                    kernel_initializer = 'he_normal',
+                    kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                    name = 'conv1') (x)
+                
+                x = layers.BatchNormalization(
+                    axis = bn_axis,
+                    momentum = batch_norm_decay,
+                    epsilon = batch_norm_epsilon,
+                    name = 'bn_conv1') (x)
 
-                # Inception Module
-                model = self.__inception_module(model,
-                    filters_1x1 = 64,
-                    filters_3x3_reduce = 96,
-                    filters_3x3 = 128,
-                    filters_5x5_reduce = 16,
-                    filters_5x5 = 32,
-                    filters_pool_proj = 32,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name = 'inception_3a')
+                x = layers.Activation('relu') (x)
+                x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
 
-                # Inception Module
-                model = self.__inception_module(model,
-                    filters_1x1 = 128,
-                    filters_3x3_reduce = 128,
-                    filters_3x3 = 192,
-                    filters_5x5_reduce = 32,
-                    filters_5x5 = 96,
-                    filters_pool_proj = 64,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name = 'inception_3b')
+                x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
 
-                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name= 'max_pool_3_3x3/2') (model)
+                x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'a', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'b', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'c', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'd', **block_config)
 
-                # Inception Module
-                model = self.__inception_module(model,
-                    filters_1x1 = 192,
-                    filters_3x3_reduce = 96,
-                    filters_3x3 = 208,
-                    filters_5x5_reduce = 16,
-                    filters_5x5 = 48,
-                    filters_pool_proj = 64,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name = 'inception_4a')
+                x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'a', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'b', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'c', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'd', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'e', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'f', **block_config)
 
-                # CDB 3/5 DROPOUT ADDED
-                model = Dropout(0.2) (model)
+                x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'a', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'b', **block_config)
+                x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
 
-                # Begin MODEL1 (auxillary output)
-                #Our shape is already too small in the encoder dimension
-                #model1 = AveragePooling2D((5, 5), padding = 'same', strides = 3, name= 'avg_pool_4_5x5/2') (model)
+                x = layers.GlobalAveragePooling2D() (x)
+                
+                x = layers.Dense(2,
+                    kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+                    kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                    bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                    name = 'fc1000') (x)
 
-                model1 = Convolution2D(128, (1, 1), padding = 'same', activation = 'relu') (model)
+                if task == "binary_classification":
+                    # A softmax that is followed by the model loss must be done cannot be done
+                    # in float16 due to numeric issues. So we pass dtype=float32.
+                    x = layers.Activation('softmax', dtype = 'float32') (x)
+                elif task == "QnA":
+                    x = layers.Activation('relu') (x)
 
-                if include_head:
-                    model1 = Flatten() (model1)
-                    model1 = Dense(1024, activation = 'relu') (model1)
-                    model1 = Dropout(0.3) (model1)
-                    model1 = Dense(30, name = 'auxilliary_output_1') (model1)
-
-                # Resume MODEL w/ Inception
-                model = self.__inception_module(model,
-                    filters_1x1 = 160,
-                    filters_3x3_reduce = 112,
-                    filters_3x3 = 224,
-                    filters_5x5_reduce = 24,
-                    filters_5x5 = 64,
-                    filters_pool_proj = 64,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_4b')
-
-                model = self.__inception_module(model,
-                    filters_1x1 = 128,
-                    filters_3x3_reduce = 128,
-                    filters_3x3 = 256,
-                    filters_5x5_reduce = 24,
-                    filters_5x5 = 64,
-                    filters_pool_proj = 64,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_4c')
-
-                model = self.__inception_module(model,
-                    filters_1x1 = 112,
-                    filters_3x3_reduce = 144,
-                    filters_3x3 = 288,
-                    filters_5x5_reduce = 32,
-                    filters_5x5 = 64,
-                    filters_pool_proj = 64,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_4d')
-
-                # CDB : 3/5 DROPOUT ADDED
-                model = Dropout(0.2) (model)
-
-                # Begin MODEL2 (auxilliary output)
-
-                #Our shape is already too small in the encoder dimension
-                #model2 = AveragePooling2D((5, 5), strides = 3) (model)
-                model2 = Convolution2D(128, (1, 1), padding = 'same', activation = 'relu') (model)
-
-                if include_head:
-                    model2 = Flatten() (model2)
-                    model2 = Dense(1024, activation = 'relu') (model2)
-                    model2 = Dropout(0.3) (model2)
-                    model2 = Dense(30, name = 'auxilliary_output_2') (model2)
-
-                # Resume MODEL w/ Inception
-                model = self.__inception_module(model,
-                    filters_1x1 = 256,
-                    filters_3x3_reduce = 160,
-                    filters_3x3 = 320,
-                    filters_5x5_reduce = 32,
-                    filters_5x5 = 128,
-                    filters_pool_proj = 128,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_4e')
-
-                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name = 'max_pool_4_3x3/2') (model)
-
-                model = self.__inception_module(model,
-                    filters_1x1 = 256,
-                    filters_3x3_reduce = 160,
-                    filters_3x3 = 320,
-                    filters_5x5_reduce = 32,
-                    filters_5x5 = 128,
-                    filters_pool_proj = 128,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_5a')
-
-                model = self.__inception_module(model,
-                    filters_1x1 = 384,
-                    filters_3x3_reduce = 192,
-                    filters_3x3 = 384,
-                    filters_5x5_reduce = 48,
-                    filters_5x5 = 128,
-                    filters_pool_proj = 128,
-                    kernel_init = kernel_init,
-                    bias_init = bias_init,
-                    name='inception_5b')
-
-                if include_head:
-                    # Output Layer (Main)
-                    model = GlobalAveragePooling2D(name = 'avg_pool_5_3x3/1') (model)
-                    model = Dropout(0.3) (model)
-                    model = Dense(30, name = 'main_output') (model)
-
-                model = Model(input_img, [model, model1, model2], name = 'Inception')
+                model = models.Model(input_img, x, name = 'ResNet50_v1_5')
 
             if return_model_only:
                 return model
@@ -742,28 +552,30 @@ class Models(object):
                 strategy = tf.distribute.MirroredStrategy()
                 with strategy.scope():
                     parallel_model = multi_gpu_model(model, gpus = self.__GPU_count)
-                    parallel_model.compile(optimizer = act, loss = lss, metrics = mtrc)
+                    parallel_model.compile(optimizer = opt, loss = lss, metrics = mtrc)
             else:
                 parallel_model = model
-                parallel_model.compile(optimizer = act, loss = lss, metrics = mtrc)
+                parallel_model.compile(optimizer = opt, loss = lss, metrics = mtrc)
 
             if (X_val is None) or (Y_val is None):
-                history = parallel_model.fit(X, [Y, Y, Y], validation_split = val_split, batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main, cp_aux1, cp_aux2], verbose = verbose)
+                history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size * self.__GPU_count, 
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
             else:
-                history = parallel_model.fit(X, [Y, Y, Y], validation_data = (X_val, [Y_val, Y_val, Y_val]), batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main, cp_aux1, cp_aux2], verbose = verbose)
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size * self.__GPU_count, 
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
 
             # print and/or save a performance plot
-            for m, f in zip(['main_output_mse', 'auxilliary_output_1_mse', 'auxilliary_output_2_mse'],
-                [__history_plot_file_main, __history_plot_file_auxilliary1, __history_plot_file_auxilliary2]):
-                try:
-                    self.__plot_keras_history(history = history, metric = m, model_name = __MODEL_NAME,
-                        file_name = f, verbose = False)
-                except:
-                    print("error during history plot generation; skipped.")
-                    pass
-
+            try:
+                if task == "binary_classification":
+                    self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME, 
+                        file_name = __history_plot_file, verbose = False)
+                elif task == "QnA":
+                    self.__plot_keras_history(history = history, metric = 'mse', model_name = __MODEL_NAME, 
+                        file_name = __history_plot_file, verbose = False)
+            except:
+                print("error during history plot generation; skipped.")
+                pass
+            
             # save the model, parameters, and performance history
             model_json = parallel_model.to_json()
             with open(__model_json_file, "w") as json_file:
@@ -789,59 +601,55 @@ class Models(object):
             hist_params = pd.read_csv(__history_params_file)
             hist = pd.read_csv(__history_performance_file)
 
-        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (MAIN) from file '{__model_file_MAIN_name}'")
-        main_model = self.__load_keras_model(__MODEL_NAME, __model_file_MAIN_name, __model_json_file, verbose = verbose)
+        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (task: {task}) from file '{__model_file_name}'")
+        parallel_model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
-        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (AUX1) from file '{__model_file_AUX1_name}'")
-        aux1_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX1_name, __model_json_file, verbose = verbose)
+        return parallel_model, hist_params, hist
 
-        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (AUX2) from file '{__model_file_AUX2_name}'")
-        aux2_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX2_name, __model_json_file, verbose = verbose)
+    # ********************************
+    # ***** ResNet50 v1.5 INFERENCING
+    # ********************************
+    def predict_resnet50_v1_5(self, X, task = "QnA", verbose = False):
+        """Inferencing for ResNet50 v1.5
 
-        return main_model, aux1_model, aux2_model, hist_params, hist
+        Args:
+            X ([np.array]): input vector for inferencing
+            verbose (bool, optional): Verbose messaging to caller. Defaults to False.
 
-    # inferencing
-    def predict_keras_inception_v1(self, X, verbose = False):
+        Raises:
+            RuntimeError: [description]
+            RuntimeError: [description]
 
-        __MODEL_NAME = "Keras_Inception_v1"
-        __MODEL_FNAME_PREFIX = "KERAS_INCEPTION/"
+        Returns:
+            np.array: Predictions from ResNet50 v1.5
+        """
 
+        __MODEL_NAME = "ResNet50_v1_5"
+        __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
+        __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
+        
         nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
         if not os.path.exists(nested_dir):
-            raise RuntimeError(f"Model path '{nested_dir}' does not exist; exiting inferencing.")
+            os.makedirs(nested_dir)
 
-        __model_file_MAIN_name = "".join([nested_dir, __MODEL_NAME, "_MAIN.h5"])
-        __model_file_AUX1_name = "".join([nested_dir, __MODEL_NAME, "_AUX1.h5"])
-        __model_file_AUX2_name = "".join([nested_dir, __MODEL_NAME, "_AUX2.h5"])
-
-        __model_json_file = "".join([nested_dir, __MODEL_NAME, ".json"])
+        __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
+        __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
 
 
-        if (not os.path.isfile(__model_file_MAIN_name)) or (not os.path.isfile(__model_file_AUX1_name)) or (not os.path.isfile(__model_file_AUX2_name)) or (not os.path.isfile(__model_json_file)):
-            raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n'%s'\n'%s'\n\n" %
-                (__model_file_MAIN_name, __model_file_AUX1_name, __model_file_AUX2_name, __model_json_file))
-
+        if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)):
+            raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" % 
+                (__model_file_name, __model_json_file))
+        
         # load the Keras model for the specified feature
-        main_model = self.__load_keras_model(__MODEL_NAME, __model_file_MAIN_name, __model_json_file, verbose = verbose)
-        aux1_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX1_name, __model_json_file, verbose = verbose)
-        aux2_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX2_name, __model_json_file, verbose = verbose)
+        model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
         # predict
-        if verbose: print("Predicting %d (x,y) coordinates for 'MAIN' model file..." % len(X))
-        Y_main = main_model.predict(X, verbose = verbose)
-        Y_main_columns = [node.op.name for node in main_model.outputs]
-
-        if verbose: print("Predicting %d (x,y) coordinates for 'AUX1' model file..." % len(X))
-        Y_aux1 = aux1_model.predict(X, verbose = verbose)
-        Y_aux1_columns = [node.op.name for node in aux1_model.outputs]
-
-        if verbose: print("Predicting %d (x,y) coordinates for 'AUX2' model file..." % len(X))
-        Y_aux2 = aux2_model.predict(X, verbose = verbose)
-        Y_aux2_columns = [node.op.name for node in aux2_model.outputs]
+        if verbose: print("Predicting %d instances..." % len(X))
+        Y = model.predict(X, verbose = verbose)
 
         if verbose: print("Predictions completed!")
 
-        return Y_main, Y_aux1, Y_aux2, Y_main_columns, Y_aux1_columns, Y_aux2_columns
+        return Y
 
     def get_keras_inception_v1_inspired(self, input_shape, return_model_only = True, include_head = False):
         kernel_init = glorot_uniform()
