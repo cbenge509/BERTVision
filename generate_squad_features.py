@@ -17,7 +17,7 @@ H5_PATH = "data/"
 
 # Processing behavior (parameters)
 PRETRAINED_TOKENIZER = "bert-large-uncased"
-MAX_SEQUENCE_LENGTH = 512
+MAX_SEQUENCE_LENGTH = 386
 MAX_QUERY_LENGTH = 64
 DOCUMENT_STRIDE = 128
 GENERATE_TARGET = "all"

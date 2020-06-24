@@ -15,6 +15,10 @@ Summer 2020, W266 - Natural Language Processing - Daniel Cer, PhD - Section 1
 
 ---
 
+<img src="/images/bertvision.png" align="center" width=900>
+
+---
+
 ## Description
 
 This repo contains the draft work for the evaluation of integrating successful vision models, like ResNet, Inception, etc., with BERT (large) NLP trained on SQuADv2 for QnA tasks through the treatment of hidden embeddings as image data.
