@@ -1005,3 +1005,307 @@ class Models(object):
 
         if return_model_only:
             return model
+
+    def get_keras_inception_v1_inspired_reduce(self,
+                               input_shape,
+                               return_model_only = True,
+                               X = None,
+                               Y = None,
+                               batch_size = None,
+                               epoch_count = None,
+                               val_split = 0.1,
+                               shuffle = True,
+                               recalculate_pickle = True,
+                               X_val = None,
+                               Y_val = None,
+                               verbose = False,
+                               include_head = False):
+
+        if not return_model_only:
+            self.__require(X=X, Y=Y, batch_size=batch_size, epoch_count=epoch_count)
+
+        __MODEL_NAME = "Keras_Inception_v1"
+        __MODEL_FNAME_PREFIX = "KERAS_INCEPTION/"
+
+        nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
+        if not os.path.exists(nested_dir):
+            os.makedirs(nested_dir)
+
+        __model_file_MAIN_name = "".join([nested_dir, __MODEL_NAME, "_MAIN.h5"])
+        __model_file_AUX1_name = "".join([nested_dir, __MODEL_NAME, "_AUX1.h5"])
+        __model_file_AUX2_name = "".join([nested_dir, __MODEL_NAME, "_AUX2.h5"])
+
+        __model_json_file = "".join([nested_dir, __MODEL_NAME, ".json"])
+        __model_architecture_plot_file = "".join([nested_dir, __MODEL_NAME, "_plot.png"])
+        __history_params_file = "".join([nested_dir, __MODEL_NAME, "_params.csv"])
+        __history_performance_file = "".join([nested_dir, __MODEL_NAME, "_history.csv"])
+        __history_plot_file_main = "".join([nested_dir, __MODEL_NAME, "_main_output_plot.png"])
+        __history_plot_file_auxilliary1 = "".join([nested_dir, __MODEL_NAME, "_auxilliary_output_1_plot.png"])
+        __history_plot_file_auxilliary2 = "".join([nested_dir, __MODEL_NAME, "_auxilliary_output_2_plot.png"])
+
+        if verbose: print(f"Retrieving model: {__MODEL_NAME}...")
+
+        # Create or load the model
+        if (not os.path.isfile(__model_file_MAIN_name)) or (not os.path.isfile(__model_file_AUX1_name)) or (not os.path.isfile(__model_file_AUX2_name)) or (not os.path.isfile(__model_json_file)) or recalculate_pickle:
+            if verbose: print(f"Pickle file for '{__MODEL_NAME}' MODEL not found or skipped by caller.")
+
+            kernel_init = glorot_uniform()
+            bias_init = Constant(value = 0.2)
+
+            if self.__GPU_count > 1: dev = "/cpu:0"
+            else: dev = "/gpu:0"
+            with tf.device(dev):
+
+                # Input image shape (H, W, C)
+                input_img = Input(shape=input_shape)
+
+                # Top Layer (Begin MODEL)
+                model = Convolution2D(filters = 64, kernel_size = (7, 7), padding = 'same', strides = (2, 2),
+                    activation = 'relu', name = 'conv_1_7x7/2', kernel_initializer = kernel_init,
+                    bias_initializer = bias_init) (input_img)
+
+                #strides = (2,2)
+                model = MaxPooling2D((3, 3), padding = 'same', strides = (3, 3), name = 'max_pool_1_3x3/2') (model)
+                #strides = (1,1)
+                model = Convolution2D(64, (1, 1), padding = 'same', strides = (2, 2), activation = 'relu', name = 'conv_2a_3x3/1') (model)
+                #strides = (1,1)
+                model = Convolution2D(192, (3, 3), padding = 'same', strides = (2, 2), activation = 'relu', name = 'conv_2b_3x3/1') (model)
+                #strides = (2,2)
+                model = MaxPooling2D((3, 3), padding = 'same', strides = (1, 1), name = 'max_pool_2_3x3/2') (model)
+
+                # Inception Module
+                model = self.__inception_module(model,
+                    filters_1x1 = 64,
+                    filters_3x3_reduce = 96,
+                    filters_3x3 = 128,
+                    filters_5x5_reduce = 16,
+                    filters_5x5 = 32,
+                    filters_pool_proj = 32,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name = 'inception_3a')
+
+                # Inception Module
+                model = self.__inception_module(model,
+                    filters_1x1 = 128,
+                    filters_3x3_reduce = 128,
+                    filters_3x3 = 192,
+                    filters_5x5_reduce = 32,
+                    filters_5x5 = 96,
+                    filters_pool_proj = 64,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name = 'inception_3b')
+
+                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name= 'max_pool_3_3x3/2') (model)
+
+                # Inception Module
+                model = self.__inception_module(model,
+                    filters_1x1 = 192,
+                    filters_3x3_reduce = 96,
+                    filters_3x3 = 208,
+                    filters_5x5_reduce = 16,
+                    filters_5x5 = 48,
+                    filters_pool_proj = 64,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name = 'inception_4a')
+
+                #added to try to compress further to save parameters
+                model = MaxPooling2D((2, 2), padding = 'same', strides = (2,2), name= 'max_pool_3_3x3/sj') (model)
+
+                if include_head:
+                    # CDB 3/5 DROPOUT ADDED
+                    model = Dropout(0.2) (model)
+
+                    # Begin MODEL1 (auxillary output)
+                    #Our shape is already too small in the encoder dimension
+                    #model1 = AveragePooling2D((5, 5), padding = 'same', strides = 3, name= 'avg_pool_4_5x5/2') (model)
+
+                    model1 = Convolution2D(128, (1, 1), padding = 'same', activation = 'relu') (model)
+
+                    model1 = Flatten() (model1)
+                    model1 = Dense(1024, activation = 'relu') (model1)
+                    model1 = Dropout(0.3) (model1)
+                    model1 = Dense(30, name = 'auxilliary_output_1') (model1)
+
+                model = Model(input_img, model, name = 'Inception')
+
+                if return_model_only:
+                    return model
+
+                # Resume MODEL w/ Inception
+                model = self.__inception_module(model,
+                    filters_1x1 = 160,
+                    filters_3x3_reduce = 112,
+                    filters_3x3 = 224,
+                    filters_5x5_reduce = 24,
+                    filters_5x5 = 64,
+                    filters_pool_proj = 64,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_4b')
+
+                model = self.__inception_module(model,
+                    filters_1x1 = 128,
+                    filters_3x3_reduce = 128,
+                    filters_3x3 = 256,
+                    filters_5x5_reduce = 24,
+                    filters_5x5 = 64,
+                    filters_pool_proj = 64,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_4c')
+
+                model = self.__inception_module(model,
+                    filters_1x1 = 112,
+                    filters_3x3_reduce = 144,
+                    filters_3x3 = 288,
+                    filters_5x5_reduce = 32,
+                    filters_5x5 = 64,
+                    filters_pool_proj = 64,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_4d')
+
+                # CDB : 3/5 DROPOUT ADDED
+                model = Dropout(0.2) (model)
+
+                # Begin MODEL2 (auxilliary output)
+
+                #Our shape is already too small in the encoder dimension
+                #model2 = AveragePooling2D((5, 5), strides = 3) (model)
+                model2 = Convolution2D(128, (1, 1), padding = 'same', activation = 'relu') (model)
+
+                if include_head:
+                    model2 = Flatten() (model2)
+                    model2 = Dense(1024, activation = 'relu') (model2)
+                    model2 = Dropout(0.3) (model2)
+                    model2 = Dense(30, name = 'auxilliary_output_2') (model2)
+
+                # Resume MODEL w/ Inception
+                model = self.__inception_module(model,
+                    filters_1x1 = 256,
+                    filters_3x3_reduce = 160,
+                    filters_3x3 = 320,
+                    filters_5x5_reduce = 32,
+                    filters_5x5 = 128,
+                    filters_pool_proj = 128,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_4e')
+
+                model = MaxPooling2D((3, 3), padding = 'same', strides = (2, 2), name = 'max_pool_4_3x3/2') (model)
+
+                model = self.__inception_module(model,
+                    filters_1x1 = 256,
+                    filters_3x3_reduce = 160,
+                    filters_3x3 = 320,
+                    filters_5x5_reduce = 32,
+                    filters_5x5 = 128,
+                    filters_pool_proj = 128,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_5a')
+
+                model = self.__inception_module(model,
+                    filters_1x1 = 384,
+                    filters_3x3_reduce = 192,
+                    filters_3x3 = 384,
+                    filters_5x5_reduce = 48,
+                    filters_5x5 = 128,
+                    filters_pool_proj = 128,
+                    kernel_init = kernel_init,
+                    bias_init = bias_init,
+                    name='inception_5b')
+
+                if include_head:
+                    # Output Layer (Main)
+                    model = GlobalAveragePooling2D(name = 'avg_pool_5_3x3/1') (model)
+                    model = Dropout(0.3) (model)
+                    model = Dense(30, name = 'main_output') (model)
+
+                model = Model(input_img, [model, model1, model2], name = 'Inception')
+
+            if return_model_only:
+                return model
+
+            if verbose: print(model.summary())
+
+            #Set up model training parameters
+            act = Adam(lr = 0.001, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
+            lss = 'mean_squared_error'
+            mtrc = ['mae','mse']
+
+            stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
+            es = EarlyStopping(patience = stop_at, verbose = verbose)
+
+            cp_main = ModelCheckpoint(filepath = __model_file_MAIN_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_main_output_mae')
+            cp_aux1 = ModelCheckpoint(filepath = __model_file_AUX1_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_auxilliary_output_1_mae')
+            cp_aux2 = ModelCheckpoint(filepath = __model_file_AUX2_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_auxilliary_output_2_mae')
+
+            # Compile the model
+            if self.__GPU_count > 1:
+                strategy = tf.distribute.MirroredStrategy()
+                with strategy.scope():
+                    parallel_model = multi_gpu_model(model, gpus = self.__GPU_count)
+                    parallel_model.compile(optimizer = act, loss = lss, metrics = mtrc)
+            else:
+                parallel_model = model
+                parallel_model.compile(optimizer = act, loss = lss, metrics = mtrc)
+
+            if (X_val is None) or (Y_val is None):
+                history = parallel_model.fit(X, [Y, Y, Y], validation_split = val_split, batch_size = batch_size * self.__GPU_count,
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main, cp_aux1, cp_aux2], verbose = verbose)
+            else:
+                history = parallel_model.fit(X, [Y, Y, Y], validation_data = (X_val, [Y_val, Y_val, Y_val]), batch_size = batch_size * self.__GPU_count,
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main, cp_aux1, cp_aux2], verbose = verbose)
+
+            # print and/or save a performance plot
+            for m, f in zip(['main_output_mse', 'auxilliary_output_1_mse', 'auxilliary_output_2_mse'],
+                [__history_plot_file_main, __history_plot_file_auxilliary1, __history_plot_file_auxilliary2]):
+                try:
+                    self.__plot_keras_history(history = history, metric = m, model_name = __MODEL_NAME,
+                        file_name = f, verbose = False)
+                except:
+                    print("error during history plot generation; skipped.")
+                    pass
+
+            # save the model, parameters, and performance history
+            model_json = parallel_model.to_json()
+            with open(__model_json_file, "w") as json_file:
+                json_file.write(model_json)
+            hist_params = pd.DataFrame(history.params)
+            hist_params.to_csv(__history_params_file)
+
+            hist = pd.DataFrame(history.history)
+            hist.to_csv(__history_performance_file)
+
+            # save a plot of the model architecture
+            try:
+                plot_model(parallel_model, to_file = __model_architecture_plot_file, rankdir = 'TB',
+                    show_shapes = True, show_layer_names = True, expand_nested = True, dpi = 300)
+            except:
+                print("error during model plot generation; skiopped.")
+                pass
+
+            if verbose: print("Model JSON, history, and parameters file saved.")
+
+        else:
+            if verbose: print(f"Loading history and params files for '{__MODEL_NAME}' model...")
+            hist_params = pd.read_csv(__history_params_file)
+            hist = pd.read_csv(__history_performance_file)
+
+        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (MAIN) from file '{__model_file_MAIN_name}'")
+        main_model = self.__load_keras_model(__MODEL_NAME, __model_file_MAIN_name, __model_json_file, verbose = verbose)
+
+        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (AUX1) from file '{__model_file_AUX1_name}'")
+        aux1_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX1_name, __model_json_file, verbose = verbose)
+
+        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (AUX2) from file '{__model_file_AUX2_name}'")
+        aux2_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX2_name, __model_json_file, verbose = verbose)
+
+        return main_model, aux1_model, aux2_model, hist_params, hist

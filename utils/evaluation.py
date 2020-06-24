@@ -174,7 +174,8 @@ class SquadModelEvaluation(object):
                  model,
                  squad_answers,
                  start_logits = None,
-                 end_logits = None):
+                 end_logits = None,
+                 already_prob = False):
 
         self.squad_answers = squad_answers
 
@@ -184,6 +185,8 @@ class SquadModelEvaluation(object):
 
         self.start_logits, self.end_logits = start_logits, end_logits
 
+        self.already_prob = already_prob
+        
         self.true_answers = squad_answers.get_all_possible_answers()
         self.predicted_answers = self.get_best_prob_answer()
 
@@ -205,11 +208,18 @@ class SquadModelEvaluation(object):
 
     def get_per_example_probs(self):
         '''Return probabilities for each example'''
-        logits_start = self.start_logits.max(axis = 1)
-        logits_end = self.end_logits.max(axis = 1)
 
-        prob = np.exp(logits_start)/np.sum(np.exp(logits_start)) * np.exp(logits_end)/np.sum(np.exp(logits_end))
-
+        if not self.already_prob:
+            start_softmax = np.exp(self.start_logits)/np.sum(np.exp(self.start_logits), axis = 1, keepdims = True)
+            end_softmax = np.exp(self.end_logits)/np.sum(np.exp(self.end_logits), axis = 1, keepdims = True)
+            logits_start = start_softmax.max(axis = 1)
+            logits_end = end_softmax.max(axis = 1)
+        else:
+            logits_start = self.start_logits.max(axis = 1)
+            logits_end = self.end_logits.max(axis = 1)
+            
+        prob = logits_start * logits_end
+            
         return prob
 
     def get_best_prob_answer(self):
@@ -223,7 +233,7 @@ class SquadModelEvaluation(object):
 
         answers = self.get_output_strings()
         probs = self.get_per_example_probs()
-
+        
         for i, answer in enumerate(answers):
             prob = probs[i]
             qas_id = self.squad_answers.qas_ids[i]
