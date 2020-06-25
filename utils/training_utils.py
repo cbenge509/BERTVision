@@ -111,21 +111,37 @@ class BERTImageGenerator(Sequence):
             np.random.shuffle(idx_shuffle)
             self.indices = self.indices[idx_shuffle]
 
-def simple_generator(labels, directory, batch_size = 32):
+def simple_generator(labels, directory, batch_size = 32, truncate_data = False, shuffle_index = None):
     
     indices = np.arange(len(labels), dtype = int)
-    np.random.shuffle(indices)
+    size = len(indices)
+    iterations = np.ceil(size / batch_size)
+    if shuffle_index is None:
+        np.random.shuffle(indices)
+    else:
+        indices = indices[shuffle_index]
+    
+    if truncate_data:
+        indices = indices[:truncate_data]
+        iterations = np.ceil(truncate_data / batch_size)
         
-    darray = np.empty((batch_size,24,386,1024), dtype = np.float32)
+    darray = np.zeros((batch_size,386,1024,3), dtype = np.float32)
     
     offset = 0
     while True:
+        darray[:] = 0
         data_slice = indices[offset * batch_size:(offset+1)*batch_size]
         for i,idx in enumerate(data_slice):
             with h5py.File(directory + '%d.h5' %(idx), 'r') as f:
-                data = pad_sequences(f['hidden_state_activations'][:-1], 386, dtype = np.float16)
-            darray[i] = data
-            
+                data = np.array(f['hidden_state_activations'], dtype = np.float32)
+            darray[i, 386-data.shape[0]:386, :, :] = data
+        
+        #print('offset:', offset)
+        #print('size:', len(data_slice))
+        #print('data:', np.sum(darray))
+        #print(len(data_slice))
+        #print(batch_size)
+        #print('\n', darray[0, -1, -1, -1], labels[data_slice][0], '\n')
         if len(data_slice) < batch_size:
             output = darray[:len(data_slice)]
             offset = 0
@@ -135,20 +151,20 @@ def simple_generator(labels, directory, batch_size = 32):
         
         yield output, list(labels[data_slice].T)
         
-def simple_dev_generator(labels, directory, batch_size = 32):
+def simple_dev_generator(labels, directory, batch_size = 32, truncate_data = False):
     indices = np.arange(len(labels), dtype = int)
     #np.random.shuffle(indices)
         
-    darray = np.empty((batch_size,24,386,1024), dtype = np.float32)
+    darray = np.zeros((batch_size,386,1024,3), dtype = np.float32)
     
     offset = 0
     while True:
         data_slice = indices[offset * batch_size:(offset+1)*batch_size]
         for i,idx in enumerate(data_slice):
             with h5py.File(directory + '%d.h5' %(idx), 'r') as f:
-                data = pad_sequences(f['hidden_state_activations'][:-1], 386, dtype = np.float16)
-            darray[i] = data
-        print(data_slice)
+                data = np.array(f['hidden_state_activations'], dtype = np.float32)
+            darray[i, 386-data.shape[0]:386] = data
+        #print(data_slice)
         if len(data_slice) < batch_size:
             output = darray[:len(data_slice)]
             offset = 0
