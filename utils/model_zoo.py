@@ -9,19 +9,19 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 import pickle
 
-from keras.layers.advanced_activations import LeakyReLU, ELU, ReLU
-from keras.models import Sequential, Model, model_from_json
-from keras.layers import Activation, Convolution2D, Conv2D, LocallyConnected2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D, 
-from keras.layers import BatchNormalization, Flatten, Dense, Dropout, Input, concatenate, add, Add, ZeroPadding2D, GlobalMaxPooling2D, DepthwiseConv2D
-from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
-from keras.optimizers import Adam
-from keras.regularizers import l2
+from tensorflow.keras.layers import LeakyReLU, ELU, ReLU
+from tensorflow.keras.models import Sequential, Model, model_from_json
+from tensorflow.keras.layers import Activation, Convolution2D, Conv2D, LocallyConnected2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
+from tensorflow.keras.layers import BatchNormalization, Flatten, Dense, Dropout, Input, concatenate, add, Add, ZeroPadding2D, GlobalMaxPooling2D, DepthwiseConv2D
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.regularizers import l2
 #from keras.activations import linear, elu, tanh, relu
-from keras import metrics, losses, initializers, backend
-from keras.losses import SparseCategoricalCrossentropy
-from keras.utils import multi_gpu_model
-from keras.initializers import glorot_uniform, Constant, lecun_uniform
-from keras import backend as K
+from tensorflow.keras import metrics, losses, initializers, backend
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.utils import multi_gpu_model
+from tensorflow.keras.initializers import glorot_uniform, Constant, lecun_uniform
+from tensorflow.keras import backend as K
 
 #os.environ["PATH"] += os.pathsep + "C:/ProgramData/Anaconda3/GraphViz/bin/"
 #os.environ["PATH"] += os.pathsep + "C:/Anaconda/Graphviz2.38/bin/"
@@ -67,8 +67,6 @@ berkeley_palette = {'berkeley_blue'     : '#003262',
 class Models(object):
 
     def __init__(self, model_path, **kwargs):
-        super(Models, self).__init__(** kwargs)
-
         # validate that the constructor parameters were provided by caller
         if (not model_path):
             raise RuntimeError('path to model files must be provided on initialization.')
@@ -154,12 +152,12 @@ class Models(object):
         model.load_weights(model_file)
 
         return model
-    
+
     # BERT "image" layer dedimensionalization
     def __BERT_image_input_layer(self, input_img, use_l2_regularizer, input_shape = (386, 1024, 3),  verbose = False):
-        
+
         x = layers.Conv2D(
-            filters = 3, 
+            filters = 3,
             kernel_size = (1, 3),
             strides = (1, 3),
             padding = 'valid',
@@ -168,7 +166,7 @@ class Models(object):
             kernel_initializer = 'he_normal',
             kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
             name='input_conv') (input_img)
-        
+
         return x
 
     #/////////////////////////////////////////////////////
@@ -217,13 +215,13 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '2a') (input_tensor)
-        
+
         x = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
                 epsilon=batch_norm_epsilon,
                 name=bn_name_base + '2a') (x)
-        
+
         x = layers.Activation('relu') (x)
 
         x = layers.Conv2D(
@@ -234,13 +232,13 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '2b') (x)
-        
+
         x = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
                 epsilon=batch_norm_epsilon,
                 name=bn_name_base + '2b') (x)
-        
+
         x = layers.Activation('relu')(x)
 
         x = layers.Conv2D(
@@ -249,7 +247,7 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '2c') (x)
-        
+
         x = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
@@ -302,13 +300,13 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '2a') (input_tensor)
-        
+
         x = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
                 epsilon=batch_norm_epsilon,
                 name=bn_name_base + '2a')(x)
-        
+
         x = layers.Activation('relu')(x)
 
         x = layers.Conv2D(
@@ -320,13 +318,13 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '2b') (x)
-        
+
         x = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
                 epsilon=batch_norm_epsilon,
                 name=bn_name_base + '2b') (x)
-        
+
         x = layers.Activation('relu') (x)
 
         x = layers.Conv2D(
@@ -349,7 +347,7 @@ class Models(object):
                 kernel_initializer = 'he_normal',
                 kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                 name=conv_name_base + '1')(input_tensor)
-        
+
         shortcut = layers.BatchNormalization(
                 axis=bn_axis,
                 momentum=batch_norm_decay,
@@ -377,10 +375,14 @@ class Models(object):
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     # slightly modified variant from tf model garden : https://github.com/tensorflow/models/blob/master/official/vision/image_classification/resnet/resnet_model.py
+    @staticmethod
+    def __require(**kwargs):
+        needed_args = [key for key,value in kwargs.items() if value is None]
+        raise ValueError("If running in training, must specify following outputs: %s" %(', '.join(needed_args)))
 
-    def get_resnet50_v1_5(self, X, Y, batch_size, epoch_count, val_split = 0.1, shuffle = True, 
-            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", use_l2_regularizer = True, 
-            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False):
+    def get_resnet50_v1_5(self, X=None, Y=None, batch_size=None, epoch_count=None, val_split = 0.1, shuffle = True,
+            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", use_l2_regularizer = True,
+            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False, return_model_only=True):
         """Trains and returns a ResNet50 v1.5 Model
         Args:
             X (np.array): Input training data (images in HxWxC format)
@@ -405,13 +407,17 @@ class Models(object):
             [tf.keras.Model]: a trained Keras ResNet50 v1.5 Model object
         """
 
+        if not return_model_only:
+            self.__require(X, Y, batch_size, epoch_count)
+
         if task not in self.__model_tasks:
             raise RuntimeError(f"parameter task value of '{task}' is not permitted.")
+
 
         __MODEL_NAME = "ResNet50_v1_5"
         __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
         __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
-        
+
         nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
         if not os.path.exists(nested_dir):
             os.makedirs(nested_dir)
@@ -430,24 +436,24 @@ class Models(object):
             if verbose: print(f"Pickle file for {__MODEL_NAME} and task {task} MODEL not found or skipped by caller.")
 
             opt = Adam(lr = 1e-3, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
-            
+
             if task == "binary_classification":
                 mtrc = ['accuracy']
-                cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True, 
+                cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
                     mode = 'min', monitor = 'val_accuracy')
                 lss = SparseCategoricalCrossentropy(from_logits = True)
             elif task == "QnA":
-                mtrc = ['mse']
-                cp_main = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True, 
+                mtrc = ['accuracy']
+                cp_main = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
                     mode = 'min', monitor = 'val_mse')
                 lss = 'mean_squared_error'
-            
+
             stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
             es = EarlyStopping(patience = stop_at, verbose = verbose)
 
             kernel_init = glorot_uniform()
             bias_init = Constant(value = 0.2)
-            
+
             # channels_last
             bn_axis = 3
             block_config = dict(
@@ -460,19 +466,19 @@ class Models(object):
             with tf.device(dev):
 
                 # input image size of 386h x 1024w x 3c
-                input_img = layers.Input(shape = (386, 1024, 3), batch_size = batch_size)
+                input_img = layers.Input(shape = (386, 1024, 3))
 
                 # downscale our 386x1024 images across the width dimension
                 x = self.__BERT_image_input_layer(
                     input_img = input_img,
-                    use_l2_regularizer = use_l2_regularizer, 
+                    use_l2_regularizer = use_l2_regularizer,
                     input_shape = (386, 1024, 3),
                     verbose = verbose)
-                
+
                 x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
-                
+
                 x = layers.Conv2D(
-                    filters = 64, 
+                    filters = 64,
                     kernel_size = (7, 7),
                     strides = (2, 2),
                     padding = 'valid',
@@ -480,7 +486,7 @@ class Models(object):
                     kernel_initializer = 'he_normal',
                     kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                     name = 'conv1') (x)
-                
+
                 x = layers.BatchNormalization(
                     axis = bn_axis,
                     momentum = batch_norm_decay,
@@ -511,7 +517,7 @@ class Models(object):
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
 
                 x = layers.GlobalAveragePooling2D() (x)
-                
+
                 x = layers.Dense(2,
                     kernel_initializer = initializers.RandomNormal(stddev = 0.01),
                     kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
@@ -558,24 +564,24 @@ class Models(object):
                 parallel_model.compile(optimizer = opt, loss = lss, metrics = mtrc)
 
             if (X_val is None) or (Y_val is None):
-                history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size * self.__GPU_count, 
+                history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size * self.__GPU_count,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
             else:
-                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size * self.__GPU_count, 
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size * self.__GPU_count,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
 
             # print and/or save a performance plot
             try:
                 if task == "binary_classification":
-                    self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME, 
+                    self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
                         file_name = __history_plot_file, verbose = False)
                 elif task == "QnA":
-                    self.__plot_keras_history(history = history, metric = 'mse', model_name = __MODEL_NAME, 
+                    self.__plot_keras_history(history = history, metric = 'mse', model_name = __MODEL_NAME,
                         file_name = __history_plot_file, verbose = False)
             except:
                 print("error during history plot generation; skipped.")
                 pass
-            
+
             # save the model, parameters, and performance history
             model_json = parallel_model.to_json()
             with open(__model_json_file, "w") as json_file:
@@ -606,6 +612,89 @@ class Models(object):
 
         return parallel_model, hist_params, hist
 
+    def get_resnet50_v1_5_model_only(self,
+                                     task = "QnA",
+                                     use_l2_regularizer = False,
+                                     batch_norm_decay = 0.9,
+                                     batch_norm_epsilon = 1e-5,
+                                     verbose = False):
+        # input image size of 386h x 1024w x 3c
+        bn_axis = 3
+        block_config = dict(
+            use_l2_regularizer = use_l2_regularizer,
+            batch_norm_decay = batch_norm_decay,
+            batch_norm_epsilon = batch_norm_epsilon)
+        input_img = layers.Input(shape = (386, 1024, 3))
+
+        # downscale our 386x1024 images across the width dimension
+        x = self.__BERT_image_input_layer(
+            input_img = input_img,
+            use_l2_regularizer = use_l2_regularizer,
+            input_shape = (386, 1024, 3),
+            verbose = verbose)
+
+        x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
+
+        x = layers.Conv2D(
+            filters = 64,
+            kernel_size = (7, 7),
+            strides = (2, 2),
+            padding = 'valid',
+            use_bias = False,
+            kernel_initializer = 'he_normal',
+            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            name = 'conv1') (x)
+
+        x = layers.BatchNormalization(
+            axis = bn_axis,
+            momentum = batch_norm_decay,
+            epsilon = batch_norm_epsilon,
+            name = 'bn_conv1') (x)
+
+        x = layers.Activation('relu') (x)
+        x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'd', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'd', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'e', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'f', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
+
+        x = layers.GlobalAveragePooling2D() (x)
+
+        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+
+        return model
+
+        x = layers.Dense(2,
+            kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            name = 'fc1000') (x)
+
+        if task == "binary_classification":
+            # A softmax that is followed by the model loss must be done cannot be done
+            # in float16 due to numeric issues. So we pass dtype=float32.
+            x = layers.Activation('softmax', dtype = 'float32') (x)
+        elif task == "QnA":
+            x = layers.Activation('softmax') (x)
+
+        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+
     # ********************************
     # ***** ResNet50 v1.5 INFERENCING
     # ********************************
@@ -627,7 +716,7 @@ class Models(object):
         __MODEL_NAME = "ResNet50_v1_5"
         __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
         __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
-        
+
         nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
         if not os.path.exists(nested_dir):
             os.makedirs(nested_dir)
@@ -637,9 +726,9 @@ class Models(object):
 
 
         if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)):
-            raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" % 
+            raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" %
                 (__model_file_name, __model_json_file))
-        
+
         # load the Keras model for the specified feature
         model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
