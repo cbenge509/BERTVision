@@ -5,7 +5,7 @@ from utils.model_zoo import Models
 batch_size = 32
 data_size = 10
 
-with h5py.File('c:/w266/SQuADv2/train_386.h5', 'r') as train:
+with h5py.File('./data/squad_train.h5', 'r') as train:
     start_ids = train['input_start']
     end_ids = train['input_end']
     labels = np.vstack([start_ids, end_ids]).T
