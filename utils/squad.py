@@ -66,11 +66,11 @@ class SQuADv2Utils(object):
             f = os.path.join(data_path, f)
             if (not os.path.isfile(f)):
                 raise RuntimeError(f"{d} file specified [{f}] does not exist.")
-        
+
         # set the class variables with the dev and train squad file locations
         self.__dev_squad = data_path
         self.__train_squad = data_path
-        
+
         # set the class variable for the h5 output files
         self.__dev_h5 = os.path.join(h5_path, OUTPUT_DEV_FILE)
         self.__train_h5 = os.path.join(h5_path, OUTPUT_TRAIN_FILE)
@@ -127,7 +127,7 @@ class SQuADv2Utils(object):
             feature_target = "train"
         else:
             feature_target = "dev"
-        
+
         if verbose: print(f"Collecting the raw '{feature_target}' examples for processing.")
         if generate_training:
             data_raw = self.__processor.get_train_examples(self.__train_squad)
@@ -135,23 +135,23 @@ class SQuADv2Utils(object):
         else:
             data_raw = self.__processor.get_dev_examples(self.__dev_squad)
             data_h5 = self.__dev_h5
-        
+
         # ref: https://huggingface.co/transformers/main_classes/processors.html?highlight=squad_convert_examples_to_features#transformers.data.processors.squad.squad_convert_examples_to_features
         if verbose: print(f"Converting list of '{feature_target}' examples to list of features...")
         data = squad_convert_examples_to_features(
-            examples = data_raw, 
-            tokenizer = self.__tokenizer, 
-            max_seq_length = max_seq_length, 
+            examples = data_raw,
+            tokenizer = self.__tokenizer,
+            max_seq_length = max_seq_length,
             doc_stride = doc_stride,
             max_query_length = max_query_length,
             is_training = generate_training,)
-        
+
         feature_length = len(data)
         if verbose: print(f"Conversion complete.  Length of {feature_target} dataset: {feature_length}")
-        
+
         # create zero-initialized arrays for storing the featurized training set
-        input_ids, input_segs, input_masks = [np.zeros((feature_length, max_seq_length))] * 3
-        input_start, input_end, input_is_impossible = [np.zeros((feature_length,))] * 3
+        input_ids, input_segs, input_masks = np.zeros((3, feature_length, max_seq_length))
+        input_start, input_end, input_is_impossible = np.zeros((3, feature_length))
 
         # populate zero-initialized arrays with features generated above
         arrz = [input_ids, input_segs, input_masks, input_start, input_end, input_is_impossible]
@@ -169,4 +169,3 @@ class SQuADv2Utils(object):
         if verbose: print(f"{feature_target} H5 feature file '{data_h5}' written to disk.")
 
         return
-        
