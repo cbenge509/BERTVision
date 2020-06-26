@@ -18,7 +18,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
 #from keras.activations import linear, elu, tanh, relu
 from tensorflow.keras import metrics, losses, initializers, backend
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.losses import SparseCategoricalCrossentropy, BinaryCrossentropy
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras.initializers import glorot_uniform, Constant, lecun_uniform
 from tensorflow.keras import backend as K
@@ -380,9 +380,9 @@ class Models(object):
         needed_args = [key for key,value in kwargs.items() if value is None]
         raise ValueError("If running in training, must specify following outputs: %s" %(', '.join(needed_args)))
 
-    def get_resnet50_v1_5(self, X=None, Y=None, batch_size=None, epoch_count=None, val_split = 0.1, shuffle = True,
+    def get_resnet50_v1_5(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True,
             recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", use_l2_regularizer = True,
-            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False, return_model_only=True):
+            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False, return_model_only = True):
         """Trains and returns a ResNet50 v1.5 Model
         Args:
             X (np.array): Input training data (images in HxWxC format)
@@ -411,9 +411,9 @@ class Models(object):
             self.__require(X, Y, batch_size, epoch_count)
 
         if task not in self.__model_tasks:
-            raise RuntimeError(f"parameter task value of '{task}' is not permitted.")
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
 
-
+        # set plumbing parameter values
         __MODEL_NAME = "ResNet50_v1_5"
         __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
         __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
@@ -436,23 +436,16 @@ class Models(object):
             if verbose: print(f"Pickle file for {__MODEL_NAME} and task {task} MODEL not found or skipped by caller.")
 
             opt = Adam(lr = 1e-3, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
-
-            if task == "binary_classification":
-                mtrc = ['accuracy']
-                cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
-                    mode = 'min', monitor = 'val_accuracy')
-                lss = SparseCategoricalCrossentropy(from_logits = True)
-            elif task == "QnA":
-                mtrc = ['accuracy']
-                cp_main = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
-                    mode = 'min', monitor = 'val_mse')
-                lss = 'mean_squared_error'
-
+            mtrc = ['accuracy']
+            cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_accuracy')
             stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
             es = EarlyStopping(patience = stop_at, verbose = verbose)
 
-            kernel_init = glorot_uniform()
-            bias_init = Constant(value = 0.2)
+            if task == "binary_classification":
+                lss = BinaryCrossentropy()
+            elif task == "QnA":
+                lss = SparseCategoricalCrossentropy()
 
             # channels_last
             bn_axis = 3
@@ -466,7 +459,7 @@ class Models(object):
             with tf.device(dev):
 
                 # input image size of 386h x 1024w x 3c
-                input_img = layers.Input(shape = (386, 1024, 3))
+                input_img = layers.Input(shape = (386, 1024, 3), dtype = tf.float32)
 
                 # downscale our 386x1024 images across the width dimension
                 x = self.__BERT_image_input_layer(
@@ -496,6 +489,7 @@ class Models(object):
                 x = layers.Activation('relu') (x)
                 x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
 
+                # ResNet50 3,4,6,3 pattern
                 x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
@@ -517,41 +511,48 @@ class Models(object):
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
 
                 x = layers.GlobalAveragePooling2D() (x)
-
-                x = layers.Dense(2,
-                    kernel_initializer = initializers.RandomNormal(stddev = 0.01),
-                    kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-                    bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-                    name = 'fc1000') (x)
+                x = layers.Flatten() (x)
 
                 if task == "binary_classification":
-                    # A softmax that is followed by the model loss must be done cannot be done
-                    # in float16 due to numeric issues. So we pass dtype=float32.
+
+                    x = layers.Dense(2,
+                        kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_2_final') (x)
+
                     x = layers.Activation('softmax', dtype = 'float32') (x)
+                    
+                    model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
+
                 elif task == "QnA":
-                    x = layers.Activation('relu') (x)
+                    
+                    h0 = layers.Dense(386,
+                        kernel_initializer = initializers.RandomNormal(stdev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_386_start_h0') (x)
+                    
+                    h0 = layers.Activation('softmax', dtype = 'float32') (h0)
 
-                model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+                    h1 = layers.Dense(386,
+                        kernel_initializer = initializers.RandomNormal(stdev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_386_end_h1') (x)
 
-            if return_model_only:
-                return model
+                    h1 = layers.Activation('softmax', dtype = 'float32') (h1)
+
+                    model = Model(input_img, outputs = [h0, h1], name = 'ResNet50_v1_5_QnA')
 
             if verbose: print(model.summary())
 
-            #Set up model training parameters
-            act = Adam(lr = 0.001, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
-            lss = 'mean_squared_error'
-            mtrc = ['mae','mse']
-
-            stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
-            es = EarlyStopping(patience = stop_at, verbose = verbose)
-
-            cp_main = ModelCheckpoint(filepath = __model_file_MAIN_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_main_output_mae')
-            cp_aux1 = ModelCheckpoint(filepath = __model_file_AUX1_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_auxilliary_output_1_mae')
-            cp_aux2 = ModelCheckpoint(filepath = __model_file_AUX2_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_auxilliary_output_2_mae')
+            # return to the caller an untrained model
+            if return_model_only:
+                return model
 
             # Compile the model
             if self.__GPU_count > 1:
@@ -565,19 +566,15 @@ class Models(object):
 
             if (X_val is None) or (Y_val is None):
                 history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
             try:
-                if task == "binary_classification":
-                    self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
-                        file_name = __history_plot_file, verbose = False)
-                elif task == "QnA":
-                    self.__plot_keras_history(history = history, metric = 'mse', model_name = __MODEL_NAME,
-                        file_name = __history_plot_file, verbose = False)
+                self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
+                    file_name = __history_plot_file, verbose = False)
             except:
                 print("error during history plot generation; skipped.")
                 pass
@@ -724,6 +721,8 @@ class Models(object):
         __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
         __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
 
+        if task not in self.__model_tasks:
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
 
         if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)):
             raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" %
@@ -733,12 +732,18 @@ class Models(object):
         model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
         # predict
-        if verbose: print("Predicting %d instances..." % len(X))
-        Y = model.predict(X, verbose = verbose)
+        if verbose: print(f"Predicting {len(X)} instances for task {task}...")
+        
+        if task == "QnA":
+            Y_start, Y_end = model.predict(X, verbose = verbose)
+            return Y_start, Y_end
+        
+        elif task == "binary_classification":
+            Y = model.predict(X, verbose = verbose)
+            return Y
+        else:
+            return
 
-        if verbose: print("Predictions completed!")
-
-        return Y
 
     def get_keras_inception_v1_inspired(self, input_shape, return_model_only = True, include_head = False):
         kernel_init = glorot_uniform()
