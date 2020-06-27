@@ -3,7 +3,10 @@ import numpy as np
 from utils.model_zoo import Models
 zoo = Models('./models/')
 
-batch_size = 32
+TEST_RESNET50_V1_5 = False
+TEST_XCEPTION = True
+
+batch_size = 16
 
 # load the labels from the SQuAD v2 Features
 with h5py.File('./data/squad_train.h5', 'r') as train_data:
@@ -22,16 +25,31 @@ for i, idx in enumerate(np.arange(0, len(Y))):
         # center the 386 dim
         X[i, (386 - data.shape[0])//2 + (386 - data.shape[0]) % 2:386 - (386 - data.shape[0])//2, :, :] = data
 
-# TEST : Train model
-model, hist_params, hist = zoo.get_resnet50_v1_5(X = X, Y = Y, batch_size = batch_size, epoch_count = 50, val_split = 0.1,
-    shuffle = True, recalculate_pickle = True, task = "QnA", use_l2_regularizer = True, batch_norm_decay = 0.9,
-    batch_norm_epsilon = 1e-5, verbose = True, return_model_only = False)
+if TEST_RESNET50_V1_5:
+    # TEST : Train model
+    model, hist_params, hist = zoo.get_resnet50_v1_5(X = X, Y = Y, batch_size = batch_size, epoch_count = 50, val_split = 0.1,
+        shuffle = True, recalculate_pickle = True, task = "QnA", use_l2_regularizer = True, batch_norm_decay = 0.9,
+        batch_norm_epsilon = 1e-5, verbose = True, return_model_only = False)
 
-# TEST : Retrieve model from pickle
-model, hist_params, hist = zoo.get_resnet50_v1_5(X = None, Y = None, batch_size = None, epoch_count = None, recalculate_pickle = False)
-print(model.summary())
+    # TEST : Retrieve model from pickle
+    model, hist_params, hist = zoo.get_resnet50_v1_5(X = None, Y = None, batch_size = None, epoch_count = None, recalculate_pickle = False)
+    print(model.summary())
 
-# TEST : predict values and evaluate results
-pred_start, pred_end = zoo.predict_resnet50_v1_5(X = X, verbose = True)
-print(pred_start, pred_end)
-print(pred_start.shape, pred_end.shape)
+    # TEST : predict values and evaluate results
+    pred_start, pred_end = zoo.predict_resnet50_v1_5(X = X, verbose = True)
+    print(pred_start, pred_end)
+    print(pred_start.shape, pred_end.shape)
+
+if TEST_XCEPTION:
+    # TEST : Train model
+    model, hist_params, hist = zoo.get_xception(X = X, Y = Y, batch_size = batch_size, epoch_count = 50, val_split = 0.1,
+        shuffle = True, recalculate_pickle = True, task = "QnA", verbose = True, return_model_only = False)
+
+    # TEST : Retrieve model from pickle
+    model, hist_params, hist = zoo.get_xception(X = None, Y = None, batch_size = None, epoch_count = None, recalculate_pickle = False)
+    print(model.summary())
+
+    # TEST : predict values and evaluate results
+    pred_start, pred_end = zoo.predict_xception(X = X, verbose = True)
+    print(pred_start, pred_end)
+    print(pred_start.shape, pred_end.shape)
