@@ -15,6 +15,15 @@ from transformers.data.processors.squad import squad_convert_examples_to_feature
 from transformers import TFBertForQuestionAnswering
 from transformers import BertConfig
 
+from collections import defaultdict, Counter
+
+from transformers import BertTokenizer, TFBertModel, BertConfig
+from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.models import Model
+import tensorflow.keras.backend as K
+
+from utils.evaluation import Squad2Config
+
 np.random.seed(42)
 tf.random.set_seed(42)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -169,3 +178,24 @@ class SQuADv2Utils(object):
         if verbose: print(f"{feature_target} H5 feature file '{data_h5}' written to disk.")
 
         return
+
+class UntrainedBertSquad2(object):
+    def __init__(self,
+                 config = Squad2Config()):
+
+        self.tokenizer = config.tokenizer
+        self.named_model = config.named_model
+        self.model = self.bert_large_uncased_for_squad2(config.max_seq_length)
+
+    def bert_large_uncased_for_squad2(self, max_seq_length):
+        input_ids = Input((max_seq_length,), dtype = tf.int32, name = 'input_ids')
+        input_masks = Input((max_seq_length,), dtype = tf.int32, name = 'input_masks')
+
+        #Load model from huggingface
+        config = BertConfig.from_pretrained(self.named_model, output_hidden_states=True)
+        bert_layer = TFBertModel.from_pretrained(self.named_model, config = config)
+
+        outputs, _, embeddings = bert_layer([input_ids, input_masks]) #1 for pooled outputs, 0 for sequence
+
+        model = Model(inputs = [input_ids, input_masks], outputs = [embeddings, outputs])
+        return model
