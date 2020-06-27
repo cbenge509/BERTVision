@@ -114,8 +114,7 @@ class BERTImageGenerator(Sequence):
 def simple_generator(labels, directory, batch_size = 32, truncate_data = False, shuffle_index = None):
     
     indices = np.arange(len(labels), dtype = int)
-    size = len(indices)
-    iterations = np.ceil(size / batch_size)
+    
     if shuffle_index is None:
         np.random.shuffle(indices)
     else:
@@ -123,7 +122,6 @@ def simple_generator(labels, directory, batch_size = 32, truncate_data = False, 
     
     if truncate_data:
         indices = indices[:truncate_data]
-        iterations = np.ceil(truncate_data / batch_size)
         
     darray = np.zeros((batch_size,386,1024,3), dtype = np.float32)
     
@@ -135,13 +133,7 @@ def simple_generator(labels, directory, batch_size = 32, truncate_data = False, 
             with h5py.File(directory + '%d.h5' %(idx), 'r') as f:
                 data = np.array(f['hidden_state_activations'], dtype = np.float32)
             darray[i, 386-data.shape[0]:386, :, :] = data
-        
-        #print('offset:', offset)
-        #print('size:', len(data_slice))
-        #print('data:', np.sum(darray))
-        #print(len(data_slice))
-        #print(batch_size)
-        #print('\n', darray[0, -1, -1, -1], labels[data_slice][0], '\n')
+        #print(darray[0][-1][-1][-1])
         if len(data_slice) < batch_size:
             output = darray[:len(data_slice)]
             offset = 0
@@ -149,6 +141,7 @@ def simple_generator(labels, directory, batch_size = 32, truncate_data = False, 
             offset += 1
             output = darray
         
+        #print(output.shape, labels[data_slice].shape)
         yield output, list(labels[data_slice].T)
         
 def simple_dev_generator(labels, directory, batch_size = 32, truncate_data = False):
@@ -164,7 +157,7 @@ def simple_dev_generator(labels, directory, batch_size = 32, truncate_data = Fal
             with h5py.File(directory + '%d.h5' %(idx), 'r') as f:
                 data = np.array(f['hidden_state_activations'], dtype = np.float32)
             darray[i, 386-data.shape[0]:386] = data
-        #print(data_slice)
+        print(offset)
         if len(data_slice) < batch_size:
             output = darray[:len(data_slice)]
             offset = 0
