@@ -60,10 +60,10 @@ def process_arguments(parsed_args, display_args = False):
         RuntimeError: `document_stride` parameter value provided by caller is of the wrong data type.
         RuntimeError: `document_stride` parameter value provided by caller is in an invalid range.
     """
-    
+
     global VERBOSE, SQUAD_PATH, H5_PATH, PRETRAINED_TOKENIZER, MAX_SEQUENCE_LENGTH, MAX_QUERY_LENGTH, \
            DOCUMENT_STRIDE, GENERATE_TARGET
-    
+
     args = vars(parser.parse_args())
     if display_args:
         print("".join(["*" * 30, "\narguments in use:\n", "*" * 30, "\n"]))
@@ -80,7 +80,7 @@ def process_arguments(parsed_args, display_args = False):
     MAX_QUERY_LENGTH = args['max_query_length']
     DOCUMENT_STRIDE = args['document_stride']
     GENERATE_TARGET = args['target_to_generate'].strip().lower()
-    
+
     # validate the existence of the caller-specified paths
     for p, v, l in zip([SQUAD_PATH, H5_PATH], ['squad_file_path', 'h5_file_path'], ['SQuAD v2 raw data path', 'H5 output path']):
         if not os.path.exists(p):
@@ -89,7 +89,7 @@ def process_arguments(parsed_args, display_args = False):
     # validate type and value of `pretrained_tokenizer` parameter
     if not (isinstance(PRETRAINED_TOKENIZER, str)): raise RuntimeError("Parameter 'pretrained_tokenizer' must be of type str.")
     if not (0 < len(PRETRAINED_TOKENIZER) < 50): raise RuntimeError("Parameter 'pretrained_tokenizer' must be of a length between 1 and 50.")
-    
+
     # validate type and value of `target_to_generate` parameter
     if not (isinstance(GENERATE_TARGET, str)): raise RuntimeError("Parameter 'target_to_generate' must be of type str.")
     if not (GENERATE_TARGET in ["train", "dev", "all"]): raise RuntimeError("Parameter 'target_to_generate' must be one of the following: {'train', 'dev', 'all'}.")
@@ -128,6 +128,7 @@ def processSquad(processor, generate_training, max_seq_length, max_query_length,
 
     return
 
+def genEmbedding(model)
 ############################################################################
 # MAIN FUNCTION
 ############################################################################
@@ -139,7 +140,7 @@ if __name__ == "__main__":
         _ = os.system('cls')
     else:
         _ = os.system('clear')
-    
+
     # Process command-line arguments and set parameters
     process_arguments(parser.parse_args(), display_args = True)
 
@@ -148,7 +149,7 @@ if __name__ == "__main__":
     # Genrate the feature data and store as binary
     processor = squad.SQuADv2Utils(data_path = SQUAD_PATH, h5_path = H5_PATH,
         pretrained_tokenizer = PRETRAINED_TOKENIZER, verbose = VERBOSE)
-    
+
     if GENERATE_TARGET in ["train", "all"]:
         if VERBOSE: print("".join(["\n", "=" * 50, "".join(["\nGenerating TRAIN data\n"]), "=" * 50, "\n"]))
         processSquad(processor = processor, generate_training = True, max_seq_length = MAX_SEQUENCE_LENGTH,
@@ -160,4 +161,3 @@ if __name__ == "__main__":
             max_query_length = MAX_QUERY_LENGTH, doc_stride = DOCUMENT_STRIDE, verbose = VERBOSE)
 
     print("".join(["-" * 100, "\n>>> SQUAD V2 FEATURE GENERATION COMPLETE <<<\n", "-" * 100, "\n"]))
-
