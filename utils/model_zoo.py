@@ -18,7 +18,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
 #from keras.activations import linear, elu, tanh, relu
 from tensorflow.keras import metrics, losses, initializers, backend
-from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.losses import SparseCategoricalCrossentropy, BinaryCrossentropy
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras.initializers import glorot_uniform, Constant, lecun_uniform
 from tensorflow.keras import backend as K
@@ -26,7 +26,8 @@ from tensorflow.keras import backend as K
 #os.environ["PATH"] += os.pathsep + "C:/ProgramData/Anaconda3/GraphViz/bin/"
 #os.environ["PATH"] += os.pathsep + "C:/Anaconda/Graphviz2.38/bin/"
 
-from keras.utils.vis_utils import plot_model
+#from keras.utils.vis_utils import plot_model
+from tensorflow.keras.utils import plot_model
 from sklearn.model_selection import train_test_split
 
 import tensorflow as tf
@@ -95,7 +96,7 @@ class Models(object):
     # plotting method for keras history arrays
     def __plot_keras_history(self, history, metric, model_name, file_name, verbose = False):
             # Plot the performance of the model training
-            fig = plt.figure(figsize=(15,8),dpi=80)
+            fig = plt.figure(figsize = (15, 8), dpi = 100)
             ax = fig.add_subplot(121)
 
             ax.plot(history.history[metric][1:], color = berkeley_palette['founders_rock'], label = 'Train',
@@ -380,9 +381,9 @@ class Models(object):
         needed_args = [key for key,value in kwargs.items() if value is None]
         raise ValueError("If running in training, must specify following outputs: %s" %(', '.join(needed_args)))
 
-    def get_resnet50_v1_5(self, X=None, Y=None, batch_size=None, epoch_count=None, val_split = 0.1, shuffle = True,
+    def get_resnet50_v1_5(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True,
             recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", use_l2_regularizer = True,
-            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False, return_model_only=True):
+            batch_norm_decay = 0.9, batch_norm_epsilon = 1e-5, verbose = False, return_model_only = True):
         """Trains and returns a ResNet50 v1.5 Model
         Args:
             X (np.array): Input training data (images in HxWxC format)
@@ -407,13 +408,13 @@ class Models(object):
             [tf.keras.Model]: a trained Keras ResNet50 v1.5 Model object
         """
 
-        if not return_model_only:
-            self.__require(X, Y, batch_size, epoch_count)
+        #if not return_model_only:
+        #    self.__require(X, Y, batch_size, epoch_count)
 
         if task not in self.__model_tasks:
-            raise RuntimeError(f"parameter task value of '{task}' is not permitted.")
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
 
-
+        # set plumbing parameter values
         __MODEL_NAME = "ResNet50_v1_5"
         __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
         __MODEL_FNAME_PREFIX = "ResNet50_v1_5/"
@@ -436,37 +437,33 @@ class Models(object):
             if verbose: print(f"Pickle file for {__MODEL_NAME} and task {task} MODEL not found or skipped by caller.")
 
             opt = Adam(lr = 1e-3, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
-
-            if task == "binary_classification":
-                mtrc = ['accuracy']
-                cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
-                    mode = 'min', monitor = 'val_accuracy')
-                lss = SparseCategoricalCrossentropy(from_logits = True)
-            elif task == "QnA":
-                mtrc = ['accuracy']
-                cp_main = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
-                    mode = 'min', monitor = 'val_mse')
-                lss = 'mean_squared_error'
-
+            mtrc = ['accuracy']
+            cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_loss')
             stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
             es = EarlyStopping(patience = stop_at, verbose = verbose)
 
-            kernel_init = glorot_uniform()
-            bias_init = Constant(value = 0.2)
+            if task == "binary_classification":
+                lss = BinaryCrossentropy()
+            elif task == "QnA":
+                lss = SparseCategoricalCrossentropy(from_logits = False)
 
-            # channels_last
-            bn_axis = 3
-            block_config = dict(
-                use_l2_regularizer = use_l2_regularizer,
-                batch_norm_decay = batch_norm_decay,
-                batch_norm_epsilon = batch_norm_epsilon)
-
+            # DEBUG ISSUE
+            self.__GPU_count = 1 # multi-GPU not working right now
+            
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
 
+                # channels_last
+                bn_axis = 3
+                block_config = dict(
+                    use_l2_regularizer = use_l2_regularizer,
+                    batch_norm_decay = batch_norm_decay,
+                    batch_norm_epsilon = batch_norm_epsilon)
+
                 # input image size of 386h x 1024w x 3c
-                input_img = layers.Input(shape = (386, 1024, 3))
+                input_img = layers.Input(shape = (386, 1024, 3), dtype = tf.float32)
 
                 # downscale our 386x1024 images across the width dimension
                 x = self.__BERT_image_input_layer(
@@ -496,6 +493,7 @@ class Models(object):
                 x = layers.Activation('relu') (x)
                 x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
 
+                # ResNet50 3,4,6,3 pattern
                 x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
@@ -517,67 +515,89 @@ class Models(object):
                 x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
 
                 x = layers.GlobalAveragePooling2D() (x)
-
-                x = layers.Dense(2,
-                    kernel_initializer = initializers.RandomNormal(stddev = 0.01),
-                    kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-                    bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-                    name = 'fc1000') (x)
+                #x = layers.Flatten() (x)
 
                 if task == "binary_classification":
-                    # A softmax that is followed by the model loss must be done cannot be done
-                    # in float16 due to numeric issues. So we pass dtype=float32.
+
+                    x = layers.Dense(2,
+                        kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_2_final') (x)
+
                     x = layers.Activation('softmax', dtype = 'float32') (x)
+                    
+                    model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
+
                 elif task == "QnA":
-                    x = layers.Activation('relu') (x)
+                    
+                    h0 = layers.Dense(386,
+                        kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_386_start_h0') (x)
+                    
+                    h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
-                model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+                    h1 = layers.Dense(386,
+                        kernel_initializer = initializers.RandomNormal(stddev = 0.01),
+                        kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+                        dtype = tf.float32,
+                        name = 'dense_386_end_h1') (x)
 
-            if return_model_only:
-                return model
+                    h1 = layers.Activation('softmax', dtype = 'float32', name = 'end') (h1)
+
+                    model = Model(input_img, outputs = [h0, h1], name = 'ResNet50_v1_5_QnA')
 
             if verbose: print(model.summary())
 
-            #Set up model training parameters
-            act = Adam(lr = 0.001, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
-            lss = 'mean_squared_error'
-            mtrc = ['mae','mse']
-
-            stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
-            es = EarlyStopping(patience = stop_at, verbose = verbose)
-
-            cp_main = ModelCheckpoint(filepath = __model_file_MAIN_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_main_output_mae')
-            cp_aux1 = ModelCheckpoint(filepath = __model_file_AUX1_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_auxilliary_output_1_mae')
-            cp_aux2 = ModelCheckpoint(filepath = __model_file_AUX2_name, verbose = verbose, save_best_only = True,
-                mode = 'min', monitor = 'val_auxilliary_output_2_mae')
+            # return to the caller an untrained model
+            if return_model_only:
+                return model
 
             # Compile the model
             if self.__GPU_count > 1:
                 strategy = tf.distribute.MirroredStrategy()
                 with strategy.scope():
                     parallel_model = multi_gpu_model(model, gpus = self.__GPU_count)
-                    parallel_model.compile(optimizer = opt, loss = lss, metrics = mtrc)
+                    parallel_model.compile(optimizer = opt, loss = [lss, lss], metrics = mtrc)
             else:
                 parallel_model = model
-                parallel_model.compile(optimizer = opt, loss = lss, metrics = mtrc)
+                parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
+
+            #parallel_model = model
+            #parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
 
             if (X_val is None) or (Y_val is None):
-                history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
+                #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
+                #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
+                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count, 
+                    validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size * self.__GPU_count,
-                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp_main], verbose = verbose)
+                history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
             try:
-                if task == "binary_classification":
-                    self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
-                        file_name = __history_plot_file, verbose = False)
-                elif task == "QnA":
-                    self.__plot_keras_history(history = history, metric = 'mse', model_name = __MODEL_NAME,
-                        file_name = __history_plot_file, verbose = False)
+                if 'val_accuracy' not in history.history.keys():
+                    cols = [n for n in history.history.keys() if n.startswith('val_') & n.endswith('_accuracy')]
+                    avg = [history.history[c] for c in cols]
+                    history.history["val_accuracy"] = np.mean(avg, axis = 0)
+
+                if 'val_loss' not in history.history.keys():
+                    cols = [n for n in history.history.keys() if n.endswith('_loss')]
+                    avg = [history.history[c] for c in cols]
+                    history.history["val_loss"] = np.mean(avg, axis = 0)
+                
+                # custom for ResNet50
+                avg = [history.history[c] for c in ['start_accuracy', 'end_accuracy']]
+                history.history["accuracy"] = np.mean(avg, axis = 0)
+
+                self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
+                    file_name = __history_plot_file, verbose = False)
             except:
                 print("error during history plot generation; skipped.")
                 pass
@@ -586,7 +606,7 @@ class Models(object):
             model_json = parallel_model.to_json()
             with open(__model_json_file, "w") as json_file:
                 json_file.write(model_json)
-            hist_params = pd.DataFrame(history.params)
+            hist_params = pd.DataFrame(history.params, index = [0])
             hist_params.to_csv(__history_params_file)
 
             hist = pd.DataFrame(history.history)
@@ -607,93 +627,10 @@ class Models(object):
             hist_params = pd.read_csv(__history_params_file)
             hist = pd.read_csv(__history_performance_file)
 
-        if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (task: {task}) from file '{__model_file_name}'")
-        parallel_model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
+            if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (task: {task}) from file '{__model_file_name}'")
+            parallel_model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
         return parallel_model, hist_params, hist
-
-    def get_resnet50_v1_5_model_only(self,
-                                     task = "QnA",
-                                     use_l2_regularizer = False,
-                                     batch_norm_decay = 0.9,
-                                     batch_norm_epsilon = 1e-5,
-                                     verbose = False):
-        # input image size of 386h x 1024w x 3c
-        bn_axis = 3
-        block_config = dict(
-            use_l2_regularizer = use_l2_regularizer,
-            batch_norm_decay = batch_norm_decay,
-            batch_norm_epsilon = batch_norm_epsilon)
-        input_img = layers.Input(shape = (386, 1024, 3))
-
-        # downscale our 386x1024 images across the width dimension
-        x = self.__BERT_image_input_layer(
-            input_img = input_img,
-            use_l2_regularizer = use_l2_regularizer,
-            input_shape = (386, 1024, 3),
-            verbose = verbose)
-
-        x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
-
-        x = layers.Conv2D(
-            filters = 64,
-            kernel_size = (7, 7),
-            strides = (2, 2),
-            padding = 'valid',
-            use_bias = False,
-            kernel_initializer = 'he_normal',
-            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-            name = 'conv1') (x)
-
-        x = layers.BatchNormalization(
-            axis = bn_axis,
-            momentum = batch_norm_decay,
-            epsilon = batch_norm_epsilon,
-            name = 'bn_conv1') (x)
-
-        x = layers.Activation('relu') (x)
-        x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
-
-        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
-
-        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'a', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'b', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'c', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'd', **block_config)
-
-        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'a', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'b', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'c', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'd', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'e', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'f', **block_config)
-
-        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'a', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'b', **block_config)
-        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
-
-        x = layers.GlobalAveragePooling2D() (x)
-
-        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
-
-        return model
-
-        x = layers.Dense(2,
-            kernel_initializer = initializers.RandomNormal(stddev = 0.01),
-            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-            bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
-            name = 'fc1000') (x)
-
-        if task == "binary_classification":
-            # A softmax that is followed by the model loss must be done cannot be done
-            # in float16 due to numeric issues. So we pass dtype=float32.
-            x = layers.Activation('softmax', dtype = 'float32') (x)
-        elif task == "QnA":
-            x = layers.Activation('softmax') (x)
-
-        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
 
     # ********************************
     # ***** ResNet50 v1.5 INFERENCING
@@ -724,6 +661,8 @@ class Models(object):
         __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
         __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
 
+        if task not in self.__model_tasks:
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
 
         if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)):
             raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" %
@@ -733,12 +672,18 @@ class Models(object):
         model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
 
         # predict
-        if verbose: print("Predicting %d instances..." % len(X))
-        Y = model.predict(X, verbose = verbose)
+        if verbose: print(f"Predicting {len(X)} instances for task {task}...")
+        
+        if task == "QnA":
+            Y_start, Y_end = model.predict(X, verbose = verbose)
+            return Y_start, Y_end
+        
+        elif task == "binary_classification":
+            Y = model.predict(X, verbose = verbose)
+            return Y
+        else:
+            return
 
-        if verbose: print("Predictions completed!")
-
-        return Y
 
     def get_keras_inception_v1_inspired(self, input_shape, return_model_only = True, include_head = False):
         kernel_init = glorot_uniform()
