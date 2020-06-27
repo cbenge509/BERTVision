@@ -901,8 +901,6 @@ class Models(object):
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
-            print(history.history)
-            print(history.history.keys())
             try:
                 if 'val_accuracy' not in history.history.keys():
                     cols = [n for n in history.history.keys() if n.startswith('val_') & n.endswith('_accuracy')]
