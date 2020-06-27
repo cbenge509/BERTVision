@@ -61,11 +61,11 @@ def gen_embeddings(model,
                    output):
 
     train_first, train_last, train_seq, dev_first, dev_last, dev_seq = gen_directory_structure(output)
-    with h5py.File('./test.h5', 'r') as train_data:#train_features, 'r')
+    with h5py.File(train_features, 'r') as train_data:
         train_ids = np.array(train_data['input_ids'], dtype = np.int32)
         train_masks = np.array(train_data['attention_mask'], dtype = np.int32)
 
-    with h5py.File('./test.h5', 'r') as dev_data:
+    with h5py.File(dev_features, 'r') as dev_data:
         dev_ids = np.array(dev_data['input_ids'], dtype = np.int32)
         dev_masks = np.array(dev_data['attention_mask'], dtype = np.int32)
 
