@@ -460,7 +460,7 @@ class Models(object):
 
             # DEBUG ISSUE
             self.__GPU_count = 1 # multi-GPU not working right now
-            
+
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
@@ -537,18 +537,18 @@ class Models(object):
                         name = 'dense_2_final') (x)
 
                     x = layers.Activation('softmax', dtype = 'float32') (x)
-                    
+
                     model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
 
                 elif task == "QnA":
-                    
+
                     h0 = layers.Dense(386,
                         kernel_initializer = initializers.RandomNormal(stddev = 0.01),
                         kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         dtype = tf.float32,
                         name = 'dense_386_start_h0') (x)
-                    
+
                     h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
                     h1 = layers.Dense(386,
@@ -584,7 +584,7 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
@@ -601,7 +601,7 @@ class Models(object):
                     cols = [n for n in history.history.keys() if n.endswith('_loss')]
                     avg = [history.history[c] for c in cols]
                     history.history["val_loss"] = np.mean(avg, axis = 0)
-                
+
                 # custom for ResNet50
                 avg = [history.history[c] for c in ['start_accuracy', 'end_accuracy']]
                 history.history["accuracy"] = np.mean(avg, axis = 0)
@@ -683,11 +683,11 @@ class Models(object):
 
         # predict
         if verbose: print(f"Predicting {len(X)} instances for task {task}...")
-        
+
         if task == "QnA":
             Y_start, Y_end = model.predict(X, verbose = verbose)
             return Y_start, Y_end
-        
+
         elif task == "binary_classification":
             Y = model.predict(X, verbose = verbose)
             return Y
@@ -697,7 +697,7 @@ class Models(object):
 
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    ### Xception 
+    ### Xception
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     # modified variant from  : https://github.com/yanchummar/xception-keras/blob/master/xception_model.py
@@ -748,7 +748,7 @@ class Models(object):
 
             # DEBUG ISSUE
             self.__GPU_count = 1 # multi-GPU not working right now
-            
+
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
@@ -862,11 +862,11 @@ class Models(object):
 
                     x = layers.Dense(2, dtype = tf.float32, name = 'dense_2_final') (x)
                     x = layers.Activation('softmax', dtype = 'float32') (x)
-                    
+
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
                 elif task == "QnA":
-                    
+
                     h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
                     h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
@@ -894,7 +894,7 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
@@ -911,7 +911,7 @@ class Models(object):
                     cols = [n for n in history.history.keys() if n.endswith('_loss')]
                     avg = [history.history[c] for c in cols]
                     history.history["val_loss"] = np.mean(avg, axis = 0)
-                
+
                 # custom for ResNet50
                 avg = [history.history[c] for c in ['start_accuracy', 'end_accuracy']]
                 history.history["accuracy"] = np.mean(avg, axis = 0)
@@ -952,6 +952,74 @@ class Models(object):
 
         return parallel_model, hist_params, hist
 
+    def get_resnet50_v1_5_model_only(self,
+                                     task = "QnA",
+                                     use_l2_regularizer = False,
+                                     batch_norm_decay = 0.9,
+                                     batch_norm_epsilon = 1e-5,
+                                     verbose = False):
+        # input image size of 386h x 1024w x 3c
+        bn_axis = 3
+        block_config = dict(
+            use_l2_regularizer = use_l2_regularizer,
+            batch_norm_decay = batch_norm_decay,
+            batch_norm_epsilon = batch_norm_epsilon)
+        input_img = layers.Input(shape = (386, 1024, 3))
+
+        # downscale our 386x1024 images across the width dimension
+        x = self.__BERT_image_input_layer(
+            input_img = input_img,
+            use_l2_regularizer = use_l2_regularizer,
+            input_shape = (386, 1024, 3),
+            verbose = verbose)
+
+        x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
+
+        x = layers.Conv2D(
+            filters = 64,
+            kernel_size = (7, 7),
+            strides = (2, 2),
+            padding = 'valid',
+            use_bias = False,
+            kernel_initializer = 'he_normal',
+            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            name = 'conv1') (x)
+
+        x = layers.BatchNormalization(
+            axis = bn_axis,
+            momentum = batch_norm_decay,
+            epsilon = batch_norm_epsilon,
+            name = 'bn_conv1') (x)
+
+        x = layers.Activation('relu') (x)
+        x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'd', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'd', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'e', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'f', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
+
+        x = layers.GlobalAveragePooling2D() (x)
+
+        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+
+        return model
+
     # ********************************
     # ***** Xception INFERENCING
     # ********************************
@@ -980,11 +1048,11 @@ class Models(object):
 
         # predict
         if verbose: print(f"Predicting {len(X)} instances for task {task}...")
-        
+
         if task == "QnA":
             Y_start, Y_end = model.predict(X, verbose = verbose)
             return Y_start, Y_end
-        
+
         elif task == "binary_classification":
             Y = model.predict(X, verbose = verbose)
             return Y
@@ -995,7 +1063,7 @@ class Models(object):
 
 
 
-            
+
 
     def get_keras_inception_v1_inspired(self, input_shape, return_model_only = True, include_head = False):
         kernel_init = glorot_uniform()
