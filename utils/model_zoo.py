@@ -163,7 +163,7 @@ class Models(object):
 
     # BERT "image" layer dedimensionalization
     def __BERT_image_input_layer(self, input_img, use_l2_regularizer, input_shape = (386, 1024, 3),  verbose = False):
-
+        
         x = layers.Conv2D(
             filters = 3,
             kernel_size = (1, 3),
@@ -183,6 +183,27 @@ class Models(object):
     #//////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+    # BERT "image" layer dimension reduction using Jiang-reduction (tm)
+    def __jiang_reduction_input_layer(self, input_img, input_shape = (386, 1024, 3), kernel_init = None, bias_init = None, verbose = False):
+
+        if not (2 < len(input_shape) < 4):
+            raise ValueError(f"parameter `input_shape` must be a length of 3; user specified a length of {len(input_shape)}.")
+    
+        if not kernel_init:
+            kernel_init = glorot_uniform()
+        if not bias_init:
+            bias_init = Constant(value = 0.2)
+
+        x0 = layers.Conv2D(filters = 3, kernel_size = (1, input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
+            bias_initializer = bias_init, name = 'conv_2d_1xS_0') (input_img)
+        
+        for i in range(input_shape[0] - 1):
+            x = layers.Conv2D(3, kernel_size = (1,input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
+                bias_initializer = bias_init, name = 'conv_2d_1xS_%d' %(i+1)) (input_img)
+        
+            x0 = tf.concat([x0, x], axis = 2)
+
+        return x0
 
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -584,10 +605,10 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, list(Y), batch_size = batch_size, epochs = epoch_count, 
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                history = parallel_model.fit(X, list(Y), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
@@ -694,7 +715,6 @@ class Models(object):
         else:
             return
 
-
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     ### Xception 
@@ -703,8 +723,8 @@ class Models(object):
     # modified variant from  : https://github.com/yanchummar/xception-keras/blob/master/xception_model.py
     # Chollet : https://arxiv.org/abs/1610.02357
 
-    def get_xception(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True,
-            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, return_model_only = True):
+    def get_xception(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True, input_shape = (386, 1024, 3),
+            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, use_jiang_reduction = True, return_model_only = True):
 
         if (not return_model_only) or (recalculate_pickle):
             self.__require_params(X = X, Y = Y, batch_size = batch_size, epoch_count = epoch_count)
@@ -740,6 +760,8 @@ class Models(object):
                 mode = 'min', monitor = 'val_loss')
             stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
             es = EarlyStopping(patience = stop_at, verbose = verbose)
+            kernel_init = glorot_uniform()
+            bias_init = Constant(value = 0.2)
 
             if task == "binary_classification":
                 lss = BinaryCrossentropy()
@@ -753,15 +775,25 @@ class Models(object):
             else: dev = "/gpu:0"
             with tf.device(dev):
 
-                # input image size of 386h x 1024w x 3c
-                input_img = layers.Input(shape = (386, 1024, 3), dtype = tf.float32)
+                # input image size
+                input_img = layers.Input(shape = input_shape, dtype = tf.float32)
 
-                # downscale our 386x1024 images across the width dimension
-                x = self.__BERT_image_input_layer(
-                    input_img = input_img,
-                    use_l2_regularizer = True,
-                    input_shape = (386, 1024, 3),
-                    verbose = verbose)
+                # downscale our HxWxC images
+                if use_jiang_reduction:
+                    if verbose: "using Jiang reduction"
+                    x = self.__jiang_reduction_input_layer(
+                        input_img = input_img, 
+                        input_shape = input_shape, 
+                        kernel_init = kernel_init, 
+                        bias_init = bias_init, 
+                        verbose = verbose)
+                else:
+                    if verbose: "using standard conv2d reduction"
+                    x = self.__BERT_image_input_layer(
+                        input_img = input_img,
+                        use_l2_regularizer = True,
+                        input_shape = (386, 1024, 3),
+                        verbose = verbose)
 
                 # Block 1
                 x = Conv2D(32, (3, 3), strides=(2, 2), use_bias=False) (x)
@@ -894,10 +926,10 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, list(Y), batch_size = batch_size, epochs = epoch_count, 
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                history = parallel_model.fit(X, list(Y), validation_data = (X_val, list(Y_val)), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
