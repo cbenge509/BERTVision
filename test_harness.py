@@ -14,14 +14,15 @@ zoo = Models('./models/')
 TEST_RESNET50_V1_5 = False
 TEST_XCEPTION = True
 
+TASK = "binary_classification"
 VERBOSE = True
 BATCH_SIZE = 32
-EPOCHS = 50
+EPOCHS = 1
 VAL_SPLIT = 0.1
 TRAIN_DATA_FOLDER = 'c:/w266/data/train_bert_untuned_last_3_full386_tokenids_specified/'
 TRAIN_LABEL_FILE = 'c:/w266/SQuADv2/train_386.h5'
-TRAIN_SIZE = 25000
-#TRAIN_SIZE = 500
+#TRAIN_SIZE = 25000
+TRAIN_SIZE = 500
 DEV_SIZE = 500
 
 ############################################################################
@@ -33,14 +34,17 @@ def get_file_indices(data_folder):
     #return np.sort([int(f.replace('.h5', '')) for f in os.listdir(data_folder) if os.path.isfile(os.path.join(data_folder, f)) & f.endswith('.h5')])
     return np.arange(88566)
 
-def load_labels(label_file):
+def load_labels(label_file, qna = True):
     
     with h5py.File(label_file, 'r') as train:
         start_ids = train['input_start']
         end_ids = train['input_end']
         labels = np.vstack([start_ids, end_ids]).T
 
-    return labels
+    if qna:
+        return labels
+    else:
+        return np.array([[1,0] if sum(i) > 0 else [0,1] for i in labels])
 
 # NOTE: right now, we are using TRAIN data and labels for dev, just the tail end
 def load_dev(dev_size, data_folder, dev_labels, dev_indices, verbose = False):
@@ -88,7 +92,10 @@ if __name__ == "__main__":
     if VERBOSE: print("Loading TRAIN file indices...")
     train_indices = get_file_indices(TRAIN_DATA_FOLDER)
     if VERBOSE: print("Loading TRAIN labels...")
-    train_labels = load_labels(label_file = TRAIN_LABEL_FILE)
+    train_labels = load_labels(label_file = TRAIN_LABEL_FILE, qna = TASK == "QnA")
+
+    x = np.array([[1,0] if sum(i) > 0 else [0,1] for i in train_labels])
+
     if VERBOSE: print("Loading DEV (Validation) examples & labels...")
     # NOTE: right now, we are using the last {DEV_SIZE} files in the TRAIN set as our DEV (Validation) set
     # this will change in the future to the actual dev set once we get the utiility set up for that.
@@ -102,7 +109,7 @@ if __name__ == "__main__":
 
         if VERBOSE: print("\n\Training Xception...\n")
         model, hist_params, hist = zoo.get_xception(X = X, Y = Y, batch_size = BATCH_SIZE, epoch_count = EPOCHS, X_val = dev, Y_val = dev_labels,
-            shuffle = True, input_shape = (386, 1024, 3), recalculate_pickle = True, task = "QnA", use_jiang_reduction = True,  
+            shuffle = True, input_shape = (386, 1024, 3), recalculate_pickle = True, task = TASK, use_jiang_reduction = True,  
             return_model_only = False, verbose = VERBOSE)
 
 #        model, hist_params, hist = zoo.get_xception(X = X, Y = Y, batch_size = BATCH_SIZE, epoch_count = EPOCHS, val_split = VAL_SPLIT,
