@@ -33,6 +33,8 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.python.keras import backend, initializers, models, regularizers
 
+from utils.squad import BertConcat
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 layers = tf.keras.layers
 np.random.seed(42)
@@ -163,7 +165,7 @@ class Models(object):
 
     # BERT "image" layer dedimensionalization
     def __BERT_image_input_layer(self, input_img, use_l2_regularizer, input_shape = (386, 1024, 3),  verbose = False):
-        
+
         x = layers.Conv2D(
             filters = 3,
             kernel_size = (1, 3),
@@ -188,7 +190,7 @@ class Models(object):
 
         if not (2 < len(input_shape) < 4):
             raise ValueError(f"parameter `input_shape` must be a length of 3; user specified a length of {len(input_shape)}.")
-    
+
         if not kernel_init:
             kernel_init = glorot_uniform()
         if not bias_init:
@@ -196,11 +198,11 @@ class Models(object):
 
         x0 = layers.Conv2D(filters = 3, kernel_size = (1, input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
             bias_initializer = bias_init, name = 'conv_2d_1xS_0') (input_img)
-        
+
         for i in range(input_shape[0] - 1):
             x = layers.Conv2D(3, kernel_size = (1,input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
                 bias_initializer = bias_init, name = 'conv_2d_1xS_%d' %(i+1)) (input_img)
-        
+
             x0 = tf.concat([x0, x], axis = 2)
 
         return x0
@@ -481,7 +483,7 @@ class Models(object):
 
             # DEBUG ISSUE
             self.__GPU_count = 1 # multi-GPU not working right now
-            
+
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
@@ -558,18 +560,18 @@ class Models(object):
                         name = 'dense_2_final') (x)
 
                     x = layers.Activation('sigmoid', dtype = 'float32') (x)
-                    
+
                     model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
 
                 elif task == "QnA":
-                    
+
                     h0 = layers.Dense(386,
                         kernel_initializer = initializers.RandomNormal(stddev = 0.01),
                         kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         dtype = tf.float32,
                         name = 'dense_386_start_h0') (x)
-                    
+
                     h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
                     h1 = layers.Dense(386,
@@ -606,11 +608,11 @@ class Models(object):
                 Y = list(Y)
                 if (not Y_val is None):
                     Y_val = list(Y_val.T)
-            
+
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
@@ -627,7 +629,7 @@ class Models(object):
                     cols = [n for n in history.history.keys() if n.endswith('_loss')]
                     avg = [history.history[c] for c in cols]
                     history.history["val_loss"] = np.mean(avg, axis = 0)
-                
+
                 # custom for ResNet50
                 avg = [history.history[c] for c in ['start_accuracy', 'end_accuracy']]
                 history.history["accuracy"] = np.mean(avg, axis = 0)
@@ -709,11 +711,11 @@ class Models(object):
 
         # predict
         if verbose: print(f"Predicting {len(X)} instances for task {task}...")
-        
+
         if task == "QnA":
             Y_start, Y_end = model.predict(X, verbose = verbose)
             return Y_start, Y_end
-        
+
         elif task == "binary_classification":
             Y = model.predict(X, verbose = verbose)
             return Y
@@ -722,7 +724,7 @@ class Models(object):
 
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    ### Xception 
+    ### Xception
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     # modified variant from  : https://github.com/yanchummar/xception-keras/blob/master/xception_model.py
@@ -775,7 +777,7 @@ class Models(object):
 
             # DEBUG ISSUE
             self.__GPU_count = 1 # multi-GPU not working right now
-            
+
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
@@ -787,10 +789,10 @@ class Models(object):
                 if use_jiang_reduction:
                     if verbose: "using Jiang reduction"
                     x = self.__jiang_reduction_input_layer(
-                        input_img = input_img, 
-                        input_shape = input_shape, 
-                        kernel_init = kernel_init, 
-                        bias_init = bias_init, 
+                        input_img = input_img,
+                        input_shape = input_shape,
+                        kernel_init = kernel_init,
+                        bias_init = bias_init,
                         verbose = verbose)
                 else:
                     if verbose: "using standard conv2d reduction"
@@ -899,11 +901,11 @@ class Models(object):
 
                     x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
                     x = layers.Activation('sigmoid', dtype = 'float32') (x)
-                    
+
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
                 elif task == "QnA":
-                    
+
                     h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
                     h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
@@ -936,7 +938,7 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
@@ -953,7 +955,7 @@ class Models(object):
                     cols = [n for n in history.history.keys() if n.endswith('_loss')]
                     avg = [history.history[c] for c in cols]
                     history.history["val_loss"] = np.mean(avg, axis = 0)
-                
+
                 # custom for ResNet50
                 avg = [history.history[c] for c in ['start_accuracy', 'end_accuracy']]
                 history.history["accuracy"] = np.mean(avg, axis = 0)
@@ -1022,11 +1024,11 @@ class Models(object):
 
         # predict
         if verbose: print(f"Predicting {len(X)} instances for task {task}...")
-        
+
         if task == "QnA":
             Y_start, Y_end = model.predict(X, verbose = verbose)
             return Y_start, Y_end
-        
+
         elif task == "binary_classification":
             Y = model.predict(X, verbose = verbose)
             return Y
@@ -1098,7 +1100,7 @@ class Models(object):
 
             # DEBUG ISSUE
             self.__GPU_count = 1 # multi-GPU not working right now
-            
+
             if self.__GPU_count > 1: dev = "/cpu:0"
             else: dev = "/gpu:0"
             with tf.device(dev):
@@ -1133,11 +1135,11 @@ class Models(object):
 
                     x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
                     x = layers.Activation('sigmoid', dtype = 'float32') (x)
-                    
+
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
                 elif task == "QnA":
-                    
+
                     h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
                     h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
@@ -1170,7 +1172,7 @@ class Models(object):
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
                 history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
@@ -1242,11 +1244,11 @@ class Models(object):
 
         # predict
         if verbose: print(f"Predicting {len(X)} instances for task {task}...")
-        
+
         if task == "QnA":
             Y_start, Y_end = model.predict(X, verbose = verbose)
             return Y_start, Y_end
-        
+
         elif task == "binary_classification":
             Y = model.predict(X, verbose = verbose)
             return Y
@@ -1277,7 +1279,7 @@ class Models(object):
 
 
 
-            
+
 
     def get_keras_inception_v1_inspired(self, input_shape, return_model_only = True, include_head = False):
         kernel_init = glorot_uniform()
@@ -1745,3 +1747,18 @@ class Models(object):
         aux2_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX2_name, __model_json_file, verbose = verbose)
 
         return main_model, aux1_model, aux2_model, hist_params, hist
+
+def baseline_tenney_weighting(input_shape):
+    inp = layers.Input(shape = input_shape, dtype = tf.float32)
+    x = BertConcat()(inp)
+    x = layers.Dense(2, activation = 'relu')(x)
+    start, end = tf.split(x, 2, axis=-1)
+    start = tf.squeeze(start, axis = -1)
+    end = tf.squeeze(end, axis = -1)
+    model = Model(inputs = inp, outputs = [start, end])
+
+    loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    model.compile(loss = [loss, loss],
+                  optimizer='adam',
+                  metrics = ['accuracy'])
+    return model
