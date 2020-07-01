@@ -14,7 +14,8 @@ zoo = Models('./models/')
 TEST_RESNET50_V1_5 = False
 TEST_XCEPTION = True
 
-TASK = "binary_classification"
+#TASK = "binary_classification"
+TASK = "QnA"
 VERBOSE = True
 BATCH_SIZE = 32
 EPOCHS = 1
@@ -44,10 +45,10 @@ def load_labels(label_file, qna = True):
     if qna:
         return labels
     else:
-        return np.array([[1,0] if sum(i) > 0 else [0,1] for i in labels])
+        return np.array([1 if sum(i) > 0 else 0 for i in labels])
 
 # NOTE: right now, we are using TRAIN data and labels for dev, just the tail end
-def load_dev(dev_size, data_folder, dev_labels, dev_indices, verbose = False):
+def load_dev(dev_size, data_folder, dev_labels, dev_indices, qna = True, verbose = False):
 
     
     dev = np.zeros((dev_size, 386, 1024, 3), dtype = np.float32)
@@ -58,9 +59,12 @@ def load_dev(dev_size, data_folder, dev_labels, dev_indices, verbose = False):
         if verbose:
             if not i % 100: print(i)
     
-    return dev, tuple(dev_labels[dev_indices[-dev_size:]].T)
+    if qna:
+        return dev, tuple(dev_labels[dev_indices[-dev_size:]].T)
+    else:
+        return dev, dev_labels[dev_indices[-dev_size:]].astype(np.uint8)
 
-def load_train(train_index, train_indices, train_size, data_folder, train_labels, verbose = False):
+def load_train(train_index, train_indices, train_size, data_folder, train_labels, qna = True, verbose = False):
 
     index = train_indices[train_index * train_size:(train_index + 1) * train_size]
     train = np.zeros((train_size, 386, 1024, 3), dtype = np.float32)
@@ -74,8 +78,10 @@ def load_train(train_index, train_indices, train_size, data_folder, train_labels
 
     labels[0], labels[1] = train_labels[index].T[0], train_labels[index].T[1]
 
-    return train, np.array(labels)
-
+    if qna:
+        return train, np.array(labels)
+    else:
+        return train, train_labels[index].astype(np.uint8)
 
 ############################################################################
 # MAIN FUNCTION
@@ -94,18 +100,17 @@ if __name__ == "__main__":
     if VERBOSE: print("Loading TRAIN labels...")
     train_labels = load_labels(label_file = TRAIN_LABEL_FILE, qna = TASK == "QnA")
 
-    x = np.array([[1,0] if sum(i) > 0 else [0,1] for i in train_labels])
-
     if VERBOSE: print("Loading DEV (Validation) examples & labels...")
     # NOTE: right now, we are using the last {DEV_SIZE} files in the TRAIN set as our DEV (Validation) set
     # this will change in the future to the actual dev set once we get the utiility set up for that.
-    dev, dev_labels = load_dev(dev_size = DEV_SIZE, data_folder = TRAIN_DATA_FOLDER, dev_labels = train_labels, dev_indices = train_indices, verbose = VERBOSE)
+    dev, dev_labels = load_dev(dev_size = DEV_SIZE, data_folder = TRAIN_DATA_FOLDER, dev_labels = train_labels, 
+        dev_indices = train_indices, qna = TASK == "QnA", verbose = VERBOSE)
 
     if TEST_XCEPTION:
 
         if VERBOSE:print("Loading TRAIN data & labels...")
         X, Y = load_train(train_index = 0, train_indices = train_indices, train_size = TRAIN_SIZE, 
-            data_folder = TRAIN_DATA_FOLDER, train_labels = train_labels, verbose = VERBOSE)
+            data_folder = TRAIN_DATA_FOLDER, train_labels = train_labels, qna = TASK == "QnA", verbose = VERBOSE)
 
         if VERBOSE: print("\n\Training Xception...\n")
         model, hist_params, hist = zoo.get_xception(X = X, Y = Y, batch_size = BATCH_SIZE, epoch_count = EPOCHS, X_val = dev, Y_val = dev_labels,
