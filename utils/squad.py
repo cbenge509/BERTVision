@@ -18,6 +18,7 @@ from transformers import BertConfig
 from collections import defaultdict, Counter
 
 from transformers import BertTokenizer, TFBertModel, BertConfig
+from tensorflow.keras import layers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
@@ -199,3 +200,17 @@ class UntrainedBertSquad2(object):
 
         model = Model(inputs = [input_ids, input_masks], outputs = [embeddings, outputs])
         return model
+
+class BertConcat(layers.Layer):
+    def __init__(self, units = 1):
+        super().__init__()
+
+        #Will only work currently with units = 1
+        self.units = 1
+
+    def build(self, input_shape):
+        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal')
+        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones')
+    def call(self, inputs):
+        w = tf.nn.softmax(self.w)
+        return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
