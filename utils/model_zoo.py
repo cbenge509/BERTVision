@@ -1748,17 +1748,17 @@ class Models(object):
 
         return main_model, aux1_model, aux2_model, hist_params, hist
 
-    def baseline_tenney_weighting(input_shape):
-        inp = layers.Input(shape = input_shape, dtype = tf.float32)
-        x = BertConcat()(inp)
-        x = layers.Dense(2, activation = 'relu')(x)
-        start, end = tf.split(x, 2, axis=-1)
-        start = tf.squeeze(start, axis = -1)
-        end = tf.squeeze(end, axis = -1)
-        model = Model(inputs = inp, outputs = [start, end])
+def baseline_tenney_weighting(input_shape):
+    inp = layers.Input(shape = input_shape, dtype = tf.float32)
+    x = BertConcat()(inp)
+    x = layers.Dense(2, activation = 'relu')(x)
+    start, end = tf.split(x, 2, axis=-1)
+    start = tf.squeeze(start, axis = -1)
+    end = tf.squeeze(end, axis = -1)
+    model = Model(inputs = inp, outputs = [start, end])
 
-        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-        model.compile(loss = [loss, loss],
-                      optimizer='adam',
-                      metrics = ['accuracy'])
-        return model
+    loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    model.compile(loss = [loss, loss],
+                  optimizer='adam',
+                  metrics = ['accuracy'])
+    return model
