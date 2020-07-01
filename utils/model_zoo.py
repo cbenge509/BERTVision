@@ -550,14 +550,14 @@ class Models(object):
 
                 if task == "binary_classification":
 
-                    x = layers.Dense(2,
+                    x = layers.Dense(1,
                         kernel_initializer = initializers.RandomNormal(stddev = 0.01),
                         kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         dtype = tf.float32,
                         name = 'dense_2_final') (x)
 
-                    x = layers.Activation('softmax', dtype = 'float32') (x)
+                    x = layers.Activation('sigmoid', dtype = 'float32') (x)
                     
                     model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
 
@@ -602,13 +602,18 @@ class Models(object):
             #parallel_model = model
             #parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
 
+            if task == "QnA":
+                Y = list(Y)
+                if (not Y_val is None):
+                    Y_val = list(Y_val.T)
+            
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count, 
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
@@ -892,8 +897,8 @@ class Models(object):
 
                 if task == "binary_classification":
 
-                    x = layers.Dense(2, dtype = tf.float32, name = 'dense_2_final') (x)
-                    x = layers.Activation('softmax', dtype = 'float32') (x)
+                    x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
+                    x = layers.Activation('sigmoid', dtype = 'float32') (x)
                     
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
@@ -923,13 +928,18 @@ class Models(object):
                 parallel_model = model
                 parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
 
+            if task == "QnA":
+                Y = list(Y)
+                if (not Y_val is None):
+                    Y_val = list(Y_val)
+
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y), batch_size = batch_size, epochs = epoch_count, 
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count, 
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y), validation_data = (X_val, list(Y_val)), batch_size = batch_size,
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
