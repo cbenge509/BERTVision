@@ -12,18 +12,19 @@ zoo = Models('./models/')
 ############################################################################
 
 TEST_RESNET50_V1_5 = False
-TEST_XCEPTION = True
+TEST_XCEPTION = False
+TEST_SMALL = True
 
-#TASK = "binary_classification"
-TASK = "QnA"
+TASK = "binary_classification"
+#TASK = "QnA"
 VERBOSE = True
-BATCH_SIZE = 32
-EPOCHS = 1
+BATCH_SIZE = 16
+EPOCHS = 50
 VAL_SPLIT = 0.1
-TRAIN_DATA_FOLDER = 'c:/w266/data/train_bert_untuned_last_3_full386_tokenids_specified/'
-TRAIN_LABEL_FILE = 'c:/w266/SQuADv2/train_386.h5'
+TRAIN_DATA_FOLDER = 'C:/MIDS/W266 - Natural Language Processing/Repos/BERTVision/data/train_bert_untuned_last_3_full386_tokenids_specified/'
+TRAIN_LABEL_FILE = 'C:/MIDS/W266 - Natural Language Processing/Repos/BERTVision/data/squad_train.h5'
 #TRAIN_SIZE = 25000
-TRAIN_SIZE = 500
+TRAIN_SIZE = 2000
 DEV_SIZE = 500
 
 ############################################################################
@@ -33,13 +34,13 @@ DEV_SIZE = 500
 def get_file_indices(data_folder):
     
     #return np.sort([int(f.replace('.h5', '')) for f in os.listdir(data_folder) if os.path.isfile(os.path.join(data_folder, f)) & f.endswith('.h5')])
-    return np.arange(88566)
+    return np.arange(2500)
 
 def load_labels(label_file, qna = True):
     
     with h5py.File(label_file, 'r') as train:
-        start_ids = train['input_start']
-        end_ids = train['input_end']
+        start_ids = train['start_position']
+        end_ids = train['end_position']
         labels = np.vstack([start_ids, end_ids]).T
 
     if qna:
@@ -105,6 +106,23 @@ if __name__ == "__main__":
     # this will change in the future to the actual dev set once we get the utiility set up for that.
     dev, dev_labels = load_dev(dev_size = DEV_SIZE, data_folder = TRAIN_DATA_FOLDER, dev_labels = train_labels, 
         dev_indices = train_indices, qna = TASK == "QnA", verbose = VERBOSE)
+
+
+    if TEST_SMALL:
+
+#            def get_small(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True, input_shape = (386, 1024, 3),
+#            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, return_model_only = True):
+
+        if VERBOSE:print("Loading TRAIN data & labels...")
+        X, Y = load_train(train_index = 0, train_indices = train_indices, train_size = TRAIN_SIZE, 
+            data_folder = TRAIN_DATA_FOLDER, train_labels = train_labels, qna = TASK == "QnA", verbose = VERBOSE)
+
+        if VERBOSE: print("\n\Training Small...\n")
+        model, hist_params, hist = zoo.get_small(X = X, Y = Y, batch_size = BATCH_SIZE, epoch_count = EPOCHS, X_val = dev, Y_val = dev_labels,
+            shuffle = True, input_shape = (386, 1024, 3), recalculate_pickle = True, task = TASK, return_model_only = False, verbose = VERBOSE)
+
+        print("\n", hist)
+
 
     if TEST_XCEPTION:
 
