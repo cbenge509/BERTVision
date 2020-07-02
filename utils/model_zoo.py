@@ -33,8 +33,6 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.python.keras import backend, initializers, models, regularizers
 
-from utils.squad import BertConcat
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 layers = tf.keras.layers
 np.random.seed(42)
@@ -1129,24 +1127,31 @@ class Models(object):
                     residual = Conv2D(filters = (i + 1) * 64, kernel_size = (1, 1), strides = (1,2), padding = 'same', use_bias = False, name = 'resid_' + str(i)) (x)
                     residual = BatchNormalization() (residual)
 
-                x = GlobalAveragePooling2D() (x)
+                #x = GlobalAveragePooling2D() (x)
 
                 if task == "binary_classification":
-
+                    x = GlobalAveragePooling2D() (x)
                     x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
                     x = layers.Activation('sigmoid', dtype = 'float32') (x)
 
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
                 elif task == "QnA":
+                    h0 = tf.reshape(x, (-1, x.shape[1] , x.shape[2] * x.shape[3]))
+                    h0 = layers.Dense(2, dtype = tf.float32, name = 'dense_output')(h0)
+                    start_logits, end_logits = tf.split(h0, 2, axis=-1)
+                    start_logits = tf.squeeze(start_logits, axis=-1)
+                    end_logits = tf.squeeze(end_logits, axis=-1)
+                    start = layers.Activation('softmax', dtype = 'float32', name = 'start')(start_logits)
+                    end = layers.Activation('softmax', dtype = 'float32', name = 'end')(end_logits)
 
-                    h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
-                    h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
+                    #h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
+                    #h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
 
-                    h1 = layers.Dense(386,dtype = tf.float32,name = 'dense_386_end_h1') (x)
-                    h1 = layers.Activation('softmax', dtype = 'float32', name = 'end') (h1)
+                    #h1 = layers.Dense(386,dtype = tf.float32,name = 'dense_386_end_h1') (x)
+                    #h1 = layers.Activation('softmax', dtype = 'float32', name = 'end') (h1)
 
-                    model = Model(input_img, outputs = [h0, h1], name = 'Xception_QnA')
+                    model = Model(input_img, outputs = [start, end], name = 'Xception_QnA')
 
             if verbose: print(model.summary())
 
@@ -1748,17 +1753,40 @@ class Models(object):
 
         return main_model, aux1_model, aux2_model, hist_params, hist
 
-def baseline_tenney_weighting(input_shape):
-    inp = layers.Input(shape = input_shape, dtype = tf.float32)
-    x = BertConcat()(inp)
-    x = layers.Dense(2, activation = 'relu')(x)
-    start, end = tf.split(x, 2, axis=-1)
-    start = tf.squeeze(start, axis = -1)
-    end = tf.squeeze(end, axis = -1)
-    model = Model(inputs = inp, outputs = [start, end])
+    def baseline_tenney_weighting(self, input_shape = (386, 1024, 24),
+                                  X = None, Y = None,
+                                  X_val = None, Y_val = None,
+                                  batch_size = 64,
+                                  epoch_count = 10,
+                                  shuffle = False,
+                                  verbose = False):
 
-    loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    model.compile(loss = [loss, loss],
-                  optimizer='adam',
-                  metrics = ['accuracy'])
-    return model
+        inp = layers.Input(shape = input_shape, dtype = tf.float32)
+        x = BertConcat()(inp)
+        x = layers.Dense(2, activation = 'relu')(x)
+        start, end = tf.split(x, 2, axis=-1)
+        start = tf.squeeze(start, axis = -1)
+        end = tf.squeeze(end, axis = -1)
+        model = Model(inputs = inp, outputs = [start, end])
+
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        model.compile(loss = [loss, loss],
+                      optimizer='adam',
+                      metrics = ['accuracy'])
+
+        return model
+
+class BertConcat(layers.Layer):
+    def __init__(self, units = 1):
+        super().__init__()
+
+        #Will only work currently with units = 1
+        self.units = 1
+
+    def build(self, input_shape):
+        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal')
+        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones')
+
+    def call(self, inputs):
+        w = tf.nn.softmax(self.w)
+        return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
