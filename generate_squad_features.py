@@ -128,7 +128,6 @@ def processSquad(processor, generate_training, max_seq_length, max_query_length,
 
     return
 
-def genEmbedding(model)
 ############################################################################
 # MAIN FUNCTION
 ############################################################################
