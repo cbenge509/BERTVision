@@ -165,7 +165,8 @@ class SQuADv2Utils(object):
 
         # populate zero-initialized arrays with features generated above
         arrz = [input_ids, input_segs, input_masks, input_start, input_end, input_is_impossible]
-        varz = ["input_ids", "token_type_ids", "attention_mask", "start_position", "end_position", "is_impossible"]
+        #varz = ["input_ids", "token_type_ids", "attention_mask", "start_position", "end_position", "is_impossible"]
+        varz = ["input_ids", "token_type_ids", "attention_mask", "input_start", "input_end", "input_is_impossible"]
         if verbose: print("generating arrays for binarization...")
         for i, d in enumerate(data):
             for a, v in zip(arrz, [d.input_ids, d.token_type_ids, d.attention_mask, d.start_position, d.end_position, d.is_impossible]):
