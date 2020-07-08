@@ -64,14 +64,16 @@ def gen_embeddings(model,
     with h5py.File(train_features, 'r') as train_data:
         train_ids = np.array(train_data['input_ids'], dtype = np.int32)
         train_masks = np.array(train_data['attention_mask'], dtype = np.int32)
+        train_tokens = np.array(train_data['token_type_ids'], dtype = np.int32)
 
     with h5py.File(dev_features, 'r') as dev_data:
         dev_ids = np.array(dev_data['input_ids'], dtype = np.int32)
         dev_masks = np.array(dev_data['attention_mask'], dtype = np.int32)
+        dev_tokens = np.array(dev_data['token_type_ids'], dtype = np.int32)
 
     #training data
     for i in range(len(train_ids)):
-        embeddings, outputs = model.predict([train_ids[[i]], train_masks[[i]]])
+        embeddings, outputs = model.predict([train_ids[[i]], train_masks[[i]], train_tokens[[i]]])
         not_pad = np.where(train_ids[i] != 0)[0]
         e, o = get_outputs(embeddings, not_pad, outputs)
         write_file(train_first, i, e[:,:,:3])
@@ -80,7 +82,7 @@ def gen_embeddings(model,
 
     #dev data
     for i in range(len(dev_ids)):
-        embeddings, outputs = model.predict([dev_ids[[i]], dev_masks[[i]]])
+        embeddings, outputs = model.predict([dev_ids[[i]], dev_masks[[i]], dev_tokens[[i]]])
         not_pad = np.where(dev_ids[i] != 0)[0]
         e, o = get_outputs(embeddings, not_pad, outputs)
         write_file(dev_first, i, e[:,:,:3])

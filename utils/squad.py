@@ -18,6 +18,7 @@ from transformers import BertConfig
 from collections import defaultdict, Counter
 
 from transformers import BertTokenizer, TFBertModel, BertConfig
+from tensorflow.keras import layers
 from tensorflow.keras.layers import Dense, Input
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
@@ -164,7 +165,8 @@ class SQuADv2Utils(object):
 
         # populate zero-initialized arrays with features generated above
         arrz = [input_ids, input_segs, input_masks, input_start, input_end, input_is_impossible]
-        varz = ["input_ids", "token_type_ids", "attention_mask", "start_position", "end_position", "is_impossible"]
+        #varz = ["input_ids", "token_type_ids", "attention_mask", "start_position", "end_position", "is_impossible"]
+        varz = ["input_ids", "token_type_ids", "attention_mask", "input_start", "input_end", "input_is_impossible"]
         if verbose: print("generating arrays for binarization...")
         for i, d in enumerate(data):
             for a, v in zip(arrz, [d.input_ids, d.token_type_ids, d.attention_mask, d.start_position, d.end_position, d.is_impossible]):
@@ -178,6 +180,28 @@ class SQuADv2Utils(object):
         if verbose: print(f"{feature_target} H5 feature file '{data_h5}' written to disk.")
 
         return
+
+class UntrainedBertSquad2Faster(object):
+    def __init__(self,
+                 config = Squad2Config()):
+
+        self.tokenizer = config.tokenizer
+        self.named_model = config.named_model
+        self.model = self.bert_large_uncased_for_squad2(config.max_seq_length)
+
+    def bert_large_uncased_for_squad2(self, max_seq_length):
+        input_ids = Input((max_seq_length,), dtype = tf.int32, name = 'input_ids')
+        input_masks = Input((max_seq_length,), dtype = tf.int32, name = 'input_masks')
+        input_tokens = Input((max_seq_length,), dtype = tf.int32, name = 'input_tokens')
+
+        #Load model from huggingface
+        config = BertConfig.from_pretrained("bert-large-uncased", output_hidden_states=True)
+        bert_layer = TFBertModel.from_pretrained(self.named_model, config = config)
+        bert_layer.load_weights('bert_base_squad_1e-5_adam_4batchsize_4epochs_weights_BERT_ONLY.h5')
+        _, _, embeddings = bert_layer([input_ids, input_masks, input_tokens]) #1 for pooled outputs, 0 for sequence
+
+        model = Model(inputs = [input_ids, input_masks, input_tokens], outputs = embeddings)
+        return model
 
 class UntrainedBertSquad2(object):
     def __init__(self,
@@ -199,3 +223,42 @@ class UntrainedBertSquad2(object):
 
         model = Model(inputs = [input_ids, input_masks], outputs = [embeddings, outputs])
         return model
+
+class FineTunedBertSquad2(object):
+    def __init__(self, weights_file = None,
+                 config = Squad2Config()):
+
+        self.tokenizer = config.tokenizer
+        self.named_model = config.named_model
+        self.weights_file = weights_file
+        self.model = self.bert_large_uncased_for_squad2(config.max_seq_length)
+
+    def bert_large_uncased_for_squad2(self, max_seq_length):
+        input_ids = Input((max_seq_length,), dtype = tf.int32, name = 'input_ids')
+        input_masks = Input((max_seq_length,), dtype = tf.int32, name = 'input_masks')
+        input_tokens = Input((max_seq_length,), dtype = tf.int32, name = 'input_tokens')
+
+        #Load model from huggingface
+        config = BertConfig.from_pretrained("bert-large-uncased", output_hidden_states=True)
+        bert_layer = TFBertModel.from_pretrained(self.named_model, config = config)
+        if self.weights_file is not None:
+            bert_layer.load_weights(self.weights_file)
+        _, _, embeddings = bert_layer([input_ids, input_masks, input_tokens]) #1 for pooled outputs, 0 for sequence
+
+        model = Model(inputs = [input_ids, input_masks, input_tokens], outputs = embeddings)
+        return model
+
+class BertConcat(layers.Layer):
+    def __init__(self, units = 1):
+        super().__init__()
+
+        #Will only work currently with units = 1
+        self.units = 1
+
+    def build(self, input_shape):
+        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal')
+        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones')
+
+    def call(self, inputs):
+        w = tf.nn.softmax(self.w)
+        return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
