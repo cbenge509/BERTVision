@@ -183,6 +183,27 @@ class Models(object):
     #//////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+    # BERT "image" layer dimension reduction using Jiang-reduction (tm)
+    def __jiang_reduction_input_layer(self, input_img, input_shape = (386, 1024, 3), kernel_init = None, bias_init = None, verbose = False):
+
+        if not (2 < len(input_shape) < 4):
+            raise ValueError(f"parameter `input_shape` must be a length of 3; user specified a length of {len(input_shape)}.")
+
+        if not kernel_init:
+            kernel_init = glorot_uniform()
+        if not bias_init:
+            bias_init = Constant(value = 0.2)
+
+        x0 = layers.Conv2D(filters = 3, kernel_size = (1, input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
+            bias_initializer = bias_init, name = 'conv_2d_1xS_0') (input_img)
+
+        for i in range(input_shape[0] - 1):
+            x = layers.Conv2D(3, kernel_size = (1,input_shape[1]), activation = 'relu', kernel_initializer = kernel_init,
+                bias_initializer = bias_init, name = 'conv_2d_1xS_%d' %(i+1)) (input_img)
+
+            x0 = tf.concat([x0, x], axis = 2)
+
+        return x0
 
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -529,14 +550,14 @@ class Models(object):
 
                 if task == "binary_classification":
 
-                    x = layers.Dense(2,
+                    x = layers.Dense(1,
                         kernel_initializer = initializers.RandomNormal(stddev = 0.01),
                         kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         bias_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
                         dtype = tf.float32,
                         name = 'dense_2_final') (x)
 
-                    x = layers.Activation('softmax', dtype = 'float32') (x)
+                    x = layers.Activation('sigmoid', dtype = 'float32') (x)
 
                     model = models.Model(input_img, x, name = 'ResNet50_v1_5_BC')
 
@@ -581,13 +602,18 @@ class Models(object):
             #parallel_model = model
             #parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
 
+            if task == "QnA":
+                Y = list(Y)
+                if (not Y_val is None):
+                    Y_val = list(Y_val.T)
+
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count,
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
@@ -694,7 +720,6 @@ class Models(object):
         else:
             return
 
-
     #/////////////////////////////////////////////////////
     #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     ### Xception
@@ -703,8 +728,8 @@ class Models(object):
     # modified variant from  : https://github.com/yanchummar/xception-keras/blob/master/xception_model.py
     # Chollet : https://arxiv.org/abs/1610.02357
 
-    def get_xception(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True,
-            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, return_model_only = True):
+    def get_xception(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True, input_shape = (386, 1024, 3),
+            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, use_jiang_reduction = True, return_model_only = True):
 
         if (not return_model_only) or (recalculate_pickle):
             self.__require_params(X = X, Y = Y, batch_size = batch_size, epoch_count = epoch_count)
@@ -740,6 +765,8 @@ class Models(object):
                 mode = 'min', monitor = 'val_loss')
             stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
             es = EarlyStopping(patience = stop_at, verbose = verbose)
+            kernel_init = glorot_uniform()
+            bias_init = Constant(value = 0.2)
 
             if task == "binary_classification":
                 lss = BinaryCrossentropy()
@@ -753,15 +780,25 @@ class Models(object):
             else: dev = "/gpu:0"
             with tf.device(dev):
 
-                # input image size of 386h x 1024w x 3c
-                input_img = layers.Input(shape = (386, 1024, 3), dtype = tf.float32)
+                # input image size
+                input_img = layers.Input(shape = input_shape, dtype = tf.float32)
 
-                # downscale our 386x1024 images across the width dimension
-                x = self.__BERT_image_input_layer(
-                    input_img = input_img,
-                    use_l2_regularizer = True,
-                    input_shape = (386, 1024, 3),
-                    verbose = verbose)
+                # downscale our HxWxC images
+                if use_jiang_reduction:
+                    if verbose: "using Jiang reduction"
+                    x = self.__jiang_reduction_input_layer(
+                        input_img = input_img,
+                        input_shape = input_shape,
+                        kernel_init = kernel_init,
+                        bias_init = bias_init,
+                        verbose = verbose)
+                else:
+                    if verbose: "using standard conv2d reduction"
+                    x = self.__BERT_image_input_layer(
+                        input_img = input_img,
+                        use_l2_regularizer = True,
+                        input_shape = (386, 1024, 3),
+                        verbose = verbose)
 
                 # Block 1
                 x = Conv2D(32, (3, 3), strides=(2, 2), use_bias=False) (x)
@@ -860,8 +897,8 @@ class Models(object):
 
                 if task == "binary_classification":
 
-                    x = layers.Dense(2, dtype = tf.float32, name = 'dense_2_final') (x)
-                    x = layers.Activation('softmax', dtype = 'float32') (x)
+                    x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
+                    x = layers.Activation('sigmoid', dtype = 'float32') (x)
 
                     model = models.Model(input_img, x, name = 'Xception_BC')
 
@@ -891,13 +928,18 @@ class Models(object):
                 parallel_model = model
                 parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
 
+            if task == "QnA":
+                Y = list(Y)
+                if (not Y_val is None):
+                    Y_val = list(Y_val)
+
             if (X_val is None) or (Y_val is None):
                 #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
                 #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
-                history = parallel_model.fit(X, list(Y.T), batch_size = batch_size, epochs = epoch_count,
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
                     validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
             else:
-                history = parallel_model.fit(X, list(Y.T), validation_data = (X_val, list(Y_val.T)), batch_size = batch_size,
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
                     epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
 
             # print and/or save a performance plot
@@ -1058,6 +1100,253 @@ class Models(object):
             return Y
         else:
             return
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ### Get Small
+    #/////////////////////////////////////////////////////
+    #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    def get_small(self, X = None, Y = None, batch_size = None, epoch_count = 10, val_split = 0.1, shuffle = True, input_shape = (386, 1024, 3),
+            recalculate_pickle = True, X_val = None, Y_val = None, task = "QnA", verbose = False, return_model_only = True):
+
+        if (not return_model_only) or (recalculate_pickle):
+            self.__require_params(X = X, Y = Y, batch_size = batch_size, epoch_count = epoch_count)
+
+        if task not in self.__model_tasks:
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
+
+        # set plumbing parameter values
+        __MODEL_NAME = "Small"
+        __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
+        __MODEL_FNAME_PREFIX = "Small/"
+
+        nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
+        if not os.path.exists(nested_dir):
+            os.makedirs(nested_dir)
+
+        __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
+        __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
+        __model_architecture_plot_file = "".join([nested_dir, __MODEL_NAME_TASK, "_plot.png"])
+        __history_params_file = "".join([nested_dir, __MODEL_NAME_TASK, "_params.csv"])
+        __history_performance_file = "".join([nested_dir, __MODEL_NAME_TASK, "_history.csv"])
+        __history_plot_file = "".join([nested_dir, __MODEL_NAME_TASK, "_output_plot.png"])
+
+        if verbose: print(f"Retrieving model: {__MODEL_NAME}...")
+
+        # Create or load the model
+        if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)) or recalculate_pickle:
+            if verbose: print(f"Pickle file for {__MODEL_NAME} and task {task} MODEL not found or skipped by caller.")
+
+            opt = Adam(lr = 1e-3, beta_1 = 0.9, beta_2 = 0.999, epsilon = 1e-8)
+            mtrc = ['accuracy']
+            cp = ModelCheckpoint(filepath = __model_file_name, verbose = verbose, save_best_only = True,
+                mode = 'min', monitor = 'val_loss')
+            stop_at = np.max([int(0.1 * epoch_count), self.__MIN_early_stopping])
+            es = EarlyStopping(patience = stop_at, verbose = verbose)
+            kernel_init = glorot_uniform()
+            bias_init = Constant(value = 0.2)
+
+            if task == "binary_classification":
+                lss = BinaryCrossentropy()
+            elif task == "QnA":
+                lss = SparseCategoricalCrossentropy(from_logits = False)
+
+            # DEBUG ISSUE
+            self.__GPU_count = 1 # multi-GPU not working right now
+
+            if self.__GPU_count > 1: dev = "/cpu:0"
+            else: dev = "/gpu:0"
+            with tf.device(dev):
+
+                # input image size
+                input_img = layers.Input(shape = input_shape, dtype = tf.float32)
+
+                # downscale our HxWxC images
+                ks_list = [(7, 1), (5, 1), (3, 1), (3, 1), (2, 1)] #, (3, 3), (2, 2), (2, 2)]
+                s_list = [(1, 2), (1, 2), (1, 2), (1, 2), (1, 2)] #, (2, 1), (2, 1), (2, 1)]
+                for i, ks, s in zip(list(range(len(ks_list))), ks_list, s_list):
+                    if i == 0:
+                        x = Conv2D(filters = (i + 1) * 64, kernel_size = ks, strides = s, padding = 'same', use_bias = False) (input_img)
+                    else:
+                        x = MaxPooling2D((3, 1), strides = (1, 2), padding = 'same') (x)
+                        x = layers.add([x, residual])
+                        x = Conv2D(filters = (i + 1) * 64, kernel_size = ks, strides = s, padding = 'same', use_bias = False) (x)
+
+                    x = BatchNormalization() (x)
+                    x = Activation('relu') (x)
+
+                    x = Conv2D(filters = (i + 1) * 64, kernel_size = (1, 1), strides = (1, 1), padding = 'same', use_bias = False) (x)
+                    x = BatchNormalization() (x)
+                    x = Activation('relu') (x)
+
+                    residual = Conv2D(filters = (i + 1) * 64, kernel_size = (1, 1), strides = (1,2), padding = 'same', use_bias = False, name = 'resid_' + str(i)) (x)
+                    residual = BatchNormalization() (residual)
+
+                #x = GlobalAveragePooling2D() (x)
+
+                if task == "binary_classification":
+                    x = GlobalAveragePooling2D() (x)
+                    x = layers.Dense(1, dtype = tf.float32, name = 'dense_2_final') (x)
+                    x = layers.Activation('sigmoid', dtype = 'float32') (x)
+
+                    model = models.Model(input_img, x, name = 'Xception_BC')
+
+                elif task == "QnA":
+                    h0 = tf.reshape(x, (-1, x.shape[1] , x.shape[2] * x.shape[3]))
+                    h0 = layers.Dense(2, dtype = tf.float32, name = 'dense_output')(h0)
+                    start_logits, end_logits = tf.split(h0, 2, axis=-1)
+                    start_logits = tf.squeeze(start_logits, axis=-1)
+                    end_logits = tf.squeeze(end_logits, axis=-1)
+                    start = layers.Activation('softmax', dtype = 'float32', name = 'start')(start_logits)
+                    end = layers.Activation('softmax', dtype = 'float32', name = 'end')(end_logits)
+
+                    #h0 = layers.Dense(386, dtype = tf.float32, name = 'dense_386_start_h0') (x)
+                    #h0 = layers.Activation('softmax', dtype = 'float32', name = 'start') (h0)
+
+                    #h1 = layers.Dense(386,dtype = tf.float32,name = 'dense_386_end_h1') (x)
+                    #h1 = layers.Activation('softmax', dtype = 'float32', name = 'end') (h1)
+
+                    model = Model(input_img, outputs = [start, end], name = 'Xception_QnA')
+
+            if verbose: print(model.summary())
+
+            # return to the caller an untrained model
+            if return_model_only:
+                return model
+
+            # Compile the model
+            if self.__GPU_count > 1:
+                strategy = tf.distribute.MirroredStrategy()
+                with strategy.scope():
+                    parallel_model = multi_gpu_model(model, gpus = self.__GPU_count)
+                    parallel_model.compile(optimizer = opt, loss = [lss, lss], metrics = mtrc)
+            else:
+                parallel_model = model
+                parallel_model.compile(optimizer = opt, loss = [lss,lss], metrics = mtrc)
+
+            if task == "QnA":
+                Y = list(Y)
+                if (not Y_val is None):
+                    Y_val = list(Y_val)
+
+            if (X_val is None) or (Y_val is None):
+                #history = parallel_model.fit(X, Y, validation_split = val_split, batch_size = batch_size,
+                #    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
+                history = parallel_model.fit(X, Y, batch_size = batch_size, epochs = epoch_count,
+                    validation_split = val_split, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
+            else:
+                history = parallel_model.fit(X, Y, validation_data = (X_val, Y_val), batch_size = batch_size,
+                    epochs = epoch_count, shuffle = shuffle, callbacks = [es, cp], verbose = verbose)
+
+            # print and/or save a performance plot
+            try:
+                self.__plot_keras_history(history = history, metric = 'accuracy', model_name = __MODEL_NAME,
+                    file_name = __history_plot_file, verbose = False)
+            except:
+                print("error during history plot generation; skipped.")
+                pass
+
+            # save the model, parameters, and performance history
+            model_json = parallel_model.to_json()
+            with open(__model_json_file, "w") as json_file:
+                json_file.write(model_json)
+            hist_params = pd.DataFrame(history.params, index = [0])
+            hist_params.to_csv(__history_params_file)
+
+            hist = pd.DataFrame(history.history)
+            hist.to_csv(__history_performance_file)
+
+            # save a plot of the model architecture
+            try:
+                plot_model(parallel_model, to_file = __model_architecture_plot_file, rankdir = 'TB',
+                    show_shapes = True, show_layer_names = True, expand_nested = True, dpi = 300)
+            except:
+                print("error during model plot generation; skiopped.")
+                pass
+
+            if verbose: print("Model JSON, history, and parameters file saved.")
+
+        else:
+            if verbose: print(f"Loading history and params files for '{__MODEL_NAME}' model...")
+            hist_params = pd.read_csv(__history_params_file)
+            hist = pd.read_csv(__history_performance_file)
+
+            if verbose: print(f"Loading pickle file for '{__MODEL_NAME}' model (task: {task}) from file '{__model_file_name}'")
+            parallel_model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
+
+        return parallel_model, hist_params, hist
+
+    # ********************************
+    # ***** Xception INFERENCING
+    # ********************************
+    def predict_small(self, X, task = "QnA", verbose = False):
+
+        __MODEL_NAME = "Small"
+        __MODEL_NAME_TASK = "".join([__MODEL_NAME, "_", task])
+        __MODEL_FNAME_PREFIX = "Small/"
+
+        nested_dir = "".join([self.__models_path,__MODEL_FNAME_PREFIX])
+        if not os.path.exists(nested_dir):
+            os.makedirs(nested_dir)
+
+        __model_file_name = "".join([nested_dir, __MODEL_NAME_TASK, ".h5"])
+        __model_json_file = "".join([nested_dir, __MODEL_NAME_TASK, ".json"])
+
+        if task not in self.__model_tasks:
+            raise ValueError(f"parameter task value of '{task}' is not permitted.")
+
+        if (not os.path.isfile(__model_file_name)) or (not os.path.isfile(__model_json_file)):
+            raise RuntimeError("One or some of the following files are missing; prediction cancelled:\n\n'%s'\n'%s'\n\n" %
+                (__model_file_name, __model_json_file))
+
+        # load the Keras model for the specified feature
+        model = self.__load_keras_model(__MODEL_NAME, __model_file_name, __model_json_file, verbose = verbose)
+
+        # predict
+        if verbose: print(f"Predicting {len(X)} instances for task {task}...")
+
+        if task == "QnA":
+            Y_start, Y_end = model.predict(X, verbose = verbose)
+            return Y_start, Y_end
+
+        elif task == "binary_classification":
+            Y = model.predict(X, verbose = verbose)
+            return Y
+        else:
+            return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1531,3 +1820,41 @@ class Models(object):
         aux2_model = self.__load_keras_model(__MODEL_NAME, __model_file_AUX2_name, __model_json_file, verbose = verbose)
 
         return main_model, aux1_model, aux2_model, hist_params, hist
+
+    def baseline_tenney_weighting(self, input_shape = (386, 1024, 24),
+                                  X = None, Y = None,
+                                  X_val = None, Y_val = None,
+                                  batch_size = 64,
+                                  epoch_count = 10,
+                                  shuffle = False,
+                                  verbose = False):
+
+        inp = layers.Input(shape = input_shape, dtype = tf.float32)
+        x = BertConcat()(inp)
+        x = layers.Dense(2, activation = 'relu')(x)
+        start, end = tf.split(x, 2, axis=-1)
+        start = tf.squeeze(start, axis = -1)
+        end = tf.squeeze(end, axis = -1)
+        model = Model(inputs = inp, outputs = [start, end])
+
+        loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        model.compile(loss = [loss, loss],
+                      optimizer='adam',
+                      metrics = ['accuracy'])
+
+        return model
+
+class BertConcat(layers.Layer):
+    def __init__(self, units = 1):
+        super().__init__()
+
+        #Will only work currently with units = 1
+        self.units = 1
+
+    def build(self, input_shape):
+        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal')
+        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones')
+
+    def call(self, inputs):
+        w = tf.nn.softmax(self.w)
+        return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
