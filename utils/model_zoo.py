@@ -1844,6 +1844,8 @@ class Models(object):
 
         return model
 
+
+
 class BertConcat(layers.Layer):
     def __init__(self, units = 1):
         super().__init__()
@@ -1858,3 +1860,52 @@ class BertConcat(layers.Layer):
     def call(self, inputs):
         w = tf.nn.softmax(self.w)
         return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
+
+def gelu(x):
+    """Gaussian Error Linear Unit.
+    This is a smoother version of the RELU.
+    Original paper: https://arxiv.org/abs/1606.08415
+    Args:
+      x: float Tensor to perform activation.
+    Returns:
+      `x` with the GELU activation applied.
+    """
+    cdf = 0.5 * (1.0 + tf.tanh(
+        (np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3)))))
+    return x * cdf
+    
+class AdapterPooler(tf.keras.layers.Layer):
+    def __init__(self, adapter_dim, init_scale = 1e-3, shared_weights = True):
+        super().__init__()
+        self.adapter_dim = adapter_dim
+        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=init_scale)
+        if shared_weights:
+            self.pooler_layer = tf.keras.layers.TimeDistributed(
+                tf.keras.layers.Dense(self.adapter_dim, kernel_initializer=self.initializer))
+        else:
+            self.pooler_layer = tf.keras.layers.LocallyConnected1D(self.adapter_dim, 1, 1, kernel_initializer=self.initializer)
+
+    def call(self, inputs):
+        '''Input shape expected to be (batch_size, 386, 1024, 24)
+           Call reshapes tensor into (batch_size * 386, 24, 1024)
+           Apply pooler_layer to input with gelu activation
+        '''
+
+        sequence_dim = inputs.shape[1]
+        embedding_dim = inputs.shape[2]
+        encoder_dim = inputs.shape[3]
+
+        #Combine batch and sequence length dimension
+        X = tf.reshape(inputs, [-1, embedding_dim, encoder_dim])
+
+        #Move encoder_dim to axis = 1
+        X = tf.transpose(X, (0, 2, 1))
+
+        X = self.pooler_layer(X)
+        X = gelu(X)
+
+        #Regenerate shape
+        X = tf.transpose(X, (0, 2, 1))
+        X = tf.reshape(X, [-1, sequence_dim, self.adapter_dim, encoder_dim])
+
+        return X
