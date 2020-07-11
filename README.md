@@ -1,7 +1,7 @@
 BERTVision
 ==========================================================
 
-![GitHub](https://img.shields.io/github/license/cbenge509/BERTVision) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/cbenge509/BERTVision) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/transformers) ![GitHub contributors](https://img.shields.io/github/contributors/cbenge509/BERTVision) ![GitHub repo size](https://img.shields.io/github/repo-size/cbenge509/BERTVision)
+![GitHub](https://img.shields.io/github/license/cbenge509/BERTVision) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/cbenge509/BERTVision) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/transformers) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/altair) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/h5py)
 
 <img align="right" width="180" src="./images/ucb.png"/>
 
@@ -11,22 +11,23 @@ BERTVision
 
 
 U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) <br>
-Summer 2020, W266 - Natural Language Processing - Daniel Cer, PhD - Section 1
+Summer 2020, W266 - Natural Language Processing - [Daniel Cer, PhD](https://scholar.google.com/citations?user=BrT1NW8AAAAJ&hl=en) - Section 1
 
 ---
 
-<img src="/images/bertvision.png" align="center" width=900>
+<img src="/images/bertvision.png" align="center" width=700 height=500>
 
 ---
 
 ## Description
 
-This repo contains the draft work for the evaluation of integrating successful vision models, like ResNet, Inception, etc., with BERT (large) NLP trained on SQuADv2 for QnA tasks through the treatment of hidden embeddings as image data.
+This repo contains the draft work for the evaluation of integrating successful vision models, like ResNet, Inception, etc., with BERT (large) NLP trained on SQuAD v2 for QnA & binary classifications tasks through the treatment of hidden embeddings as image data.
 
 #### Highlight of key files included in this repository:
 
   |File | Description |
   |:----|:------------|
+  |[generate_squad_features.py](generate_squad_features.py) | Utility script that generates the train and dev tokens for BERT from the SQuAD v2 dataset |
 
 ---
   
