@@ -994,6 +994,74 @@ class Models(object):
 
         return parallel_model, hist_params, hist
 
+    def get_resnet50_v1_5_model_only(self,
+                                     task = "QnA",
+                                     use_l2_regularizer = False,
+                                     batch_norm_decay = 0.9,
+                                     batch_norm_epsilon = 1e-5,
+                                     verbose = False):
+        # input image size of 386h x 1024w x 3c
+        bn_axis = 3
+        block_config = dict(
+            use_l2_regularizer = use_l2_regularizer,
+            batch_norm_decay = batch_norm_decay,
+            batch_norm_epsilon = batch_norm_epsilon)
+        input_img = layers.Input(shape = (386, 1024, 3))
+
+        # downscale our 386x1024 images across the width dimension
+        x = self.__BERT_image_input_layer(
+            input_img = input_img,
+            use_l2_regularizer = use_l2_regularizer,
+            input_shape = (386, 1024, 3),
+            verbose = verbose)
+
+        x = layers.ZeroPadding2D(padding = (3, 3), name = 'conv1_pad') (x)
+
+        x = layers.Conv2D(
+            filters = 64,
+            kernel_size = (7, 7),
+            strides = (2, 2),
+            padding = 'valid',
+            use_bias = False,
+            kernel_initializer = 'he_normal',
+            kernel_regularizer = self.__gen_l2_regularizer(use_l2_regularizer),
+            name = 'conv1') (x)
+
+        x = layers.BatchNormalization(
+            axis = bn_axis,
+            momentum = batch_norm_decay,
+            epsilon = batch_norm_epsilon,
+            name = 'bn_conv1') (x)
+
+        x = layers.Activation('relu') (x)
+        x = layers.MaxPooling2D((3, 3), strides = (2, 2), padding = 'same') (x)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'a', strides = (1, 1), **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [64, 64, 256], stage = 2, block = 'c', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [128, 128, 512], stage = 3, block = 'd', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'c', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'd', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'e', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [256, 256, 1024], stage = 4, block = 'f', **block_config)
+
+        x = self.__conv_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'a', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'b', **block_config)
+        x = self.__identity_block(input_tensor = x, kernel_size = 3, filters = [512, 512, 2048], stage = 5, block = 'c', **block_config)
+
+        x = layers.GlobalAveragePooling2D() (x)
+
+        model = models.Model(input_img, x, name = 'ResNet50_v1_5')
+
+        return model
+
     # ********************************
     # ***** Xception INFERENCING
     # ********************************
@@ -1776,6 +1844,8 @@ class Models(object):
 
         return model
 
+
+
 class BertConcat(layers.Layer):
     def __init__(self, units = 1):
         super().__init__()
@@ -1790,3 +1860,52 @@ class BertConcat(layers.Layer):
     def call(self, inputs):
         w = tf.nn.softmax(self.w)
         return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
+
+def gelu(x):
+    """Gaussian Error Linear Unit.
+    This is a smoother version of the RELU.
+    Original paper: https://arxiv.org/abs/1606.08415
+    Args:
+      x: float Tensor to perform activation.
+    Returns:
+      `x` with the GELU activation applied.
+    """
+    cdf = 0.5 * (1.0 + tf.tanh(
+        (np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3)))))
+    return x * cdf
+    
+class AdapterPooler(tf.keras.layers.Layer):
+    def __init__(self, adapter_dim, init_scale = 1e-3, shared_weights = True):
+        super().__init__()
+        self.adapter_dim = adapter_dim
+        self.initializer = tf.keras.initializers.TruncatedNormal(stddev=init_scale)
+        if shared_weights:
+            self.pooler_layer = tf.keras.layers.TimeDistributed(
+                tf.keras.layers.Dense(self.adapter_dim, kernel_initializer=self.initializer))
+        else:
+            self.pooler_layer = tf.keras.layers.LocallyConnected1D(self.adapter_dim, 1, 1, kernel_initializer=self.initializer)
+
+    def call(self, inputs):
+        '''Input shape expected to be (batch_size, 386, 1024, 24)
+           Call reshapes tensor into (batch_size * 386, 24, 1024)
+           Apply pooler_layer to input with gelu activation
+        '''
+
+        sequence_dim = inputs.shape[1]
+        embedding_dim = inputs.shape[2]
+        encoder_dim = inputs.shape[3]
+
+        #Combine batch and sequence length dimension
+        X = tf.reshape(inputs, [-1, embedding_dim, encoder_dim])
+
+        #Move encoder_dim to axis = 1
+        X = tf.transpose(X, (0, 2, 1))
+
+        X = self.pooler_layer(X)
+        X = gelu(X)
+
+        #Regenerate shape
+        X = tf.transpose(X, (0, 2, 1))
+        X = tf.reshape(X, [-1, sequence_dim, self.adapter_dim, encoder_dim])
+
+        return X
