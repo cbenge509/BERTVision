@@ -1844,6 +1844,32 @@ class Models(object):
 
         return model
 
+    def adapter_compression_layer(self, input_shape = (1, 1024, 26),
+                                   adapter_size = 64, with_skip_connection = True,
+                                   shared_weights = False):
+        inp = layers.Input(input_shape)
+        inp_pooled = inp[:,:,:,-1]
+        X = AdapterPooler(adapter_size, shared_weights = shared_weights)(input)
+        X = tf.reshape(X, (-1, X.shape[1], X.shape[2] * X.shape[3]))
+
+        if with_skip_connection:
+            X = tf.concat([X, inp_seq], axis = 2)
+
+        model = Model(inputs = inp, outputs = X)
+        return model
+
+    def tenney_pooling_layer(self, input_shape = (1, 1024, 26),
+                             with_skip_connection = True
+                             ):
+        inp = layers.Input(input_shape)
+        inp_pooled = inp[:,:,:,-1]
+        X = BertConcat()(input)
+
+        if with_skip_connection:
+            X = tf.concat([X, inp_seq], axis = 2)
+
+        model = Model(inputs = inp, outputs = X)
+        return model
 
 
 class BertConcat(layers.Layer):
@@ -1854,12 +1880,12 @@ class BertConcat(layers.Layer):
         self.units = 1
 
     def build(self, input_shape):
-        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal')
-        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones')
+        self.w = self.add_weight(shape = (input_shape[-1],), trainable = True, initializer = 'random_normal', name = 'weights')
+        self.t = self.add_weight(shape = (1), trainable = True, initializer = 'ones', name = 'probes')
 
     def call(self, inputs):
         w = tf.nn.softmax(self.w)
-        return tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
+        return tf.tensordot(w, inputs, axes = (0, -1)) * self.t #tf.reduce_sum(tf.multiply(inputs, w), axis = -1) * self.t
 
 def gelu(x):
     """Gaussian Error Linear Unit.
@@ -1873,7 +1899,7 @@ def gelu(x):
     cdf = 0.5 * (1.0 + tf.tanh(
         (np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3)))))
     return x * cdf
-    
+
 class AdapterPooler(tf.keras.layers.Layer):
     def __init__(self, adapter_dim, init_scale = 1e-3, shared_weights = True):
         super().__init__()
