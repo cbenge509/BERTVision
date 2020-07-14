@@ -402,7 +402,8 @@ def viz_table_scores(df, title = 'BERT-large Binary Classification on SQuAD v2',
 
 def viz_bert_performance(df, xaxis_title = 'Training Epochs', yaxis_title = 'Performance Metric (Dev)',
     legend_title = 'Metric', title = 'BERT-large Binary Classification Fine-Tuned Performance',
-    subtitle = 'SQuAD v2 (Answer / No Answer Detection', width = 800, height = 400):
+    subtitle = 'SQuAD v2 (Answer / No Answer Detection', width = 800, height = 400,
+    bert_f1 = None, bert_acc = None):
     """Returns an Altair visual of BERT fine-tune performance F1 / EM metrics
 
     Args:
@@ -435,18 +436,45 @@ def viz_bert_performance(df, xaxis_title = 'Training Epochs', yaxis_title = 'Per
     xaxis_bins = df.epoch.values.astype(np.float16)
     metric_range = [berkeley_palette['berkeley_blue'], berkeley_palette['lawrence']]
 
-    c = alt.Chart(adf).mark_line().encode(
-        x = alt.X('epoch:Q', axis = alt.Axis(title = xaxis_title, grid = False, 
-                formatType = "number", format = ".1", labelOverlap = True),
-            scale = alt.Scale(domain = [min_epoch - 1, max_epoch], bins = xaxis_bins)),
-        y = alt.Y('score:Q', axis = alt.Axis(title = yaxis_title, grid = True),
-            scale = alt.Scale(domain = [min_score - (.05 * min_score), max_score + (.05 * max_score)])),
-        color = alt.Color('metric',
-            scale = alt.Scale(domain = ['f1','em'], range = metric_range),
-            legend = alt.Legend(title = legend_title))
-        ).properties(width = width, height = height).configure_view(strokeWidth = 0)
+    if (not bert_f1) and (not bert_acc):
+        c = alt.Chart(adf).mark_line().encode(
+            x = alt.X('epoch:Q', axis = alt.Axis(title = xaxis_title, grid = False, 
+                    formatType = "number", format = ".1", labelOverlap = True),
+                scale = alt.Scale(domain = [min_epoch - 1, max_epoch], bins = xaxis_bins)),
+            y = alt.Y('score:Q', axis = alt.Axis(title = yaxis_title, grid = True),
+                scale = alt.Scale(domain = [min_score - (.05 * min_score), max_score + (.05 * max_score)])),
+            color = alt.Color('metric',
+                scale = alt.Scale(domain = ['f1','em'], range = metric_range),
+                legend = alt.Legend(title = legend_title))
+            ).properties(width = width, height = height).configure_view(strokeWidth = 0)
+    
+        display(c.properties(title = {"text": title, "subtitle": subtitle}))
 
-    display(c.properties(title = {"text": title, "subtitle": subtitle}))
+    else:
+        metric_range.append(berkeley_palette['rose_garden'])
+        metric_range.append(berkeley_palette['wellman_tile'])
+        
+        adf2 = pd.DataFrame({'bert_f1': bert_f1, 'bert_acc': bert_acc}, index = [0])
+        c = alt.Chart(adf).mark_line().encode(
+            x = alt.X('epoch:Q', axis = alt.Axis(title = xaxis_title, grid = False, 
+                    formatType = "number", format = "~s", labelOverlap = True),
+                scale = alt.Scale(domain = [min_epoch - 1, max_epoch], bins = xaxis_bins)),
+            y = alt.Y('score:Q', axis = alt.Axis(title = yaxis_title, grid = True),
+                scale = alt.Scale(domain = [min_score - (.05 * min_score), max_score + (.05 * max_score)])),
+            color = alt.Color('metric',
+                scale = alt.Scale(domain = ['f1','em', 'bert f1', 'bert em'], range = metric_range),
+                legend = alt.Legend(title = legend_title))
+            ).properties(width = width, height = height)
+
+        f1_bar = alt.Chart(adf2).mark_rule(strokeDash=[5,1], color = berkeley_palette['rose_garden'], opacity = 1).encode(
+            y = alt.Y('bert_f1:Q')
+        ).properties(width = width, height = height)
+
+        acc_bar = alt.Chart(adf2).mark_rule(strokeDash=[5,1], color = berkeley_palette['wellman_tile'], opacity = 1).encode(
+            y= alt.Y('bert_acc:Q')
+        ).properties(width = width, height = height)
+
+        display((c + f1_bar + acc_bar).properties(title = {"text": title, "subtitle": subtitle}).configure_view(strokeWidth = 0))
 
     return
 
