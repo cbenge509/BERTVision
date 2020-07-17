@@ -18,7 +18,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
 #from keras.activations import linear, elu, tanh, relu
 from tensorflow.keras import metrics, losses, initializers, backend
-from tensorflow.keras.losses import SparseCategoricalCrossentropy, BinaryCrossentropy
+from tensorflow.keras.losses import SparseCategoricalCrossentropy, BinaryCrossentropy, CategoricalCrossentropy
 from tensorflow.keras.utils import multi_gpu_model
 from tensorflow.keras.initializers import glorot_uniform, Constant, lecun_uniform
 from tensorflow.keras import backend as K
@@ -1160,7 +1160,7 @@ class Models(object):
             bias_init = Constant(value = 0.2)
 
             if task == "binary_classification":
-                lss = BinaryCrossentropy()
+                lss = CategoricalCrossentropy(from_logits = True)
             elif task == "QnA":
                 lss = SparseCategoricalCrossentropy(from_logits = False)
 
@@ -1168,7 +1168,7 @@ class Models(object):
             self.__GPU_count = 1 # multi-GPU not working right now
 
             if self.__GPU_count > 1: dev = "/cpu:0"
-            else: dev = "/gpu:0"
+            else: dev = "/gpu:1"
             with tf.device(dev):
 
                 # input image size
@@ -1935,3 +1935,17 @@ class AdapterPooler(tf.keras.layers.Layer):
         X = tf.reshape(X, [-1, sequence_dim, self.adapter_dim, encoder_dim])
 
         return X
+
+
+class MeanConcat(layers.Layer):
+    def __init__(self, units = 1):
+        super().__init__()
+
+        #Will only work currently with units = 1
+        self.units = 1
+
+    def build(self, input_shape):
+        self.last_axis = len(input_shape) - 1
+
+    def call(self, inputs):
+        return tf.reduce_mean(inputs, self.last_axis)
