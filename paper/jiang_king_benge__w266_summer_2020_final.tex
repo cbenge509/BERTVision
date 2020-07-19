@@ -1,0 +1,82 @@
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BERT Vision : UC Berkeley MIDS - W266 NLP & Deep Learning
+% MIDS Summer 2020, Section 1, Daniel Cer, PhD
+% Final : BERT Vision
+% Authors : Cristopher Benge (cris.benge@berkeley.edu)
+%			William Casey King, PhD (cking@ischool.berkeley.edu)
+%			Siduo "Stone" Jiang (siduojiang@ischool.berkeley.edu)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[final,colophon]{caldoc}
+\RequirePackage{pdfpages}
+\RequirePackage{calstyle}
+\addbibresource{references.bib}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SETUP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author
+{
+		\href{https://www.linkedin.com/in/siduojiang/}{Siduo Jiang}, 
+		\href{https://jackson.yale.edu/person/casey-king/}{William Casey King}, 
+		\href{https://cbenge509.github.io/}{Cristopher Benge}
+}
+\title{BERT \textcolor{calberkeleyblue}{VISION}}
+\subtitle{Improving span annotation and classification task performance using parameter-efficient model architectures trained on BERT's hidden state activations}
+\department
+{
+	Natural Language Processing with Deep Learning (W266)
+	\and
+	Summer 2020, Section 1, Tuesday 6:30pm PST
+}
+\faculty{Daniel Cer PhD, Joachim Rahmfeld, Mark Butler, Sid J Reddy PhD, Mike Tamir PhD, Drew Plant, Gurdit Chahal}
+\githubrepo{BERTVision}{https://github.com/cbenge509/BERTVision}
+
+\includeonly
+{
+	chapters/abstract,
+	chapters/background,
+	chapters/methods,
+	chapters/results,
+	chapters/bibliography,
+	chapters/appendix,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% BUILD DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%    \frontmatter
+
+	\caltitle
+
+    \tableofcontents
+%	\listoffigures
+%	\listoftables
+	
+
+	\include{chapters/abstract}
+	\include{chapters/background}
+	\include{chapters/methods}
+	\include{chapters/results}
+
+	%----------------------------------------------------------------------------------------
+	%	BIBLIOGRAPHY
+	%----------------------------------------------------------------------------------------
+
+	\include{chapters/bibliography}
+	\include{chapters/appendix}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
