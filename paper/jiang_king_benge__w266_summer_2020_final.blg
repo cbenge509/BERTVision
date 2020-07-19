@@ -1,0 +1,17 @@
+[0] Config.pm:304> INFO - This is Biber 2.14
+[0] Config.pm:307> INFO - Logfile is 'jiang_king_benge__w266_summer_2020_final.blg'
+[58] biber-MSWIN64:322> INFO - === 
+[78] Biber.pm:415> INFO - Reading 'jiang_king_benge__w266_summer_2020_final.bcf'
+[159] Biber.pm:940> INFO - Using all citekeys in bib section 0
+[173] Biber.pm:4256> INFO - Processing section 0
+[173] Utils.pm:75> INFO - Globbing data source 'references.bib'
+[181] Utils.pm:91> INFO - Globbed data source 'references.bib' to references.bib
+[193] Biber.pm:4455> INFO - Looking for bibtex format file 'references.bib' for section 0
+[201] bibtex.pm:1653> INFO - LaTeX decoding ...
+[239] bibtex.pm:1471> INFO - Found BibTeX data source 'references.bib'
+[367] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[367] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[369] Biber.pm:4084> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'en-US'
+[369] Biber.pm:4090> INFO - No sort tailoring available for locale 'en-US'
+[384] bbl.pm:652> INFO - Writing 'jiang_king_benge__w266_summer_2020_final.bbl' with encoding 'UTF-8'
+[394] bbl.pm:755> INFO - Output to jiang_king_benge__w266_summer_2020_final.bbl
