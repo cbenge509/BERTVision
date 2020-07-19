@@ -706,6 +706,65 @@
       \verb http://arxiv.org/abs/1902.00751
       \endverb
     \endentry
+    \entry{DBLP:journals/corr/abs-1809-09194}{article}{}
+      \name{author}{6}{}{%
+        {{hash=b881686cdf68b52745dbcb6374b8008b}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Xiaodong},
+           giveni={X\bibinitperiod}}}%
+        {{hash=be6f1b6df7f1ddfafad18806238fa391}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Wei},
+           giveni={W\bibinitperiod}}}%
+        {{hash=b8aaaeae1157226a13cf1ba2be611280}{%
+           family={Fang},
+           familyi={F\bibinitperiod},
+           given={Yuwei},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=648e51d2d11d843b2d3cbd072073b357}{%
+           family={Kim},
+           familyi={K\bibinitperiod},
+           given={Aerin},
+           giveni={A\bibinitperiod}}}%
+        {{hash=466717c52fd1324df4f599b1a5a0a8af}{%
+           family={Duh},
+           familyi={D\bibinitperiod},
+           given={Kevin},
+           giveni={K\bibinitperiod}}}%
+        {{hash=159bca5607e3797666654a2e3022978a}{%
+           family={Gao},
+           familyi={G\bibinitperiod},
+           given={Jianfeng},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{43de4ea2ed901352f44bd06f12babeaa}
+      \strng{fullhash}{4e722e419261dd6cc93aa248c6a21209}
+      \strng{bibnamehash}{4e722e419261dd6cc93aa248c6a21209}
+      \strng{authorbibnamehash}{4e722e419261dd6cc93aa248c6a21209}
+      \strng{authornamehash}{43de4ea2ed901352f44bd06f12babeaa}
+      \strng{authorfullhash}{4e722e419261dd6cc93aa248c6a21209}
+      \field{sortinit}{1}
+      \field{sortinithash}{50c6687d7fc80f50136d75228e3c59ba}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{journaltitle}{CoRR}
+      \field{title}{Stochastic Answer Networks for SQuAD 2.0}
+      \field{volume}{abs/1809.09194}
+      \field{year}{2018}
+      \true{nocite}
+      \verb{eprint}
+      \verb 1809.09194
+      \endverb
+      \verb{urlraw}
+      \verb http://arxiv.org/abs/1809.09194
+      \endverb
+      \verb{url}
+      \verb http://arxiv.org/abs/1809.09194
+      \endverb
+    \endentry
   \enddatalist
 \endrefsection
 \endinput
