@@ -1,0 +1,50 @@
+% =====================================================================================================
+%
+%  BACKGROUND
+%
+% =====================================================================================================
+\begingroup
+\renewcommand{\cleardoublepage}{}
+\renewcommand{\clearpage}{}
+\chapter*{Background}\label{chap:Background}
+\addcontentsline{toc}{chapter}{Background}
+\renewcommand{\chapter}[2]{}%q
+
+\lettrineabstract{Space: the final frontier. These are the voyages of the starship Enterprise. Its continuing mission: to explore strange new worlds. To seek out new life and new civilizations. To boldly go where no one has gone before!}
+
+%----------------------------------------------------------------------------------------
+%	BACKGROUND CONTENTS
+%----------------------------------------------------------------------------------------
+
+\section{Going Deeper}
+\label{sec:Background_Going_Deeper}
+
+This sentence requires citation \cite{Devlin2019}. This sentence requires multiple citations to imply that it is better supported \citep{Kim2016,Rajpurkar2016}. Finally, here is an example of a table:
+
+\begin{table}[htbp] \centering \small
+	\caption{Model : RESET test and Breusch-Pagan test p-values (Naive)} 
+	\label{tbl:Background_TableExample}
+	\begin{tabular}{@{\extracolsep{5pt}} cc} 
+		\\[-1.8ex]\hline 
+		\hline \\[-1.8ex] 
+		RESET (power=2) & Breusch-pagan \\ 
+		\hline \\[-1.8ex] 
+		$0.636$ & $0.017$ \\ 
+		\hline \\[-1.8ex] 
+	\end{tabular} 
+\end{table} 
+
+Here, now, I've referenced the table \ref{tbl:Background_TableExample}!  You see, not that bad really. \\
+
+Shall we try a list?  We shall!
+
+\begin{description}[font=$\bullet$~\normalfont\scshape\normalsize\color{red!50!black}]
+	\item [prbarr] {\fontsize{10}{10} \selectfont : 'probability' of arrest.}
+	\item [prbconv] {\fontsize{10}{10} \selectfont : 'probability' of conviction.}
+	\item [prbpris] {\fontsize{10}{10} \selectfont : 'probability' of prison sentence.}
+	\item [avgsen] {\fontsize{10}{10} \selectfont : average sentence in days.}
+	\item [polpc] {\fontsize{10}{10} \selectfont : police per capita.}
+\end{description}
+
+%----------------------------------------------------------------------------------------
+\endgroup

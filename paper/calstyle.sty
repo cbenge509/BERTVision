@@ -1,0 +1,169 @@
+%% Implemented by Cris Benge (cris.benge@berkeley.edu)
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{calstyle}[2020/05/11 Custom LaTeX style]
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\usepackage[english]{babel} % English language hyphenation
+\usepackage{microtype} % Better typography
+\usepackage{amsmath,amsfonts,amsthm} % Math packages for equations
+\usepackage[labelfont=bf, textfont=it]{caption} % Custom captions under/above tables and figures
+\usepackage{booktabs} % Horizontal rules in tables
+\usepackage{lastpage} % Used to determine the number of pages in the document (for "Page X of Total")
+%\usepackage{graphicx} % Required for adding images
+\usepackage{enumitem} % Required for customising lists
+\setlist{noitemsep} % Remove spacing between bullet/numbered list elements
+\usepackage{sectsty} % Enables custom section titles
+
+%----------------------------------------------------------------------------------------
+%	MARGINS AND SPACING
+%----------------------------------------------------------------------------------------
+
+\usepackage{geometry} % Required for adjusting page dimensions
+\geometry{
+	top=1cm, % Top margin
+	bottom=1.5cm, % Bottom margin
+	left=2cm, % Left margin
+	right=2cm, % Right margin
+	includehead, % Include space for a header
+	includefoot, % Include space for a footer
+	%showframe, % Uncomment to show how the type block is set on the page
+}
+\setlength{\columnsep}{7mm} % Column separation width
+
+%----------------------------------------------------------------------------------------
+%	HEADERS AND FOOTERS
+%----------------------------------------------------------------------------------------
+
+\undef\chead
+\undef\cfoot
+\usepackage{fancyhdr} % Needed to define custom headers/footers
+\pagestyle{fancy} % Enables the custom headers/footers
+
+\renewcommand{\headrulewidth}{0.0pt} % No header rule
+\renewcommand{\footrulewidth}{0.4pt} % Thin footer rule
+
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}} % Removes the section number from the header when \leftmark is used
+
+%\nouppercase\leftmark % Add this to one of the lines below if you want a section title in the header/footer
+
+% Headers
+\lhead{} % Left header
+\chead{\textit{\thetitle}} % Center header - currently printing the article title
+\rhead{} % Right header
+
+% Footers
+\lfoot{} % Left footer
+\cfoot{} % Center footer
+\rfoot{\footnotesize Page \thepage\ of \pageref{LastPage}} % Right footer, "Page 1 of 2"
+
+\fancypagestyle{firstpage}{ % Page style for the first page with the title
+	\fancyhf{}
+	\renewcommand{\footrulewidth}{0pt} % Suppress footer rule
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\authorstyle}[1]{{\large\usefont{OT1}{phv}{b}{n}\color{DarkRed}#1}} % Authors style (Helvetica)
+\newcommand{\institution}[1]{{\footnotesize\usefont{OT1}{phv}{m}{sl}\color{Black}#1}} % Institutions style (Helvetica)
+
+%\usepackage{titling} % Allows custom title configuration
+
+\newcommand{\HorRule}{\color{calrosegarden}\rule{\linewidth}{1pt}} % Defines the gold horizontal rule around the title
+
+\pretitle{
+	\vspace{-30pt} % Move the entire title section up
+	\HorRule\vspace{10pt} % Horizontal rule before the title
+	\fontsize{32}{36}\usefont{OT1}{phv}{b}{n}\selectfont % Helvetica
+	\color{DarkRed} % Text colour for the title and author(s)
+}
+
+\posttitle{\par\vskip 15pt} % Whitespace under the title
+
+\preauthor{} % Anything that will appear before \author is printed
+
+\postauthor{ % Anything that will appear after \author is printed
+	\vspace{10pt} % Space before the rule
+	\par\HorRule % Horizontal rule after the title
+	\vspace{20pt} % Space after the title section
+}
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\usepackage{lettrine} % Package to accentuate the first letter of the text (lettrine)
+\usepackage{fix-cm}	% Fixes the height of the lettrine
+
+\newcommand{\initial}[1]{ % Defines the command and style for the lettrine
+	\lettrine[lines=3,findent=4pt,nindent=0pt]{% Lettrine takes up 3 lines, the text to the right of it is indented 4pt and further indenting of lines 2+ is stopped
+		\color{calrosegarden}% Lettrine colour
+		{#1}% The letter
+	}{}%
+}
+
+\usepackage{xstring} % Required for string manipulation
+
+%\newcommand{\textbf{\lettrineabstract}}[1]{
+\newcommand{\lettrineabstract}[1]{
+	\StrLeft{#1}{1}[\firstletter] % Capture the first letter of the abstract for the lettrine
+	\initial{\firstletter}\StrGobbleLeft{#1}{1} % Print the abstract with the first letter as a lettrine and the rest in bold
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Silence warning
+\RequirePackage{silence}
+	\WarningFilter{filehook}{Macro}
+
+
+%% Standalone
+\RequirePackage{standalone}
+
+\usepackage{fontenc}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FONTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setmainfont{MinionPro-Regular}[
+Extension = .otf,
+BoldFont={MinionPro-Bold}, 
+ItalicFont={MinionPro-It},
+BoldItalicFont={MinionPro-BoldIt}]
+
+\setmonofont{Bitstream Vera Sans Mono}[Scale=0.9]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Offical colors
+\definecolor{calberkeleyblue} {HTML}{003262}
+\definecolor{calfoundersrock} {HTML}{3B7EA1}
+\definecolor{calcaliforniagold} {HTML}{FDB515}
+\definecolor{calmedalist} {HTML}{C4820E}
+\definecolor{calwellmantile} {HTML}{D9661F}
+\definecolor{calrosegarden} {HTML}{EE1F60}
+\definecolor{calgoldengate} {HTML}{ED4E33}
+\definecolor{calsouthhall} {HTML}{6C3302}
+\definecolor{calbayfog} {HTML}{DDD5C7}
+\definecolor{callawrence} {HTML}{00B0DA}
+\definecolor{callaplane} {HTML}{00A598}
+\definecolor{calpacific} {HTML}{46535E}
+\definecolor{calsathergate} {HTML}{B9D3B6}
+\definecolor{calion} {HTML}{CFDD45}
+\definecolor{calsoybean} {HTML}{859438}
+\definecolor{calstonepine} {HTML}{584F29}
+\definecolor{calwhite} {HTML}{FFFFFF}
+\definecolor{calblack} {HTML}{000000}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BIBLIOGRAPHY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[backend=biber,style=ieee,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
+\usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
+\setlength\bibitemsep{1.5\itemsep}
