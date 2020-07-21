@@ -23,11 +23,22 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 \AtBeginDocument
 {
 	\@ifpackageloaded{url}
-		{\urlstyle{same}}
-		{\ClassWarningNoLine{caldoc}{Package 'url' missing}}
+	{\urlstyle{same}}
+	{\ClassWarningNoLine{caldoc}{Package 'url' missing}}
 	\@ifpackageloaded{hyperref}
-		{\hypersetup{colorlinks, allcolors = calberkeleyblue}}
-		{\ClassWarningNoLine{caldoc}{Package 'hyperref' missing}}
+	{\hypersetup{%
+			colorlinks=true, 
+			linktocpage=true,
+			pdfstartpage=3,
+			pdfstartview=FitV,
+			breaklinks=true,
+			pageanchor=true,
+			pdfpagemode=UseOutlines,
+			plainpages=false, bookmarksnumbered, bookmarksopen=true, bookmarksopenlevel=1,%
+			hypertexnames=true, pdfhighlight=/O,%
+			urlcolor=calberkeleyblue, linkcolor=calfoundersrock, citecolor=calrosegarden}
+	}
+	{\ClassWarningNoLine{caldoc}{Package 'hyperref' missing}}
 }
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{scrbook}}
@@ -37,9 +48,20 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 \ProcessOptions
 \relax
 
-\LoadClass[12pt,a4paper,fleqn,twocolumn]{scrbook}
-%\usepackage[parts]{classicthesis}
-\usepackage[nochapters]{classicthesis}
+\LoadClass[12pt,a4paper,twocolumn,fleqn]{scrbook}
+\PassOptionsToPackage{
+	drafting=false,    % print version information on the bottom of the pages
+	tocaligned=true, % the left column of the toc will be aligned (no indentation)
+	dottedtoc=true,  % page numbers in ToC flushed right
+	eulerchapternumbers=true, % use AMS Euler for chapter font (otherwise Palatino)
+	linedheaders=false,       % chaper headers will have line above and beneath
+	floatperchapter=true,     % numbering per chapter for all floats (i.e., Figure 1.1)
+	eulermath=false,  % use awesome Euler fonts for mathematical formulae (only with pdfLaTeX)
+	beramono=true,    % toggle a nice monospaced font (w/ bold)
+	palatino=true,    % deactivate standard font for loading another one, see the last section at the end of this file for suggestions
+	style=classicthesis % classicthesis, arsclassica
+}{classicthesis}
+\usepackage{classicthesis}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -55,6 +77,7 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 \RequirePackage{tikz}
 \usetikzlibrary{calc}
 \RequirePackage{titling}
+\usepackage{scrhack} % fix warnings when using KOMA with listings package
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LAYOUT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -99,7 +122,7 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 				\large
 				\theauthor
 				\vskip7mm
-				\monthname \the\day, \the\year
+				\monthname\space \the\day, \the\year
 			}
 		
 			\vskip10mm

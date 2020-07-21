@@ -1,26 +1,28 @@
 \boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
+\defcounter {refsection}{0}\relax 
+\vspace {-\cftbeforepartskip }
 \babel@toc {english}{}
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Abstract}{4}{chapter*.2}%
+\contentsline {chapter}{Abstract}{4}{Doc-Start}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.1}Introduction}{4}{section.0.1}%
+\contentsline {section}{\numberline {1.1}Introduction}{4}{section.1.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {subsection}{\numberline {0.1.1}NLP Tasks}{4}{subsection.0.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}NLP Tasks}{4}{subsection.1.1.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Background}{5}{chapter*.5}%
+\contentsline {chapter}{Background}{5}{figure.caption.2}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.2}Going Deeper}{5}{section.0.2}%
+\contentsline {section}{\numberline {2.1}Going Deeper}{5}{section.2.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Methods}{6}{chapter*.7}%
+\contentsline {chapter}{Methods}{6}{table.caption.3}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.3}Tools of the Trade}{6}{section.0.3}%
+\contentsline {section}{\numberline {3.1}Tools of the Trade}{6}{section.3.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Results}{7}{chapter*.8}%
+\contentsline {chapter}{Results}{7}{section.3.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.4}Conclusion}{7}{section.0.4}%
+\contentsline {section}{\numberline {4.1}Conclusion}{7}{section.4.1}%
 \defcounter {refsection}{0}\relax 
-\contentsline {section}{\numberline {0.5}Future Work}{7}{section.0.5}%
+\contentsline {section}{\numberline {4.2}Future Work}{7}{section.4.2}%
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Bibliography}{8}{chapter*.9}%
+\contentsline {chapter}{Bibliography}{8}{section.4.2}%
 \defcounter {refsection}{0}\relax 
-\contentsline {chapter}{Appendix}{10}{chapter*.10}%
+\contentsline {chapter}{Appendix}{10}{section.4.2}%
