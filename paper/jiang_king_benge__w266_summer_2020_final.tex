@@ -50,6 +50,8 @@
 	chapters/appendix,
 }
 
+\renewcommand\thechapter{\arabic{chapter}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% BUILD DOCUMENT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -64,17 +66,26 @@
 %	\listoffigures
 %	\listoftables
 	
-
+	\setcounter{chapter}{1}\setcounter{section}{0}
 	\include{chapters/abstract}
+
+	\setcounter{chapter}{2}\setcounter{section}{0}
 	\include{chapters/background}
+
+	\setcounter{chapter}{3}\setcounter{section}{0}
 	\include{chapters/methods}
+
+	\setcounter{chapter}{4}\setcounter{section}{0}
 	\include{chapters/results}
 
 	%----------------------------------------------------------------------------------------
 	%	BIBLIOGRAPHY
 	%----------------------------------------------------------------------------------------
 
+	\setcounter{chapter}{5}\setcounter{section}{0}
 	\include{chapters/bibliography}
+
+	\setcounter{chapter}{6}\setcounter{section}{0}
 	\include{chapters/appendix}
 
 %----------------------------------------------------------------------------------------
