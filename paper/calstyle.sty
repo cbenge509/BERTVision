@@ -65,33 +65,7 @@
 	\renewcommand{\footrulewidth}{0pt} % Suppress footer rule
 }
 
-%----------------------------------------------------------------------------------------
-%	TITLE SECTION
-%----------------------------------------------------------------------------------------
 
-\newcommand{\authorstyle}[1]{{\large\usefont{OT1}{phv}{b}{n}\color{DarkRed}#1}} % Authors style (Helvetica)
-\newcommand{\institution}[1]{{\footnotesize\usefont{OT1}{phv}{m}{sl}\color{Black}#1}} % Institutions style (Helvetica)
-
-%\usepackage{titling} % Allows custom title configuration
-
-\newcommand{\HorRule}{\color{calrosegarden}\rule{\linewidth}{1pt}} % Defines the gold horizontal rule around the title
-
-\pretitle{
-	\vspace{-30pt} % Move the entire title section up
-	\HorRule\vspace{10pt} % Horizontal rule before the title
-	\fontsize{32}{36}\usefont{OT1}{phv}{b}{n}\selectfont % Helvetica
-	\color{DarkRed} % Text colour for the title and author(s)
-}
-
-\posttitle{\par\vskip 15pt} % Whitespace under the title
-
-\preauthor{} % Anything that will appear before \author is printed
-
-\postauthor{ % Anything that will appear after \author is printed
-	\vspace{10pt} % Space before the rule
-	\par\HorRule % Horizontal rule after the title
-	\vspace{20pt} % Space after the title section
-}
 
 %----------------------------------------------------------------------------------------
 %	ABSTRACT
@@ -167,3 +141,13 @@ BoldItalicFont={MinionPro-BoldIt}]
 \usepackage[backend=biber,style=ieee,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
 \setlength\bibitemsep{1.5\itemsep}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CHAPTER STYLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\titleformat{\chapter}[display]%
+{\color{calpacific}\normalfont\LARGE\bfseries}%
+{\raggedleft}%
+{0pt}%
+{\titlerule\vspace*{.4\baselineskip}\raggedright\spacedallcaps}[\normalsize\vspace*{.4\baselineskip}\titlerule]%
+\relax
+
