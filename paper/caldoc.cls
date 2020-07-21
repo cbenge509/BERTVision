@@ -48,7 +48,7 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 \ProcessOptions
 \relax
 
-\LoadClass[12pt,a4paper,twocolumn,fleqn]{scrbook}
+\LoadClass[11pt,a4paper,twocolumn,fleqn]{scrbook}
 \PassOptionsToPackage{
 	drafting=false,    % print version information on the bottom of the pages
 	tocaligned=true, % the left column of the toc will be aligned (no indentation)
