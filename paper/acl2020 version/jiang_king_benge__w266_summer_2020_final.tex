@@ -1,0 +1,70 @@
+%!TEX TS-program = pdflatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BERT Vision : UC Berkeley MIDS - W266 NLP & Deep Learning
+% MIDS Summer 2020, Section 1, Daniel Cer, PhD
+% Final : BERT Vision
+% Authors : Cristopher Benge (cris.benge@berkeley.edu)
+%			William Casey King, PhD (cking@ischool.berkeley.edu)
+%			Siduo "Stone" Jiang (siduojiang@ischool.berkeley.edu)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{acl2020}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{microtype}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SETUP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\UrlFont}{\ttfamily\small}
+\aclfinalcopy
+\setlength\titlebox{5cm}
+\newcommand\BibTeX{B\textsc{ib}\TeX}
+
+\title{BERT Vision}
+\author{Siduo Jiang \\
+  UC Berkeley \\
+  \And
+  William Casey King \\
+  UC Berkeley \\
+  \And
+  Cristopher Benge \\
+  UC Berkeley}
+\date{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% BUILD DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+	\maketitle
+	\input{chapters/abstract}
+	\input{chapters/introduction}
+	\input{chapters/background}
+	\input{chapters/methods}
+	\input{chapters/results}
+	\input{chapters/analysis}
+	\input{chapters/futurework}
+
+	% ---------------------------------------------------------------------------
+	% formatting examples; we will throw this out when paper is done.
+	% ---------------------------------------------------------------------------
+	\input{formattingexamples}
+	% ---------------------------------------------------------------------------
+
+	\input{chapters/acknowledgements}
+	\bibliography{references}
+	\bibliographystyle{acl_natbib}
+
+	\input{chapters/appendix}
+	\input{chapters/supplemental}
+
+\end{document}
