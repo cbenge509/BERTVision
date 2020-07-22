@@ -1,0 +1,58 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: jiang_king_benge__w266_summer_2020_final.aux
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+The style file: acl_natbib.bst
+Reallocating 'glb_str_end' (item size: 4) to 20 items.
+Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
+Reallocating 'global_strs' (item size: 1) to 4000000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Database file #1: references.bib
+Warning--entry type for "Limaye2019" isn't style-file defined
+--line 84 of file references.bib
+Warning--I didn't find a database entry for "goodman-etal-2016-noise"
+Warning--I didn't find a database entry for "harper-2014-learning"
+Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+You've used 5 entries,
+            3571 wiz_defined-function locations,
+            727 strings with 6924 characters,
+and the built_in function-call counts, 3382 in all, are:
+= -- 264
+> -- 187
+< -- 0
++ -- 59
+- -- 54
+* -- 235
+:= -- 546
+add.period$ -- 19
+call.type$ -- 5
+change.case$ -- 51
+chr.to.int$ -- 5
+cite$ -- 5
+duplicate$ -- 230
+empty$ -- 240
+format.name$ -- 69
+if$ -- 721
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 49
+newline$ -- 28
+num.names$ -- 20
+pop$ -- 135
+preamble$ -- 1
+purify$ -- 38
+quote$ -- 0
+skip$ -- 140
+stack$ -- 0
+substring$ -- 55
+swap$ -- 103
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 45
+warning$ -- 0
+while$ -- 15
+width$ -- 0
+write$ -- 61
+(There were 3 warnings)

@@ -1,0 +1,39 @@
+\begin{thebibliography}{5}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[{Devlin et~al.(2019)Devlin, Chang, Lee, and Toutanova}]{Devlin2019}
+Jacob Devlin, Ming~Wei Chang, Kenton Lee, and Kristina Toutanova. 2019.
+\newblock \href {http://arxiv.org/abs/1810.04805} {{BERT: Pre-training of deep
+  bidirectional transformers for language understanding}}.
+\newblock In \emph{NAACL HLT 2019 - 2019 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies - Proceedings of the Conference}.
+
+\bibitem[{Kim et~al.(2016)Kim, Jernite, Sontag, and Rush}]{Kim2016}
+Yoon Kim, Yacine Jernite, David Sontag, and Alexander~M. Rush. 2016.
+\newblock \href {http://arxiv.org/abs/1508.06615} {{Character-Aware neural
+  language models}}.
+\newblock In \emph{30th AAAI Conference on Artificial Intelligence, AAAI 2016}.
+
+\bibitem[{Limaye et~al.(2019)Limaye, Pandit, and Vinay}]{Limaye2019}
+Girish Limaye, Manish Pandit, and Sawal Vinay. 2019.
+\newblock \href
+  {https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15783457.pdf}
+  {{BertNet: Combining BERT language representation with Attention and CNN for
+  Reading Comprehension}}.
+
+\bibitem[{Rajpurkar et~al.(2016)Rajpurkar, Zhang, Lopyrev, and
+  Liang}]{Rajpurkar2016}
+Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016.
+\newblock {SQuad: 100,000+ questions for machine comprehension of text}.
+\newblock In \emph{EMNLP 2016 - Conference on Empirical Methods in Natural
+  Language Processing, Proceedings}.
+
+\bibitem[{Tenney et~al.(2020)Tenney, Das, and Pavlick}]{Tenney2020}
+Ian Tenney, Dipanjan Das, and Ellie Pavlick. 2020.
+\newblock \href {https://doi.org/10.18653/v1/p19-1452} {{BERT rediscovers the
+  classical NLP pipeline}}.
+\newblock In \emph{ACL 2019 - 57th Annual Meeting of the Association for
+  Computational Linguistics, Proceedings of the Conference}.
+
+\end{thebibliography}
