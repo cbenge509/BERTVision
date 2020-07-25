@@ -15,9 +15,8 @@ Summer 2020, W266 - Natural Language Processing - [Daniel Cer, PhD](https://scho
 
 ---
 
-<img src="/images/bertvision.png" align="center" width=700 height=500>
-
----
+<center>
+<img src="/images/bertvision.png" height=550 align="center"></center>
 
 ## Description
 
