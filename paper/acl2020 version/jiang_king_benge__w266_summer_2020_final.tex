@@ -18,6 +18,8 @@
 \usepackage{times}
 \usepackage{latexsym}
 \usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{array}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SETUP
@@ -39,6 +41,14 @@
   UC Berkeley}
 \date{}
 
+\newcommand\Tstrut{\rule{0pt}{2.6ex}}
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% BUILD DOCUMENT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,10 +67,12 @@
 	% ---------------------------------------------------------------------------
 	% formatting examples; we will throw this out when paper is done.
 	% ---------------------------------------------------------------------------
-	\input{formattingexamples}
+	%\input{formattingexamples}
 	% ---------------------------------------------------------------------------
 
 	\input{chapters/acknowledgements}
+
+	\nocite{*}
 	\bibliography{references}
 	\bibliographystyle{acl_natbib}
 
