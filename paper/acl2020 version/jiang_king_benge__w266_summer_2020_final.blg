@@ -11,42 +11,40 @@ Reallocating 'singl_function' (item size: 4) to 100 items.
 Database file #1: references.bib
 Warning--entry type for "Limaye2019" isn't style-file defined
 --line 84 of file references.bib
-Warning--I didn't find a database entry for "goodman-etal-2016-noise"
-Warning--I didn't find a database entry for "harper-2014-learning"
 Reallocating 'wiz_functions' (item size: 4) to 6000 items.
 You've used 5 entries,
             3571 wiz_defined-function locations,
-            727 strings with 6924 characters,
-and the built_in function-call counts, 3382 in all, are:
-= -- 264
-> -- 187
+            721 strings with 6785 characters,
+and the built_in function-call counts, 3401 in all, are:
+= -- 262
+> -- 205
 < -- 0
-+ -- 59
-- -- 54
-* -- 235
-:= -- 546
-add.period$ -- 19
++ -- 65
+- -- 60
+* -- 243
+:= -- 557
+add.period$ -- 18
 call.type$ -- 5
 change.case$ -- 51
 chr.to.int$ -- 5
 cite$ -- 5
-duplicate$ -- 230
-empty$ -- 240
-format.name$ -- 69
-if$ -- 721
+duplicate$ -- 222
+empty$ -- 229
+format.name$ -- 75
+if$ -- 720
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 49
-newline$ -- 28
+missing$ -- 47
+newline$ -- 27
 num.names$ -- 20
-pop$ -- 135
+pop$ -- 127
 preamble$ -- 1
-purify$ -- 38
+purify$ -- 40
 quote$ -- 0
 skip$ -- 140
 stack$ -- 0
 substring$ -- 55
-swap$ -- 103
+swap$ -- 101
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
@@ -54,5 +52,5 @@ type$ -- 45
 warning$ -- 0
 while$ -- 15
 width$ -- 0
-write$ -- 61
-(There were 3 warnings)
+write$ -- 59
+(There was 1 warning)
