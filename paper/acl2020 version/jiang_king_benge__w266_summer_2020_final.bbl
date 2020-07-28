@@ -22,18 +22,16 @@ Girish Limaye, Manish Pandit, and Sawal Vinay. 2019.
   {{BertNet: Combining BERT language representation with Attention and CNN for
   Reading Comprehension}}.
 
+\bibitem[{Ma et~al.(2019)Ma, Wang, Ng, Nallapati, and Xiang}]{ma2019universal}
+Xiaofei Ma, Zhiguo Wang, Patrick Ng, Ramesh Nallapati, and Bing Xiang. 2019.
+\newblock \href {http://arxiv.org/abs/1910.07973} {Universal text
+  representation from bert: An empirical study}.
+
 \bibitem[{Rajpurkar et~al.(2016)Rajpurkar, Zhang, Lopyrev, and
   Liang}]{Rajpurkar2016}
 Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016.
 \newblock {SQuad: 100,000+ questions for machine comprehension of text}.
 \newblock In \emph{EMNLP 2016 - Conference on Empirical Methods in Natural
   Language Processing, Proceedings}.
-
-\bibitem[{Tenney et~al.(2020)Tenney, Das, and Pavlick}]{Tenney2020}
-Ian Tenney, Dipanjan Das, and Ellie Pavlick. 2020.
-\newblock \href {https://doi.org/10.18653/v1/p19-1452} {{BERT rediscovers the
-  classical NLP pipeline}}.
-\newblock In \emph{ACL 2019 - 57th Annual Meeting of the Association for
-  Computational Linguistics, Proceedings of the Conference}.
 
 \end{thebibliography}

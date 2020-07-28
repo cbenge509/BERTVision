@@ -1,9 +1,29 @@
 \section{Methods}
 
-Our method is to cater to the whims and fancies of academics, renowned for their superlative intellect - and distinguished taste to match!
-\begin{quote}
-What could go wrong??
-\end{quote}
+This section describes how we use the SQuAD 2.0 question-answering dataset as both span detection and classification, and our custom models for inference on BERT embeddings. We also detail two custom layers implemented for this task. \\
 
-\paragraph{\LaTeX-specific details:}
-Here's a sample paragraph that's named, do you think i'm cool?
+\noindent
+\textbf{SQuAD 2.0 for Span Detection} \\ \\
+
+\noindent
+\textbf{SQuAD 2.0 span detection and how 0,0} \\
+\textbf{SQuAD 2.0 as classification task} \\ \\
+
+\noindent
+\textbf{Custom layers (Tenney and Adapter)} \\
+\textbf{Data processing details} \\ \\
+
+In order to establish a baseline for our Q\&A task, we fine-tuned BERT for 6 epochs, measuring dev set performance at the end of each epoch. Our setup is similar to Devlin et. al. [?]. For questions that do not have answers, we assign the start and end span of the answer to be at the CLS token (position 0). We used the Adam optimizer with an initial learning rate of 1e-5. One major deviation from Devlin was a result of hardware limitations, which is the batch size. We used a batch size of 8, the maximum we could achieve, compared to a batch size of 48. At inference time, we predict the start and end spans based on the argmax probability at each token position. \\
+
+For training of our custom models, for a single SQuAD 2.0 example, the data point has a shape of (386,1024,25), where 386 represents the text length dimension, 1024 the BERT embeddings dimension, and 25 the hidden state activations with the final sequence outputs for BERT. We found that for simple models, including the sequence outputs mildly improved performance (see Appendix). The pooling method described in Tenney et. al. [?] can handle data of this shape, reducing the 25 dimension down to 1. Our custom implementation of adapter pooling can also handle 3D inputs by either sharing weights across the encoder dimension, or learning separate weights. As a result, our data can be fed directly into 2D CNNs like regular “images”, be directly processed using pooling (reduce 25 to 1) and compression (reduce 1024 to adapter size), or processed by stacking CNNs with pooling and/or compression. We wanted to try all such combinations in order to find the best architecture. For all models, we train for a single epoch for three reasons: 1. Performance was already desirable at a single epoch. 2. Further training typically did not help performance (see Appendix), 3. Due to our data management issue, loading the data usually takes more than 90\% of the training time, which makes it impractical to train for extended numbers of epochs (See Data Processing section). \\
+
+In order to process the data further, we explored two pooling techniques to reduce the dimensionality of our encoder dimension from 26 to 1, before stacking our 1xN CNN model on top. \\
+
+\subsection{Pooling} 
+This was suggested by \cite{ma2019universal} to perform significantly better than max pooling. Although Ma et. al. only present results averaging the first and last layers of the encoders, the authors state that averaging all layers mildly improved performance, which is the approach we take here. \\
+
+\subsection{Adapters}
+The reason we wanted to evaluate 386 is that such a transformation results in embeddings with a square shape (386 x 386), which is the preferred input format for CNNs in computer vision. For SQuAD 1.1, Houlsby et. al. found that an adapter size of 64 provides the best F1 score when used in between transformer blocks. For our purposes, we tried adapter sizes of 64, and 386. For both adapter sizes of 64 and 386, we evaluated whether sharing parameters across each encoder layer would result in reasonable performance.  \\
+Next, we evaluated the possibility of using adapters first proposed by Houlsby et. al. This is desirable as sharing weights greatly reduces the number of parameters, by approximately 24x. Furthermore, with minimal parameter penalty, we also evaluated adding a skip connection between the final transformed adapter and the BERT input sequence used for inference. \\
+
+We found that for both sizes of 64 and 386, and for both shared and unshared weights, adding a skip connection mildly helps performance. For an adapter size of 64, sharing weights across each encoder does not significantly degrade performance. We achieve an EM of 0.680 and F1 of 0.732 with shared weights, and an EM of 0.689 and F1 of 0.733 with unshared weights. Surprisingly, for an adapter size of 386, sharing weights performed better than unshared weights when a skip connection is used, with an EM of 0.686 (compared to 0.676) and F1 of 0.732 (compared to 0.723). While an adapter size of 64 with shared weights performed the best on its own, the mild increase also comes with 4x penalty in the number of parameters. As a result, for downstream tests, we favor an adapter size of 386 with shared weights. 

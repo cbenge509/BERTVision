@@ -403,7 +403,7 @@ def viz_table_scores(df, title = 'BERT-large Binary Classification on SQuAD v2',
 def viz_bert_performance(df, xaxis_title = 'Training Epochs', yaxis_title = 'Performance Metric (Dev)',
     legend_title = 'Metric', title = 'BERT-large Binary Classification Fine-Tuned Performance',
     subtitle = 'SQuAD v2 (Answer / No Answer Detection', width = 800, height = 400,
-    bert_f1 = None, bert_acc = None):
+    bert_f1 = None, bert_acc = None, xaxis_format = ".1"):
     """Returns an Altair visual of BERT fine-tune performance F1 / EM metrics
 
     Args:
@@ -439,7 +439,7 @@ def viz_bert_performance(df, xaxis_title = 'Training Epochs', yaxis_title = 'Per
     if (not bert_f1) and (not bert_acc):
         c = alt.Chart(adf).mark_line().encode(
             x = alt.X('epoch:Q', axis = alt.Axis(title = xaxis_title, grid = False, 
-                    formatType = "number", format = ".1", labelOverlap = True),
+                    formatType = "number", format = xaxis_format, labelOverlap = True),
                 scale = alt.Scale(domain = [min_epoch - 1, max_epoch], bins = xaxis_bins)),
             y = alt.Y('score:Q', axis = alt.Axis(title = yaxis_title, grid = True),
                 scale = alt.Scale(domain = [min_score - (.05 * min_score), max_score + (.05 * max_score)])),
