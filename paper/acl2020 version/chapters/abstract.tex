@@ -1,6 +1,3 @@
 \begin{abstract}
-Abstract goes here.  This is some filler text to give you an idea
-of how the wrapping and margins work for the paper abstract.  You are free
-to change whatever text you like here, so long as Daniel Cer thinks its cool.
-That's what Casey would say, anyways - we want to make sure Dan is, like, so super comfortable and everything.
+For our purposes, we would like to find ways to substitute expensive BERT fine-tuning with parameter-efficient models by using the information in the hidden state activations of the BERT model, which is discarded during regular BERT inference. As a result, we would like to fine-tune as little as possible, ideally none, before building our models. However, using a variety of parameter-efficient CNNs and dense architectures, we found such models were unable to fit raw BERT hidden state activations without fine-tuning to our specific Q\&A task SQuAD 2.0 (see Appendix). This discovery is consistent with the observations made in \cite{ma2019universal}, where the authors found that fine-tuned BERT on either SNLI and in-domain text corpus consistently outperformed pre-trained BERT without fine-tuning by a large margin for various tasks, including Q\&A (although not on SQuAD). As a result, we decided mild amounts of fine-tuning was necessary in order to generate usable embeddings.
 \end{abstract}
