@@ -24,7 +24,7 @@ We present a highly parameter-efficient approach for Question Answering (QA) tha
 
 This repository contains the code, models, and documentation for the evaluation of leveraging parameter-efficient models, like those typically used in computer vision, for their potential utility in performing the NLP tasks of span annotation (aka "Q&A") and document binary classification. 
 
-All models were trained on the hidden embedding activation states of BERT$_{LARGE}$ and evaluated on the [Stanford Question Answering Dataset 2.0](https://rajpurkar.github.io/SQuAD-explorer/) (aka [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/)).
+All models were trained on the hidden embedding activation states of BERT-large uncased and evaluated on the [Stanford Question Answering Dataset 2.0](https://rajpurkar.github.io/SQuAD-explorer/) (aka [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/)).
 
 #### Highlight of key files included in this repository:
 
