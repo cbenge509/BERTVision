@@ -56,12 +56,12 @@ def cal_theme():
     return {
         "config": {
             "title": {
-                "fontSize": 20,
+                "fontSize": 30,
                 "font": font,
                 "anchor": "middle",
                 "align":"center",
                 "color": berkeley_palette['berkeley_blue'],
-                "subtitleFontSize": 15,
+                "subtitleFontSize": 25,
                 "subtitleFont": font,
                 "subtitleAcchor": "middle",
                 "subtitleAlign": "center",
@@ -70,7 +70,8 @@ def cal_theme():
             "axisX": {
                 "labelFont": font,
                 "titleFont": font,
-                "titleFontSize": 15,
+                "titleFontSize": 25,
+                "labelFontSize": 15,
                 "titleColor": berkeley_palette['berkeley_blue'],
                 "titleAlign": "right",
                 "titleAnchor": "end"
@@ -78,7 +79,8 @@ def cal_theme():
             "axisY": {
                 "labelFont": font,
                 "titleFont": font,
-                "titleFontSize": 15,
+                "titleFontSize": 25,
+                "labelFontSize": 15,
                 "titleColor": berkeley_palette['berkeley_blue'],
                 "titleAlign": "right",
                 "titleAnchor": "end",
@@ -88,19 +90,19 @@ def cal_theme():
             "headerRow": {
                 "labelFont": font,
                 "titleFont": font,
-                "titleFontSize": 15,
+                "titleFontSize": 25,
                 "titleColor": berkeley_palette['berkeley_blue'],
                 "titleAlign": "right",
                 "titleAnchor": "end"
             },
             "legend": {
                 "labelFont": font,
-                "labelFontSize": 10,
+                "labelFontSize": 20,
                 "labelColor": berkeley_palette['stone_pine'],
                 "symbolType": "circle",
                 "symbolSize": 120,
                 "titleFont": font,
-                "titleFontSize": 15,
+                "titleFontSize": 25,
                 "titleColor": berkeley_palette['pacific']
             }
         }
@@ -460,7 +462,7 @@ def viz_bert_performance(df, xaxis_title = 'Training Epochs', yaxis_title = 'Per
                     formatType = "number", format = "~s", labelOverlap = True),
                 scale = alt.Scale(domain = [min_epoch - 1, max_epoch], bins = xaxis_bins)),
             y = alt.Y('score:Q', axis = alt.Axis(title = yaxis_title, grid = True),
-                scale = alt.Scale(domain = [min_score - (.05 * min_score), max_score + (.05 * max_score)])),
+                scale = alt.Scale(domain = [min_score - (.15 * min_score), max_score + (.05 * max_score)])),
             color = alt.Color('metric',
                 scale = alt.Scale(domain = ['f1','em', 'bert f1', 'bert em'], range = metric_range),
                 legend = alt.Legend(title = legend_title))
