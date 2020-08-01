@@ -5,7 +5,7 @@ This section introduces our baseline BERT model, and custom models trained on BE
 
 \subsection{Modeling approach}
 
-Our custom models use the BERT activations from each encoder layer as input data. For a single SQuAD 2.0 example, our data point has a shape of (X,1024, 25), where $X=386$ for span annotation, and 1 for classification (see appendix [\ref{sec:appendix}] for details). We term this representation of the data as \textit{“embeddings.”}
+Our custom models use the BERT activations from each encoder layer as input data. For a single SQuAD 2.0 example, our data point has a shape of (X,1024, 25), where $X=386$ for span annotation, and 1 for classification (see appendix [\ref{apdx:bertvision_span_annotation_data_pipeline_graph}] for details). We term this representation of the data as \textit{“embeddings.”}
 
 \subsection{Learned and average pooling}
 
@@ -17,7 +17,7 @@ We use the term “compression” to refer to methods that reduce the 1024 dimen
 
 \subsection{Custom CNN's}
 
-We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{sec:appendix}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERT Vision GitHub repo}.
+We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{apdx:cnn_models_preserving_seq_length}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERT Vision GitHub repo}.
 
 \subsection{Fine-tuning BERT}
 
@@ -37,7 +37,7 @@ We evaluated multiple ensemble approaches for span annotation. The most successf
 
 \subsection{Data processing and evaluation}
 
-We use SQuAD 2.0 for our QA dataset. Standard Exact Match (EM) and F1-score (F1) are used for evaluation as outlined in \cite{DBLP:journals/corr/abs-1806-03822}. For classification, EM is equivalent to accuracy as we are predicting a single binary outcome. For our BERT models, we restrict the maximum token length to 386 (See appendix [\ref{sec:appendix}] for rationale). Question-context pairs that exceed this maximum sequence are split into multiple segments (as many as needed) with an overlap between each segment of 128 tokens. For the splits that do not contain the answer, the labels for that split are set to “no answer”. At inference time, we take the argmax of the span probabilities predicted by each split as the final prediction for the example.
+We use SQuAD 2.0 for our QA dataset. Standard Exact Match (EM) and F1-score (F1) are used for evaluation as outlined in \cite{DBLP:journals/corr/abs-1806-03822}. For classification, EM is equivalent to accuracy as we are predicting a single binary outcome. For our BERT models, we restrict the maximum token length to 386 (See appendix [\ref{apdx:explanation_max_sequence_length}] for rationale). Question-context pairs that exceed this maximum sequence are split into multiple segments (as many as needed) with an overlap between each segment of 128 tokens. For the splits that do not contain the answer, the labels for that split are set to “no answer”. At inference time, we take the argmax of the span probabilities predicted by each split as the final prediction for the example.
 %\begin{equation} \label{eq3}
 %EM = \begin{cases} \frac{1}{N}\sum_{i=1}^{N}{\left(\bar{s_i} = s_i,\;\bar{e_i} = e_i\right)} &\mbox{\small if QA} \\
 %	\frac{1}{N}\sum_{i=1}^{N}{\left(\bar{s_i} = s_i\right)} &\mbox{\small else}
