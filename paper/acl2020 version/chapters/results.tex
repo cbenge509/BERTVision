@@ -1,6 +1,8 @@
 \section{Results}
 
 \subsection{Span Annotation}
+For span annotation, we sought to generate useful embeddings with as little fine-tuning as possible. However, we were unable to find models that can fit BERT embeddings without some fine-tuning (see appendix [\ref{sec:appendix}] for details). As a result, we decided that a small amount of fine-tuning would be necessary.
+
 \subsubsection{BERT fine-tuning as baseline}
 In order to establish baseline performance, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{fig:QnABertPerformance}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performanced peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{sec:appendix}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{sec:appendix}])
 \begin{figure}[ht]
@@ -20,24 +22,22 @@ While we extensively explored stacking pooling with adapters and CNNs, we did no
 \begin{table}[ht]
 	\centering
 	\small
-	\begin{tabular}{L{2.4cm} C{1.8cm} C{0.9cm} C{0.9cm}}
-		\hline\Tstrut\Bstrut
-		\textbf{Model} & \textbf{\% params of} $BERT_{LARGE}$ & \textbf{EM} & \textbf{F1} \\
-		\hline\Tstrut\Bstrut
-		BERT $\frac{3}{10}e$\Tstrut\Bstrut & 100\%\Tstrut\Bstrut 		 	 & $0.654$\Tstrut\Bstrut & $0.702$\Tstrut\Bstrut \\
-		%BERT $1e$ (\textit{best})\Tstrut\Bstrut & 100\%\Tstrut\Bstrut		 & $0.670$\Tstrut\Bstrut & $0.712$\Tstrut\Bstrut \\
-		learned pooling\Tstrut\Bstrut &  0.001\%\Tstrut\Bstrut	             & $0.660$\Tstrut\Bstrut & $0.703$\Tstrut\Bstrut \\
-		average pooling\Tstrut\Bstrut &  0.001\%\Tstrut\Bstrut            	 & $0.657$\Tstrut\Bstrut & $0.700$\Tstrut\Bstrut \\
-		\hline\hline\Tstrut\Bstrut
-		\textbf{adapter size 386, shared weights} & \textbf{0.124}\%\Tstrut\Bstrut 	 & \boldmath$0.699$ & \boldmath$0.740$ \\
-		\hline\hline\Tstrut\Bstrut
-		adapter size 386, weights not shared & 2.957\%\Tstrut\Bstrut 		 & $0.676$\Tstrut\Bstrut & $0.723$\Tstrut\Bstrut \\
-		adapter size 64, shared weights\Tstrut\Bstrut & 0.021\%\Tstrut\Bstrut & $0.680$\Tstrut\Bstrut & $0.732$\Tstrut\Bstrut  \\
-		adapter size 64, weights not shared & 0.491\%\Tstrut\Bstrut 		 & $0.684$\Tstrut\Bstrut & $0.716$\Tstrut\Bstrut  \\
-		learned pooling adapter size 386 \& Xception & 1.970\%\Tstrut\Bstrut & $0.668$\Tstrut\Bstrut & $0.711$\Tstrut\Bstrut \\
-		\hline\Tstrut
+	\begin{tabular}{L{2.9cm}|C{1.5cm} C{0.9cm} C{0.9cm}}
+		\toprule
+		\textbf{Model} & \textbf{\% Params} & \multicolumn{2}{c}{\textbf{SQuAD2.0}}\\
+		 & \textbf{BERT}$_{large}$ & \textbf{EM} & \textbf{F1}\\
+		\midrule
+		BERT $\frac{3}{10}e$ & 100\% & $0.654$ & $0.702$ \\
+		learned pooling (LP) & 0.001\% & $0.660$ & $0.703$ \\
+		average pooling (AP) & 0.001\% & $0.657$ & $0.700$ \\
+		\textbf{adapter size 386} & \textbf{0.124}\% & \boldmath$0.699$ & \boldmath$0.740$ \\
+		\hspace{0.5em} - weights not shared & 2.957\% & $0.676$ & $0.723$ \\
+		adapter size 64 & 0.021\% & $0.680$ & $0.732$ \\
+		\hspace{0.5em} - weights not shared & 0.491\% & $0.684$ & $0.716$ \\
+		LP adapter size 386 \& Xception & 1.970\% & $0.668$ & $0.711$ \\
+		\bottomrule
 	\end{tabular}
-	\caption{\label{tbl:qa_3_10_Models}Models trained on BERT embeddings at $\frac{3}{10}$ epochs}
+	\caption{\label{tbl:qa_3_10_Models}Models trained on embeddings at $\frac{3}{10}$ epochs}
 \end{table}
 
 \subsubsection{Best models on top at 1 epoch}
@@ -45,22 +45,21 @@ Using 1 epoch embeddings as our training data, we fit the same set of models as 
 \begin{table}[ht]
 	\centering
 	\small
-	\begin{tabular}{L{2.4cm} C{1.8cm} C{0.9cm} C{0.9cm}}
-		\hline\Tstrut\Bstrut
-		\textbf{Model} & \textbf{\% params of} $BERT_{LARGE}$ & \textbf{EM} & \textbf{F1} \\
-		\hline\Tstrut\Bstrut
-		BERT $1e$\Tstrut\Bstrut & 100\%\Tstrut\Bstrut 						 & $0.728$\Tstrut\Bstrut & $0.777$\Tstrut\Bstrut \\
-		BERT $2e$ (\textit{best})\Tstrut\Bstrut & 100\%\Tstrut\Bstrut		 & $0.747$\Tstrut\Bstrut & $0.792$\Tstrut\Bstrut \\
-		\hline\hline\Tstrut\Bstrut
-		\textbf{adapter size 386, shared weights} & \textbf{0.124}\%\Tstrut\Bstrut 	 & \boldmath$0.749$\Tstrut\Bstrut & \boldmath$0.790$\Tstrut\Bstrut \\
-		\hline\hline\Tstrut\Bstrut
-		adapter size 386, weights not shared & 2.957\%\Tstrut\Bstrut 		 & $0.716$\Tstrut\Bstrut & $0.767$\Tstrut\Bstrut \\
-		adapter size 64, shared weights\Tstrut\Bstrut & 0.021\%\Tstrut\Bstrut 			 & $0.739$\Tstrut\Bstrut & $0.785$\Tstrut\Bstrut \\
-		adapter size 64, weights not shared & 0.491\%\Tstrut\Bstrut 		 & $0.736$\Tstrut\Bstrut & $0.784$\Tstrut\Bstrut \\
-		learned pooling adapter size 386 \& Xception & 1.970\%\Tstrut\Bstrut & $0.741$\Tstrut\Bstrut & $0.786$\Tstrut\Bstrut \\
-		\hline\Tstrut
+	\begin{tabular}{L{2.9cm}|C{1.5cm} C{0.9cm} C{0.9cm}}
+		\toprule
+		\textbf{Model} & \textbf{\% Params} & \multicolumn{2}{c}{\textbf{SQuAD2.0}}\\
+		& \textbf{BERT}$_{large}$ & \textbf{EM} & \textbf{F1}\\
+		\midrule
+		BERT $1e$ & 100\% & $0.728$ & $0.777$ \\
+		BERT $2e$ (\textit{best}) & 100\% & $0.747$ & $0.792$ \\
+		\textbf{adapter size 386} & \textbf{0.124}\% & \boldmath$0.749$ & \boldmath$0.790$ \\
+		\hspace{0.5em} - weights not shared & 2.957\% & $0.716$ & $0.767$ \\
+		adapter size 64 & 0.021\% & $0.739$ & $0.785$ \\
+		\hspace{0.5em} - weights not shared & 0.491\% & $0.736$ & $0.784$ \\
+		LP adapter size 386 \& Xception & 1.970\% & $0.741$ & $0.786$ \\
+		\bottomrule
 	\end{tabular}
-	\caption{\label{tbl:qa_dev_set_performance}Models trained on BERT embeddings at $1$ epoch}
+	\caption{\label{tbl:qa_dev_set_performance}Models trained on embeddings at $1$ epoch}
 \end{table}
 
 \subsubsection{Training with less data}
@@ -101,21 +100,21 @@ Since our approach requires fine-tuning BERT in order to derive workable embeddi
 \begin{table}[ht]
 	\centering
 	\small
-	\begin{tabular}{L{4.2cm} C{0.9cm} C{0.9cm}}
-		\hline\Tstrut\Bstrut
-		\textbf{Model} & \textbf{EM} & \textbf{F1} \\
-		\hline\Tstrut\Bstrut
-		BERT $\frac{3}{10}e$     					& $0.654$  & $0.702$ \\[.1cm]
-		our model $\frac{3}{10}e$ 					& $0.699$  & $0.740$ \\[.1cm]
-		BERT $1e$     								& $0.728$  & $0.777$ \\[.1cm]
-		our model $1e$ 								& $0.749$  & $0.790$ \\[.1cm]
-		ensemble BERT+our model $\frac{3}{10}e$		& $0.691$  & $0.734$ \\[.1cm]
-		\hline\hline\Tstrut\Bstrut
-		\textbf{ensemble BERT+our model} \boldmath$1e$  & \boldmath$0.756$  & \boldmath$0.798$ \\[.1cm]
-		\hline\hline\Tstrut\Bstrut
+	\begin{tabular}{L{4.2cm}|C{0.9cm} C{0.9cm}}
+		\toprule
+		\textbf{Model} & \multicolumn{2}{c}{\textbf{SQuAD2.0}}\\
+		& \textbf{EM} & \textbf{F1}\\
+		\midrule
+		BERT $\frac{3}{10}e$     					& $0.654$  & $0.702$ \\
+		our model $\frac{3}{10}e$ 					& $0.699$  & $0.740$ \\
+		BERT $1e$     								& $0.728$  & $0.777$ \\
+		our model $1e$ 								& $0.749$  & $0.790$ \\
+		ensemble BERT+our model $\frac{3}{10}e$		& $0.691$  & $0.734$ \\
+		\textbf{ensemble BERT+our model} \boldmath$1e$  & \boldmath$0.756$  & \boldmath$0.798$ \\
+		\bottomrule
 	\end{tabular}
 	\caption{\label{tbl:qa_ensembling}QA ensembling results}
-\end{table} 
+\end{table}
 
 \subsection{Classification}
 
@@ -177,13 +176,13 @@ With 1 epoch embeddings, our results show significant improvement over the 2/10t
 \begin{table}[ht]
 	\centering
 	\scriptsize
-	\begin{tabular}{C{0.17cm} C{0.7cm} C{0.7cm} C{0.7cm} C{0.7cm} C{1cm} C{1cm}}
-		\hline\Tstrut\Bstrut
+	\begin{tabular}{C{0.17cm}|C{0.7cm} C{0.7cm}|C{0.7cm} C{0.7cm}|C{1cm} C{1cm}}
+		\toprule
 		\boldmath$e$ & \textbf{BERT F1} & \textbf{BERT EM} & \textbf{Our F1} & \textbf{Our EM} & \textbf{F1 $\Delta$} & \textbf{EM $\Delta$} \\
-		\hline\Tstrut\Bstrut
+		\midrule
 		$1$ & \textcolor{berkeleyblue}{$0.720$} & \textcolor{berkeleyblue}{$0.761$} & $0.763$ & $0.782$ & \textcolor{laplane}{\boldmath$+0.043$} & \textcolor{laplane}{\boldmath$+0.021$} \\
 		$3$ & \textcolor{berkeleyblue}{$0.790$} & \textcolor{berkeleyblue}{$0.804$} & $0.795$ & $0.811$ & \textcolor{laplane}{\boldmath$+0.005$} & \textcolor{laplane}{\boldmath$+0.007$} \\
-		\hline\Tstrut\Bstrut
+		\bottomrule
 	\end{tabular}
 	\caption{\label{tbl:bc_best_models}Comparison of BERT and our models performance at 1 and 3 epochs on binary classification task}
 \end{table} 
