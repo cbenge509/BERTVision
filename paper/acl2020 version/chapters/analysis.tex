@@ -29,15 +29,16 @@ Table [\ref{tbl:bc_bert_fine_tuning}] shows the results. As expected, the 2-epoc
 \begin{table}[ht]
 	\centering
 	\small
-	\begin{tabular}{L{4.2cm} C{0.9cm} C{0.9cm}}
-		\hline\Tstrut\Bstrut
-		\textbf{Model} & \textbf{EM} & \textbf{F1}  \\
-		\hline\Tstrut\Bstrut
-		BERT $2e$ (\textit{best}) 		& $0.747$ & $0.792$ \\[.1cm]
-		Best model $1e$ 				& $0.753$ & $0.797$ \\[.1cm]
-		\textbf{Best model} \boldmath$\frac{3}{10}e$ & \boldmath$0.749$ & \boldmath$0.795$ \\[.1cm]
+	\begin{tabular}{L{4.2cm}|C{0.9cm} C{0.9cm}}
+		\toprule
+		\textbf{Model} & \multicolumn{2}{c}{\textbf{SQuAD2.0}}\\
+		& \textbf{EM} & \textbf{F1}\\
+		\midrule
+		BERT $2e$ (\textit{best}) 		& $0.747$ & $0.792$ \\
+		Best model $1e$ 				& $0.753$ & $0.797$ \\
+		\textbf{Best model} \boldmath$\frac{3}{10}e$ & \boldmath$0.749$ & \boldmath$0.795$ \\
 		ensemble BERT $2e$ + best $1e$	& $0.751$ & $0.796$ \\
-		\hline\Tstrut\Bstrut
+		\bottomrule
 	\end{tabular}
 	\caption{\label{tbl:bc_bert_fine_tuning}2 epochs embeddings evaluation results}
 \end{table}
