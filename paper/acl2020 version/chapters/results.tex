@@ -4,15 +4,10 @@
 For span annotation, we sought to generate useful embeddings with as little fine-tuning as possible. However, we were unable to find models that can fit BERT embeddings without some fine-tuning (see appendix [\ref{sec:appendix}] for details). As a result, we decided that a small amount of fine-tuning would be necessary.
 
 \subsubsection{BERT fine-tuning as baseline}
-In order to establish baseline performance, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{fig:QnABertPerformance}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performanced peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{sec:appendix}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{sec:appendix}])
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=7.5cm]{images/QnA_BERT_Training_Performance_plot.png}
-	\caption{\label{fig:QnABertPerformance}QA Performance, BERT SQuAD 2.0}
-\end{figure}
+To establish a baseline, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{apdx:BERT_fine_tuning_span_annotation}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performance peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{sec:appendix}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{sec:appendix}])
 
 \subsubsection{Models trained at 3/10 epoch embeddings}
-Using the embeddings at 3/10 of an epoch, we explored over 20 parameter-efficient models using a combination of CNNs, pooling and compression techniques.  Table [\ref{tbl:qa_3_10_Models}] shows that our best models outperform baseline BERT fine-tuned to 3/10 of an epoch. Results of all models are in appendix [\ref{sec:appendix}].
+Using the embeddings at 3/10 of an epoch, we explored over 20 parameter-efficient models using a combination of CNNs, pooling, and compression techniques\footnote{See appendix [\ref{sec:appendix}] for training time and strategy}. Table [\ref{tbl:qa_3_10_Models}] shows that our best models outperform baseline BERT fine-tuned to 3/10 of an epoch. Results of all models are in appendix [\ref{sec:appendix}].
 
 First, we compare two models that use different pooling strategies, LP (learned pooling) and AP (average pooling) [\ref{sec:methods}]. We found that the LP model achieved similar performance as BERT itself, while AP significantly reduced performance. An analysis of the learned weights suggests that a non-uniform distribution of pooling weights is optimal, with the distribution slightly favoring later layers of BERT compared to earlier layers (see appendix [\ref{sec:appendix}]).
 
@@ -34,7 +29,7 @@ While we extensively explored stacking pooling with adapters and CNNs, we did no
 		\hspace{0.5em} - weights not shared & 2.957\% & $0.676$ & $0.723$ \\
 		adapter size 64 & 0.021\% & $0.680$ & $0.732$ \\
 		\hspace{0.5em} - weights not shared & 0.491\% & $0.684$ & $0.716$ \\
-		LP adapter size 386 \& Xception & 1.970\% & $0.668$ & $0.711$ \\
+		LP adapter size 386 \& xception & 1.970\% & $0.668$ & $0.711$ \\
 		\bottomrule
 	\end{tabular}
 	\caption{\label{tbl:qa_3_10_Models}Models trained on embeddings at $\frac{3}{10}$ epochs}
@@ -56,7 +51,7 @@ Using 1 epoch embeddings as our training data, we fit the same set of models as 
 		\hspace{0.5em} - weights not shared & 2.957\% & $0.716$ & $0.767$ \\
 		adapter size 64 & 0.021\% & $0.739$ & $0.785$ \\
 		\hspace{0.5em} - weights not shared & 0.491\% & $0.736$ & $0.784$ \\
-		LP adapter size 386 \& Xception & 1.970\% & $0.741$ & $0.786$ \\
+		LP adapter size 386 \& xception & 1.970\% & $0.741$ & $0.786$ \\
 		\bottomrule
 	\end{tabular}
 	\caption{\label{tbl:qa_dev_set_performance}Models trained on embeddings at $1$ epoch}
@@ -70,28 +65,6 @@ The previous sections show that our models perform well compared to BERT when tr
 	\includegraphics[width=7.5cm]{images/1_Epoch_Embeddings__Adapter_386_with_Skip.png}
 	\caption{\label{fig:1_epoch_embeddings__adapter_386_with_skip}Training with less data}
 \end{figure}
-
-%\begin{table}[ht]
-%	\centering
-%	\small
-%	\begin{tabular}{C{1.0cm} C{0.80cm} C{0.80cm} C{1.5cm} C{1.5cm}}
-%		\hline\Tstrut\Bstrut
-%		\textbf{\% data} & \textbf{EM} & \textbf{F1} & \textbf{EM \boldmath$1e$ embeddings} & \textbf{F1 \boldmath$1e$ embeddings}  \\
-%		\hline\Tstrut\Bstrut
-%		10\%  & $0.633$ & $0.692$ & $0.712$ & $0.768$ \\[.1cm]
-%		20\%  & $0.633$ & $0.690$ & $0.714$ & $0.767$ \\[.1cm]
-%		30\%  & $0.660$ & $0.711$ & $0.735$ & $0.782$ \\[.1cm]
-%		40\%  & $0.663$ & $0.695$ & $0.737$ & $0.775$ \\[.1cm]
-%		50\%  & $0.673$ & $0.712$ & $0.741$ & $0.783$ \\[.1cm]
-%		60\%  & $0.681$ & $0.719$ & $0.733$ & $0.772$ \\[.1cm]
-%		70\%  & $0.683$ & $0.729$ & $0.731$ & $0.779$ \\[.1cm]
-%		80\%  & $0.686$ & $0.724$ & $0.741$ & $0.785$ \\[.1cm]
-%		90\%  & $0.687$ & $0.734$ & $0.733$ & $0.783$ \\[.1cm]
-%		100\% & $0.689$ & $0.733$ & $0.736$ & $0.783$ \\[.1cm]
-%		\hline\Tstrut\Bstrut
-%	\end{tabular}
-%	\caption{\label{tbl:qa_3_10_embeddings__adpater_386}1 epoch and $\frac{3}{10}$ epoch embeddings [adpt 386]}
-%\end{table}
 
 \subsubsection{Ensembling our models with BERT}
 
@@ -122,46 +95,11 @@ The previous section on QA span annotation uses the full sequence embeddings gen
 
 \subsubsection{BERT fine-tuning as baseline}
 
-Similar to QA span annotation, we use BERT fine-tuning as a baseline. We fine-tuned BERT for 6 epochs using the CLS token, with the EM and F1 for each epoch shown in Figure [\ref{fig:bc_bert_performance}]. Our best performance was achieved at 3 epochs. We utilized embeddings at 2/10 of an epoch and 1 full epoch for the binary classification task (see appendix [\ref{sec:appendix}] for rationale).
-
-\begin{figure}[ht]
-	\centering
-	\includegraphics[width=7.5cm]{images/BinaryClassification_BERT_Training_Performance_plot.png}
-	\caption{\label{fig:bc_bert_performance}$BERT_{LARGE}$ classification performance}
-\end{figure}
-
-%\begin{table}[ht]
-%	\centering
-%	\small
-%	\begin{tabular}{C{1cm} C{1.5cm} C{1.5cm}}
-%		\hline\Tstrut\Bstrut
-%		\textbf{Epoch} & \textbf{F1} & \textbf{EM}  \\
-%		\hline\Tstrut\Bstrut
-%		$\frac{1}{10}$ & $0.139$ & $0.501$ \\[.1cm]
-%		$\frac{2}{10}$ & $0.636$ & $0.687$ \\[.1cm]
-%		$\frac{3}{10}$ & $0.634$ & $0.701$ \\[.1cm]
-%		$\frac{4}{10}$ & $0.641$ & $0.705$ \\[.1cm]
-%		$\frac{5}{10}$ & $0.586$ & $0.687$ \\[.1cm]
-%		$\frac{6}{10}$ & $0.658$ & $0.728$ \\[.1cm]
-%		$\frac{7}{10}$ & $0.623$ & $0.713$ \\[.1cm]
-%		$\frac{8}{10}$ & $0.719$ & $0.761$ \\[.1cm]
-%		$\frac{9}{10}$ & $0.728$ & $0.766$ \\[.1cm]
-%		$1$ 		   & $0.720$ & $0.761$ \\[.1cm]
-%		$2$ 		   & $0.774$ & $0.793$ \\[.1cm]
-%		\hline\hline\Tstrut\Bstrut
-%		\boldmath$3$ 		   & \boldmath$0.790$ & \boldmath$0.804$ \\
-%		\hline\hline\Tstrut\Bstrut
-%		$4$ 		   & $0.733$ & $0.770$ \\[.1cm]
-%		$5$ 		   & $0.777$ & $0.794$ \\[.1cm]
-%		$6$ 		   & $0.783$ & $0.801$ \\[.1cm]
-%		\hline\Tstrut\Bstrut
-%	\end{tabular}
-%	\caption{\label{tbl:bc_bert_fine_tuning}$BERT_{LARGE}$ classification performance (table)}
-%\end{table}
+Similar to QA span annotation, we use BERT fine-tuning as a baseline. We fine-tuned BERT for 6 epochs using the CLS token, with the EM and F1 for each epoch shown in Figure [\ref{apdx:BERT_fine_tuning_classification}]. Our best performance was achieved at 3 epochs. We utilized embeddings at 2/10 of an epoch and 1 full epoch for the binary classification task (see appendix [\ref{sec:appendix}] for rationale).
 
 \subsubsection{Models trained at 2/10 epoch embeddings}
 
-At 2/10ths of an epoch, BERT achieved an F1 of 0.635 and EM of 0.687 [\ref{fig:bc_bert_performance}]. We tried training various parameter-efficient model architectures similar to span annotation, most of which were CNN-based or simple linear. Our best performing model leverages a simple linear weighting that contracts across the channels dimension through learned weights inspired by \cite{tenney-etal-2019-bert}. We trained for 10 epochs and recorded performance of the model at each epoch evaluated against the dev set. At every epoch, the model outperformed the BERT baseline at 2/10 of an epoch [\ref{fig:bc_2_10ths_performance}].
+At 2/10ths of an epoch, BERT achieved an F1 of 0.635 and EM of 0.687 [\ref{apdx:BERT_fine_tuning_classification}]. We tried training various parameter-efficient model architectures similar to span annotation, most of which were CNN-based or simple linear. Our best performing model leverages a simple linear weighting that contracts across the channels dimension through learned weights inspired by \cite{tenney-etal-2019-bert}. We trained for 10 epochs and recorded performance of the model at each epoch evaluated against the dev set. At every epoch, the model outperformed the BERT baseline at 2/10 of an epoch [\ref{fig:bc_2_10ths_performance}].
 
 \begin{figure}[ht]
 	\centering
@@ -189,4 +127,4 @@ With 1 epoch embeddings, our results show significant improvement over the 2/10t
 
 \subsubsection{Modeling with 3 full epoch embeddings}
 
-BERT achieved its best performance against the SQuAD 2.0 binary classification task at 3 full epochs (0.79 F1, .804 EM) [\ref{fig:bc_bert_performance}].  Given that the simpler linear model outperformed BERT at the same level of fine-tuning, we wanted to evaluate if the simple model’s trend in performance would continue as BERT exhausts its ability to learn the binary classification task.  In this final evaluation, the linear model again outperformed BERT, achieving the top overall score for our task, albeit at a smaller margin [\ref{tbl:bc_best_models}].
+BERT achieved its best performance against the SQuAD 2.0 binary classification task at 3 full epochs (0.79 F1, 0.804 EM) [\ref{apdx:BERT_fine_tuning_classification}].  Given that the simpler linear model outperformed BERT at the same level of fine-tuning, we wanted to evaluate if the simple model’s trend in performance would continue as BERT exhausts its ability to learn the binary classification task.  In this final evaluation, the linear model again outperformed BERT, achieving the top overall score for our task, albeit at a smaller margin [\ref{tbl:bc_best_models}].

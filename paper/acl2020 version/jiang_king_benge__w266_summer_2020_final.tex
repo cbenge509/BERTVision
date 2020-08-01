@@ -21,10 +21,11 @@
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{array}
-\usepackage{caption}
 \usepackage{xcolor}
 \usepackage{floatrow}
 \usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SETUP
@@ -92,7 +93,6 @@
 	\bibliography{references}
 	\bibliographystyle{acl_natbib}
 
-	\input{chapters/appendix}
-	\input{chapters/supplemental}
+	\include{chapters/appendix}
 
 \end{document}

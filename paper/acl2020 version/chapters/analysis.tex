@@ -9,7 +9,7 @@ To investigate further, we looked at our 3/10 epoch model’s incorrect predicti
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=7.5cm]{images/QA_Correct_Answers_by_Question_Type.png}
-	\caption{\label{fig:qa_correct_answers_by_model_and_type}Correctly answer percentages by model}
+	\caption{\label{fig:qa_correct_answers_by_model_and_type}Correctly answered percentages by model}
 \end{figure}
 
 \subsection{Second most likely answer}
@@ -35,8 +35,8 @@ Table [\ref{tbl:bc_bert_fine_tuning}] shows the results. As expected, the 2-epoc
 		& \textbf{EM} & \textbf{F1}\\
 		\midrule
 		BERT $2e$ (\textit{best}) 		& $0.747$ & $0.792$ \\
-		Best model $1e$ 				& $0.753$ & $0.797$ \\
-		\textbf{Best model} \boldmath$\frac{3}{10}e$ & \boldmath$0.749$ & \boldmath$0.795$ \\
+		best model $1e$ 				& $0.753$ & $0.797$ \\
+		\textbf{best model} \boldmath$\frac{3}{10}e$ & \boldmath$0.749$ & \boldmath$0.795$ \\
 		ensemble BERT $2e$ + best $1e$	& $0.751$ & $0.796$ \\
 		\bottomrule
 	\end{tabular}

@@ -28,12 +28,10 @@ For all experiments, we use the $BERT_{LARGE}$ uncased implementation from \href
 
 \subsection{Ensembling} 
 
-We evaluated multiple ensemble approaches for span annotation. The most successful method presented in this paper takes the element-wise max of the softmax probabilities output by each model. This occurs independently for the start-span position and end-span position. The most likely complete span is then determined by the product of the generated start \& end span vectors.
+We evaluated multiple ensemble approaches for span annotation. The most successful method takes the element-wise max of the softmax probabilities output by each model in the ensemble. Let $Z$ and $Y$ be two model softmax probabilities for start or end span position. Then, the predicted position is:
 \begin{equation} \label{eq2}
 \begin{aligned}
-\text{Let Z be all model softmax probabilities}, \\
-K = 386,\;\text{and}\;N = len(Z) \\
-\arg\max\left(\prod_{i=1}^{K}{\prod_{j=1}^{N}{Z_{j,i}}}\right)
+\arg\max\left(\underset{{Z_i, Y_i}}{\max},\;\;\text{for i in \{1,2,...,386\}}\right)
 \end{aligned}
 \end{equation}
 
