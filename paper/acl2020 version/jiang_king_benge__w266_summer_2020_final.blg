@@ -4,6 +4,8 @@ The top-level auxiliary file: jiang_king_benge__w266_summer_2020_final.aux
 Reallocating 'name_of_file' (item size: 1) to 11 items.
 Reallocating 'name_of_file' (item size: 1) to 11 items.
 The style file: acl_natbib.bst
+Reallocating 'name_of_file' (item size: 1) to 22 items.
+A level-1 auxiliary file: chapters/appendix.aux
 Reallocating 'glb_str_end' (item size: 4) to 20 items.
 Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
 Reallocating 'global_strs' (item size: 1) to 4000000 items.
@@ -11,45 +13,45 @@ Reallocating 'singl_function' (item size: 4) to 100 items.
 Database file #1: references.bib
 Reallocating 'wiz_functions' (item size: 4) to 6000 items.
 Warning--empty booktitle in Papineni02bleu:a
-You've used 14 entries,
+You've used 15 entries,
             3571 wiz_defined-function locations,
-            791 strings with 9343 characters,
-and the built_in function-call counts, 11232 in all, are:
-= -- 857
-> -- 769
+            799 strings with 10113 characters,
+and the built_in function-call counts, 13444 in all, are:
+= -- 967
+> -- 1054
 < -- 5
-+ -- 246
-- -- 231
-* -- 836
-:= -- 1763
-add.period$ -- 55
-call.type$ -- 14
-change.case$ -- 153
-chr.to.int$ -- 15
-cite$ -- 15
-duplicate$ -- 727
-empty$ -- 699
-format.name$ -- 271
-if$ -- 2383
++ -- 340
+- -- 324
+* -- 1049
+:= -- 2116
+add.period$ -- 59
+call.type$ -- 15
+change.case$ -- 189
+chr.to.int$ -- 16
+cite$ -- 16
+duplicate$ -- 854
+empty$ -- 773
+format.name$ -- 367
+if$ -- 2805
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 159
-newline$ -- 72
-num.names$ -- 56
-pop$ -- 366
+missing$ -- 196
+newline$ -- 77
+num.names$ -- 60
+pop$ -- 441
 preamble$ -- 1
-purify$ -- 133
+purify$ -- 168
 quote$ -- 0
-skip$ -- 462
+skip$ -- 496
 stack$ -- 0
-substring$ -- 228
-swap$ -- 360
+substring$ -- 239
+swap$ -- 436
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 126
+type$ -- 135
 warning$ -- 1
-while$ -- 48
+while$ -- 51
 width$ -- 0
-write$ -- 176
+write$ -- 189
 (There was 1 warning)
