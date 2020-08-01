@@ -20,19 +20,24 @@ Summer 2020, W266 - Natural Language Processing - [Daniel Cer, PhD](https://scho
 
 ## Description
 
+We present a highly parameter-efficient approach for Question Answering (QA) that significantly reduces the need for extended BERT fine-tuning. Our method uses information from the hidden state activations of each BERT transformer layer, which is discarded during typical BERT inference. Our best model achieves maximal BERT performance at a fraction of the training time and GPU/TPU expense. Performance is further improved by ensembling our model with BERT’s predictions. Furthermore, we find that near optimal performance can be achieved for QA span annotation using less training data. Our experiments show that this approach works well not only for span annotation, but also for classification, suggesting that it may be extensible to a wider range of tasks.
+
 This repository contains the code, models, and documentation for the evaluation of leveraging parameter-efficient models, like those typically used in computer vision, for their potential utility in performing the NLP tasks of span annotation (aka "Q&A") and document binary classification. 
 
-All models were trained on the hidden embedding activation states of $BERT_{LARGE}$ and evaluated on the [Stanford Question Answering Dataset 2.0](https://rajpurkar.github.io/SQuAD-explorer/) (aka [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/)).  Our aim for this project is to test the hypothesis that significantly smaller, parameter-efficient models can perform as well or better than BERT on NLP tasks by benefiting from the full 24 layers of transformer block learnings after BERT has been only lightly fine-tuned.
+All models were trained on the hidden embedding activation states of BERT$_{LARGE}$ and evaluated on the [Stanford Question Answering Dataset 2.0](https://rajpurkar.github.io/SQuAD-explorer/) (aka [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/)).
 
 #### Highlight of key files included in this repository:
 
   |File | Description |
   |:----|:------------|
-  | [BERT Vision - Final Paper](/paper/jiang_king_benge__w266_summer_2020_final.pdf) | Our final write-up and submission for review of analysis and findings. |
+  | [BERT Vision - Final Paper](/paper/acl2020%20version/jiang_king_benge__w266_summer_2020_final.pdf) | Our final write-up and submission for review of analysis and findings. |
+  | [BERT Vision - Presentation](/presentation/Jiang_King_Benge_W266_Final_Presentation.pptx) | Our presentation and overview of BERTVision. |
+  | [Generate Span Annotation Embeddings](/notebooks/BERT_finetuning_Q_and_A_with_embedding_generation.ipynb) | Jupyter Notebook that walks through the extraction of hiden state activations from BERT (for span annotation) |
+  | [BERT Fine Tuning - Span Annotation](/notebooks/BERT_finetuning_Q_and_A_with_embedding_generation.ipynb) | Jupyter Notebook that walks through the fine-tuning steps for BERT span annotation) |
   | [Generate Binary Classification Embeddings](/notebooks/Generate%20Binary%20Classification%20Embeddings.ipynb) | Jupyter Notebook that walks through the extraction of hiden state activations from BERT (for binary classification) |
+  | [BERT Fine Tuning - Binary Classification](/notebooks/BERT%20Fine%20Tuning%20Binary%20Classification.ipynb) | Jupyter Notebook that walks through the fine-tuning steps for BERT classification) |
   | [Performance Reporting](/notebooks/Performance%20Reporting.ipynb) | Jupyter Notebook used to generate performance tables and plots resulting from model experiments. |
-  | [BERT Fine Tuning Binary Classification](/notebooks/BERT%20/Fine%20Tuning%20Binary%20Classification.ipynb) | Jupyter Notebook that walks through fine-tuning BERT for the binary classification task. |
-  |[generate_squad_features.py](generate_squad_features.py) | Utility script that generates the train and dev tokens for BERT from the SQuAD v2 dataset |
+  |[Generate SQuAD 2.0 Features (Utility)](generate_squad_features.py) | Utility script that generates the train and dev tokens for BERT from the SQuAD v2 dataset |
   
 ---
 
@@ -50,24 +55,14 @@ For the task of binary classification, BERT was fine-tuned to 6 epochs on the SQ
 
 ---
 
-Results
--------------
+Model Architecture
+-----------
 
-This section is still under development, pardon our dust.
+Architecture of our best performing span annotation model in relation to BERT$_{large}$.  Left: BERT and its span annotation inference process. Right: For our model, BERT embeddings are first transformed through our custom adapter layer. Next, the last two dimensions are flattened. Optionally, a skip connection is added between the sequence outputs of the final BERT layer and this flattened representation. This is present in the best model discovered at 3/10 of an epoch, but was not necessary for the best model discovered at 1 full epoch.  This tensor is then projected down to (386,2) with a densely connected layer and split on the last axis into two model heads. These heads represent the logits of the start-span and end-span position.
 
-<img src="/images/BinaryClassification_BERT_Training_Performance_plot.png" align="center" width = 700>
-<br>
-
-<img src="/images/Detail_Tenney_Small_Performance.png" align="center" width = 700>
-<br>
-
-<img src="/images/BinaryClassification_Tenney_Small_1_epoch_BERT_fine_tuned_Performance_plot.png" align="center" width = 700>
-<br>
-<img src="/images/BinaryClassification_Tenney_Small_1_epoch_BERT_fine_tuned_Performance_table.png">
-<br>
+<img src="/images/BERTVision_QA_Model.png" align="center" width = 700>
 
 ---
-
 
 License
 -------
