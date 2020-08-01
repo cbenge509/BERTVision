@@ -1,6 +1,6 @@
 \section{Introduction}
 
-% Tenney1 = Tenney2020
+% Tenney1 = tenney-etal-2019-bert
 % Tenney2 = DBLP:journals/corr/abs-1905-06316
 % Zhu = Zhu2020IncorporatingBI
 % Chen = Chen_2020
@@ -11,12 +11,11 @@
 % BLEU = Papineni02bleu:a
 % Ma = ma2019universal
 
-
 The introduction of Transformers \cite{Vaswani2017} has significantly advanced the state-of-the-art for many NLP tasks. The most well-known Transformer-based model is BERT \cite{Devlin2019}. The standard way to use BERT on a specific task is to first download pre-trained weights for the model, followed by fine-tuning these weights on a supervised dataset. However, this procedure can be quite slow, and at times prohibitive for those without a powerful GPU/TPU, or those with limited CPU capacity. Smaller Transformers, such DistilBERT \cite{sanh2019distilbert}, exist and can fine-tune up to 60\% faster. However, such models tend to consistently underperform full-size BERT on a wide range of tasks. A method that reduces fine-tuning but maintains the same or better performance would make BERT more accessible for practical applications.
 
 To develop such a method, we draw inspiration from previous works that use BERT for feature extraction rather than for fine-tuning \citep{Zhu2020IncorporatingBI, Chen_2020}. For example, Zhu et al. showed that the sequence outputs from the final BERT layer can be used as contextualized embeddings to supplement the self-attention mechanism in a encoder/decoder neural translation model. This led to an improvement over the standard Transformer model in all tested language pairs on standard metrics (BLEU score \cite{Papineni02bleu:a}).
 
-One characteristic these studies share with typical BERT inference is that only information from the final layer of BERT is used. However, studies by \cite{Tenney2020} suggest that all layers of BERT carry unique information. The authors used a scalar mixing weight model to combine across the encoder hidden states, and found that the distributions of weights for various tasks were different. In addition, by training a series of classifiers within the edge probing framework \cite{DBLP:journals/corr/abs-1905-06316}, the authors computed how much each layer adds to each task, as well as the expected layer at which the model predicts the correct labels. The authors state that classifier performance generally increases when more layers are attended to, starting from layer 0, further suggesting that useful information is being incorporated at each progressive layer. Others, such as \cite{Aken2020}, looked specifically at QA with SQuAD and shared similar findings, suggesting that different layers encode different information important for QA.
+One characteristic these studies share with typical BERT inference is that only information from the final layer of BERT is used. However, a study by \cite{tenney-etal-2019-bert} suggests that all layers of BERT carry unique information. By training a series of classifiers within the edge probing framework \cite{DBLP:journals/corr/abs-1905-06316}, the authors computed how much each layer changes performance on eight labeling tasks, and the expected layer at which the model predicts the correct labels. The discovery is that syntactic information is encoded earlier in the network, while higher level semantic information comes later. Furthermore, classifier performance generally increases for all tasks when more layers are accounted for, starting from layer 0, suggesting that useful information is being incorporated at each progressive layer. Others, such as \cite{Aken2020}, looked specifically at QA with SQuAD and shared similar findings, suggesting that different layers encode different information important for QA.
 
 \cite{ma2019universal} showed that a simple averaging of only the first and last layers of BERT results in contextualized embeddings that performed better than only using the final layer. The authors evaluated this approach on a variety of tasks such as text classification and question-answering. Together, these works suggest that the hidden state activations within BERT may contain unique information that can be used to augment the final layer. That said, the exact way of doing this requires further exploration.
 

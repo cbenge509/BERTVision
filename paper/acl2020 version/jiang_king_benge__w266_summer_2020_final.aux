@@ -21,11 +21,11 @@
 \citation{sanh2019distilbert}
 \citation{Zhu2020IncorporatingBI,Chen_2020}
 \citation{Papineni02bleu:a}
-\citation{Tenney2020}
+\citation{tenney-etal-2019-bert}
 \citation{DBLP:journals/corr/abs-1905-06316}
 \citation{Aken2020}
 \citation{ma2019universal}
-\citation{Tenney2020}
+\citation{tenney-etal-2019-bert}
 \citation{ma2019universal}
 \citation{DBLP:journals/corr/abs-1902-00751}
 \citation{DBLP:journals/corr/SzegedyLJSRAEVR14,DBLP:journals/corr/Chollet16a}
@@ -37,10 +37,10 @@
 \newlabel{fig:test}{{1}{3}{Architecture of our best model in relation to BERT. \textbf {Left}: BERT and its span annotation inference process. \textbf {Right}: For our model, BERT embeddings are first transformed through our custom adapter layer. Next, the last two dimensions are flattened. Optionally, a skip connection is added between the sequence outputs of the final BERT layer and this flattened representation. This is present in the best model discovered at 3/10 of an epoch, but was not necessary for the best model discovered at 1 full epoch. This tensor is then projected down to (386, 2) with a densely connected layer, and split on the last axis into two model heads, representing start span position and end span position.\relax }{figure.caption.1}{}}
 \newlabel{eq2}{{1}{3}{Ensembling}{equation.2.1}{}}
 \newlabel{fig:QnABertPerformance}{{2}{3}{QA Performance, BERT SQuAD 2.0\relax }{figure.caption.2}{}}
-\newlabel{tbl:qa_3_10_Models}{{1}{4}{Models at $\frac {3}{10}$ epochs\relax }{table.caption.3}{}}
-\newlabel{tbl:qa_dev_set_performance}{{2}{4}{Models at 1 epoch\relax }{table.caption.4}{}}
-\citation{Tenney2020}
-\newlabel{fig:1_epoch_embeddings__adapter_386_with_skip}{{3}{5}{Best model fractional data performance\relax }{figure.caption.5}{}}
+\newlabel{tbl:qa_3_10_Models}{{1}{4}{Models trained on BERT embeddings at $\frac {3}{10}$ epochs\relax }{table.caption.3}{}}
+\newlabel{tbl:qa_dev_set_performance}{{2}{4}{Models trained on BERT embeddings at $1$ epoch\relax }{table.caption.4}{}}
+\citation{tenney-etal-2019-bert}
+\newlabel{fig:1_epoch_embeddings__adapter_386_with_skip}{{3}{5}{Training with less data\relax }{figure.caption.5}{}}
 \newlabel{tbl:qa_ensembling}{{3}{5}{QA ensembling results\relax }{table.caption.6}{}}
 \newlabel{fig:bc_bert_performance}{{4}{5}{$BERT_{LARGE}$ classification performance\relax }{figure.caption.7}{}}
 \newlabel{fig:bc_2_10ths_performance}{{5}{5}{2/10ths epoch model vs BERT\relax }{figure.caption.8}{}}
@@ -57,8 +57,8 @@
 \bibcite{DBLP:journals/corr/abs-1806-03822}{{8}{2018}{{Rajpurkar et~al.}}{{Rajpurkar, Jia, and Liang}}}
 \bibcite{sanh2019distilbert}{{9}{2019}{{Sanh et~al.}}{{Sanh, Debut, Chaumond, and Wolf}}}
 \bibcite{DBLP:journals/corr/SzegedyLJSRAEVR14}{{10}{2014}{{Szegedy et~al.}}{{Szegedy, Liu, Jia, Sermanet, Reed, Anguelov, Erhan, Vanhoucke, and Rabinovich}}}
-\bibcite{Tenney2020}{{11}{2020}{{Tenney et~al.}}{{Tenney, Das, and Pavlick}}}
-\bibcite{DBLP:journals/corr/abs-1905-06316}{{12}{2019}{{Tenney et~al.}}{{Tenney, Xia, Chen, Wang, Poliak, McCoy, Kim, Durme, Bowman, Das, and Pavlick}}}
+\bibcite{tenney-etal-2019-bert}{{11}{2019{a}}{{Tenney et~al.}}{{Tenney, Das, and Pavlick}}}
+\bibcite{DBLP:journals/corr/abs-1905-06316}{{12}{2019{b}}{{Tenney et~al.}}{{Tenney, Xia, Chen, Wang, Poliak, McCoy, Kim, Durme, Bowman, Das, and Pavlick}}}
 \bibcite{Vaswani2017}{{13}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
 \bibcite{Zhu2020IncorporatingBI}{{14}{2020}{{Zhu et~al.}}{{Zhu, Xia, Wu, He, Qin, Zhou, Li, and Liu}}}
 \newlabel{tbl:bc_bert_fine_tuning}{{5}{7}{2 epochs embeddings evaluation results\relax }{table.caption.11}{}}

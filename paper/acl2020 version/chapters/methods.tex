@@ -3,19 +3,21 @@
 
 This section introduces our baseline BERT model, and custom models trained on BERT embeddings. We also describe how we use the SQuAD 2.0 question-answering dataset for both span annotation and classification.
 
-\subsection{Modeling Approach}
+\subsection{Modeling approach}
 
 Our custom models use the BERT activations from each encoder layer as input data. For a single SQuAD 2.0 example, our data point has a shape of (X,1024, 25), where $X=386$ for span annotation, and 1 for classification (see appendix [\ref{sec:appendix}] for details). We term this representation of the data as \textit{“embeddings.”}
 
-\subsection{Custom Models}
+\subsection{Learned and average pooling}
 
-We implemented the pooling method described in \cite{Tenney2020}, which contracts the last dimension from 25 to 1 through a learned linear combination of each layer. We call this approach learned pooling (LP). We also evaluate the pooling approach reported in \cite{ma2019universal}, average pooling (AP), where each encoder layer is given equal weights. 
+We implemented the pooling method described in \cite{tenney-etal-2019-bert}, which contracts the last dimension from 25 to 1 through a learned linear combination of each layer. We call this approach learned pooling (LP). We also evaluate the pooling approach reported in \cite{ma2019universal}, average pooling (AP), where each encoder layer is given equal weights. 
 
 \subsection{Adapter compression}
 
 We use the term “compression” to refer to methods that reduce the 1024 dimension of the BERT embeddings. The method proposed in \cite{DBLP:journals/corr/abs-1902-00751} is termed \textit{“adapter”}, which is an auto-encoder type architecture wherein the embeddings are first projected into a lower dimension using a fully-connected layer. For our purposes, the adapter serves as a bridge between BERT embeddings and downstream layers. The architecture in Houlsby et. al. can only handle 3D tensors (including batch), because each adapter handles data from a single transformer layer. Since we work with the activations from multiple layers at once, we need to be able to handle 4D tensors. To do this, our adapter implementation can treat each transformer layer as independent, learning separate compression weights for each layer. Alternatively, we can also employ weight-sharing, so that the compression for each encoder layer follows the same set of transformations.
 
-We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{sec:appendix}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERTVision}.
+\subsection{Custom CNN's}
+
+We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{sec:appendix}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERT Vision GitHub repo}.
 
 \subsection{Fine-tuning BERT}
 

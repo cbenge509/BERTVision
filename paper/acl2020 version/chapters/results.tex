@@ -1,7 +1,7 @@
 \section{Results}
 
 \subsection{Span Annotation}
-\subsubsection{BERT fine-tuning partial and full epochs}
+\subsubsection{BERT fine-tuning as baseline}
 In order to establish baseline performance, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{fig:QnABertPerformance}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performanced peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{sec:appendix}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{sec:appendix}])
 \begin{figure}[ht]
 	\centering
@@ -9,7 +9,7 @@ In order to establish baseline performance, we fine-tuned BERT for up to 6 epoch
 	\caption{\label{fig:QnABertPerformance}QA Performance, BERT SQuAD 2.0}
 \end{figure}
 
-\subsubsection{Models trained at 3/10 epoch BERT embeddings}
+\subsubsection{Models trained at 3/10 epoch embeddings}
 Using the embeddings at 3/10 of an epoch, we explored over 20 parameter-efficient models using a combination of CNNs, pooling and compression techniques.  Table [\ref{tbl:qa_3_10_Models}] shows that our best models outperform baseline BERT fine-tuned to 3/10 of an epoch. Results of all models are in appendix [\ref{sec:appendix}].
 
 First, we compare two models that use different pooling strategies, LP (learned pooling) and AP (average pooling) [\ref{sec:methods}]. We found that the LP model achieved similar performance as BERT itself, while AP significantly reduced performance. An analysis of the learned weights suggests that a non-uniform distribution of pooling weights is optimal, with the distribution slightly favoring later layers of BERT compared to earlier layers (see appendix [\ref{sec:appendix}]).
@@ -25,7 +25,7 @@ While we extensively explored stacking pooling with adapters and CNNs, we did no
 		\textbf{Model} & \textbf{\% params of} $BERT_{LARGE}$ & \textbf{EM} & \textbf{F1} \\
 		\hline\Tstrut\Bstrut
 		BERT $\frac{3}{10}e$\Tstrut\Bstrut & 100\%\Tstrut\Bstrut 		 	 & $0.654$\Tstrut\Bstrut & $0.702$\Tstrut\Bstrut \\
-		BERT $1e$ (\textit{best})\Tstrut\Bstrut & 100\%\Tstrut\Bstrut		 & $0.670$\Tstrut\Bstrut & $0.712$\Tstrut\Bstrut \\
+		%BERT $1e$ (\textit{best})\Tstrut\Bstrut & 100\%\Tstrut\Bstrut		 & $0.670$\Tstrut\Bstrut & $0.712$\Tstrut\Bstrut \\
 		learned pooling\Tstrut\Bstrut &  0.001\%\Tstrut\Bstrut	             & $0.660$\Tstrut\Bstrut & $0.703$\Tstrut\Bstrut \\
 		average pooling\Tstrut\Bstrut &  0.001\%\Tstrut\Bstrut            	 & $0.657$\Tstrut\Bstrut & $0.700$\Tstrut\Bstrut \\
 		\hline\hline\Tstrut\Bstrut
@@ -37,7 +37,7 @@ While we extensively explored stacking pooling with adapters and CNNs, we did no
 		learned pooling adapter size 386 \& Xception & 1.970\%\Tstrut\Bstrut & $0.668$\Tstrut\Bstrut & $0.711$\Tstrut\Bstrut \\
 		\hline\Tstrut
 	\end{tabular}
-	\caption{\label{tbl:qa_3_10_Models}Models at $\frac{3}{10}$ epochs}
+	\caption{\label{tbl:qa_3_10_Models}Models trained on BERT embeddings at $\frac{3}{10}$ epochs}
 \end{table}
 
 \subsubsection{Best models on top at 1 epoch}
@@ -60,7 +60,7 @@ Using 1 epoch embeddings as our training data, we fit the same set of models as 
 		learned pooling adapter size 386 \& Xception & 1.970\%\Tstrut\Bstrut & $0.741$\Tstrut\Bstrut & $0.786$\Tstrut\Bstrut \\
 		\hline\Tstrut
 	\end{tabular}
-	\caption{\label{tbl:qa_dev_set_performance}Models at 1 epoch}
+	\caption{\label{tbl:qa_dev_set_performance}Models trained on BERT embeddings at $1$ epoch}
 \end{table}
 
 \subsubsection{Training with less data}
@@ -69,7 +69,7 @@ The previous sections show that our models perform well compared to BERT when tr
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=7.5cm]{images/1_Epoch_Embeddings__Adapter_386_with_Skip.png}
-	\caption{\label{fig:1_epoch_embeddings__adapter_386_with_skip}Best model fractional data performance}
+	\caption{\label{fig:1_epoch_embeddings__adapter_386_with_skip}Training with less data}
 \end{figure}
 
 %\begin{table}[ht]
@@ -160,9 +160,9 @@ Similar to QA span annotation, we use BERT fine-tuning as a baseline. We fine-tu
 %	\caption{\label{tbl:bc_bert_fine_tuning}$BERT_{LARGE}$ classification performance (table)}
 %\end{table}
 
-\subsubsection{Models trained at 2/10 epoch BERT embeddings}
+\subsubsection{Models trained at 2/10 epoch embeddings}
 
-At 2/10ths of an epoch, BERT achieved an F1 of 0.635 and EM of 0.687 [\ref{fig:bc_bert_performance}]. We tried training various parameter-efficient model architectures similar to span annotation, most of which were CNN-based or simple linear. Our best performing model leverages a simple linear weighting that contracts across the channels dimension through learned weights inspired by \cite{Tenney2020}. We trained for 10 epochs and recorded performance of the model at each epoch evaluated against the dev set. At every epoch, the model outperformed the BERT baseline at 2/10 of an epoch [\ref{fig:bc_2_10ths_performance}].
+At 2/10ths of an epoch, BERT achieved an F1 of 0.635 and EM of 0.687 [\ref{fig:bc_bert_performance}]. We tried training various parameter-efficient model architectures similar to span annotation, most of which were CNN-based or simple linear. Our best performing model leverages a simple linear weighting that contracts across the channels dimension through learned weights inspired by \cite{tenney-etal-2019-bert}. We trained for 10 epochs and recorded performance of the model at each epoch evaluated against the dev set. At every epoch, the model outperformed the BERT baseline at 2/10 of an epoch [\ref{fig:bc_2_10ths_performance}].
 
 \begin{figure}[ht]
 	\centering
@@ -170,7 +170,7 @@ At 2/10ths of an epoch, BERT achieved an F1 of 0.635 and EM of 0.687 [\ref{fig:b
 	\caption{\label{fig:bc_2_10ths_performance}2/10ths epoch model vs BERT}
 \end{figure}
 
-\subsubsection{Models trained at 1 epoch BERT embeddings}
+\subsubsection{Models trained at 1 epoch embeddings}
 
 With 1 epoch embeddings, our results show significant improvement over the 2/10ths epoch models. Surprisingly, the best results were achieved at 1 epoch of training with the simple linear model consisting of only 0.001\% of BERT’s parameters. This model outperforms BERT at both 1 and 2 epochs of fine-tuning. This implies that our parameter efficient model can save on 1 full epoch of BERT fine-tuning. However, performance does fall short of maximal BERT performance achieved at 3 epochs, and we were unable to find a model architecture that achieves this [\ref{tbl:bc_best_models}]. Nevertheless, this suggests that with text classification, we can use the CLS token hidden state activations in the same way we used the full sequence hidden state activations in the span annotation task. 
 
