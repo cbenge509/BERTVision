@@ -1,4 +1,4 @@
-\begin{thebibliography}{24}
+\begin{thebibliography}{14}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{van Aken et~al.(2020)van Aken, Winter, Löser, and Gers}]{Aken2020}
@@ -21,14 +21,6 @@ Fran{\c{c}}ois Chollet. 2016.
   depthwise separable convolutions}.
 \newblock \emph{CoRR}, abs/1610.02357.
 
-\bibitem[{Conneau et~al.(2017)Conneau, Schwenk, Cun, and
-  Barrault}]{Conneau2017}
-Alexis Conneau, Holger Schwenk, Yann~Le Cun, and L{\"{o}}c Barrault. 2017.
-\newblock \href {https://doi.org/10.18653/v1/e17-1104} {{Very deep
-  convolutional networks for text classification}}.
-\newblock In \emph{15th Conference of the European Chapter of the Association
-  for Computational Linguistics, EACL 2017 - Proceedings of Conference}.
-
 \bibitem[{Devlin et~al.(2019)Devlin, Chang, Lee, and Toutanova}]{Devlin2019}
 Jacob Devlin, Ming~Wei Chang, Kenton Lee, and Kristina Toutanova. 2019.
 \newblock \href {http://arxiv.org/abs/1810.04805} {{BERT: Pre-training of deep
@@ -46,37 +38,6 @@ Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin
   learning for {NLP}}.
 \newblock \emph{CoRR}, abs/1902.00751.
 
-\bibitem[{Kim et~al.(2016)Kim, Jernite, Sontag, and Rush}]{Kim2016}
-Yoon Kim, Yacine Jernite, David Sontag, and Alexander~M. Rush. 2016.
-\newblock \href {http://arxiv.org/abs/1508.06615} {{Character-Aware neural
-  language models}}.
-\newblock In \emph{30th AAAI Conference on Artificial Intelligence, AAAI 2016}.
-
-\bibitem[{Kuefler(2016)}]{Kuefler2016}
-Alex~R. Kuefler. 2016.
-\newblock \href {https://cs224d.stanford.edu/reports/akuefler.pdf} {{Merging
-  Recurrence and Inception-Like Convolution for Sentiment Analysis}}.
-
-\bibitem[{Limaye et~al.(2019)Limaye, Pandit, and Vinay}]{Limaye2019}
-Girish Limaye, Manish Pandit, and Sawal Vinay. 2019.
-\newblock \href
-  {https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15783457.pdf}
-  {{BertNet: Combining BERT language representation with Attention and CNN for
-  Reading Comprehension}}.
-
-\bibitem[{Lin et~al.(2014)Lin, Chen, and Yan}]{Lin2014}
-Min Lin, Qiang Chen, and Shuicheng Yan. 2014.
-\newblock {Network in network}.
-\newblock In \emph{2nd International Conference on Learning Representations,
-  ICLR 2014 - Conference Track Proceedings}.
-
-\bibitem[{Liu et~al.(2018)Liu, Li, Fang, Kim, Duh, and
-  Gao}]{DBLP:journals/corr/abs-1809-09194}
-Xiaodong Liu, Wei Li, Yuwei Fang, Aerin Kim, Kevin Duh, and Jianfeng Gao. 2018.
-\newblock \href {http://arxiv.org/abs/1809.09194} {Stochastic answer networks
-  for squad 2.0}.
-\newblock \emph{CoRR}, abs/1809.09194.
-
 \bibitem[{Ma et~al.(2019)Ma, Wang, Ng, Nallapati, and Xiang}]{ma2019universal}
 Xiaofei Ma, Zhiguo Wang, Patrick Ng, Ramesh Nallapati, and Bing Xiang. 2019.
 \newblock \href {http://arxiv.org/abs/1910.07973} {Universal text
@@ -88,33 +49,12 @@ Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu. 2002.
 \newblock Bleu: a method for automatic evaluation of machine translation.
 \newblock pages 311--318.
 
-\bibitem[{Peters et~al.(2018)Peters, Neumann, Iyyer, Gardner, Clark, Lee, and
-  Zettlemoyer}]{peters2018deep}
-Matthew~E. Peters, Mark Neumann, Mohit Iyyer, Matt Gardner, Christopher Clark,
-  Kenton Lee, and Luke Zettlemoyer. 2018.
-\newblock \href {http://arxiv.org/abs/1802.05365} {Deep contextualized word
-  representations}.
-
 \bibitem[{Rajpurkar et~al.(2018)Rajpurkar, Jia, and
   Liang}]{DBLP:journals/corr/abs-1806-03822}
 Pranav Rajpurkar, Robin Jia, and Percy Liang. 2018.
 \newblock \href {http://arxiv.org/abs/1806.03822} {Know what you don't know:
   Unanswerable questions for squad}.
 \newblock \emph{CoRR}, abs/1806.03822.
-
-\bibitem[{Rajpurkar et~al.(2016)Rajpurkar, Zhang, Lopyrev, and
-  Liang}]{Rajpurkar2016}
-Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, and Percy Liang. 2016.
-\newblock {SQuad: 100,000+ questions for machine comprehension of text}.
-\newblock In \emph{EMNLP 2016 - Conference on Empirical Methods in Natural
-  Language Processing, Proceedings}.
-
-\bibitem[{Ramachandran et~al.(2019)Ramachandran, Parmar, Vaswani, Bello,
-  Levskaya, and Shlens}]{ramach2019standalone}
-Prajit Ramachandran, Niki Parmar, Ashish Vaswani, Irwan Bello, Anselm Levskaya,
-  and Jonathon Shlens. 2019.
-\newblock \href {http://arxiv.org/abs/1906.05909} {Stand-alone self-attention
-  in vision models}.
 
 \bibitem[{Sanh et~al.(2019)Sanh, Debut, Chaumond, and
   Wolf}]{sanh2019distilbert}
@@ -130,12 +70,6 @@ Christian Szegedy, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott~E. Reed,
 \newblock \href {http://arxiv.org/abs/1409.4842} {Going deeper with
   convolutions}.
 \newblock \emph{CoRR}, abs/1409.4842.
-
-\bibitem[{Takeuchi and Tran(2019)}]{Takeuchi2019}
-Danny Takeuchi and Kevin Tran. 2019.
-\newblock \href
-  {https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15737384.pdf}
-  {{Improving SQUAD 2.0 Performance using BERT + X}}.
 
 \bibitem[{Tenney et~al.(2020)Tenney, Das, and Pavlick}]{Tenney2020}
 Ian Tenney, Dipanjan Das, and Ellie Pavlick. 2020.
