@@ -71,18 +71,21 @@ Christian Szegedy, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott~E. Reed,
   convolutions}.
 \newblock \emph{CoRR}, abs/1409.4842.
 
-\bibitem[{Tenney et~al.(2020)Tenney, Das, and Pavlick}]{Tenney2020}
-Ian Tenney, Dipanjan Das, and Ellie Pavlick. 2020.
-\newblock \href {https://doi.org/10.18653/v1/p19-1452} {{BERT rediscovers the
-  classical NLP pipeline}}.
-\newblock In \emph{ACL 2019 - 57th Annual Meeting of the Association for
-  Computational Linguistics, Proceedings of the Conference}.
+\bibitem[{Tenney et~al.(2019{\natexlab{a}})Tenney, Das, and
+  Pavlick}]{tenney-etal-2019-bert}
+Ian Tenney, Dipanjan Das, and Ellie Pavlick. 2019{\natexlab{a}}.
+\newblock \href {https://doi.org/10.18653/v1/P19-1452} {{BERT} rediscovers the
+  classical {NLP} pipeline}.
+\newblock In \emph{Proceedings of the 57th Annual Meeting of the Association
+  for Computational Linguistics}, pages 4593--4601, Florence, Italy.
+  Association for Computational Linguistics.
 
-\bibitem[{Tenney et~al.(2019)Tenney, Xia, Chen, Wang, Poliak, McCoy, Kim,
-  Durme, Bowman, Das, and Pavlick}]{DBLP:journals/corr/abs-1905-06316}
+\bibitem[{Tenney et~al.(2019{\natexlab{b}})Tenney, Xia, Chen, Wang, Poliak,
+  McCoy, Kim, Durme, Bowman, Das, and
+  Pavlick}]{DBLP:journals/corr/abs-1905-06316}
 Ian Tenney, Patrick Xia, Berlin Chen, Alex Wang, Adam Poliak, R.~Thomas McCoy,
   Najoung Kim, Benjamin~Van Durme, Samuel~R. Bowman, Dipanjan Das, and Ellie
-  Pavlick. 2019.
+  Pavlick. 2019{\natexlab{b}}.
 \newblock \href {http://arxiv.org/abs/1905.06316} {What do you learn from
   context? probing for sentence structure in contextualized word
   representations}.
