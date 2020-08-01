@@ -1,4 +1,4 @@
-\begin{thebibliography}{14}
+\begin{thebibliography}{15}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
 \bibitem[{van Aken et~al.(2019)van Aken, Winter, Löser, and
@@ -99,6 +99,20 @@ Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
   Aidan~N. Gomez, {\L}ukasz Kaiser, and Illia Polosukhin. 2017.
 \newblock {Attention is all you need}.
 \newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[{Wu et~al.(2016)Wu, Schuster, Chen, Le, Norouzi, Macherey, Krikun,
+  Cao, Gao, Macherey, Klingner, Shah, Johnson, Liu, Kaiser, Gouws, Kato, Kudo,
+  Kazawa, Stevens, Kurian, Patil, Wang, Young, Smith, Riesa, Rudnick, Vinyals,
+  Corrado, Hughes, and Dean}]{DBLP:journals/corr/WuSCLNMKCGMKSJL16}
+Yonghui Wu, Mike Schuster, Zhifeng Chen, Quoc~V. Le, Mohammad Norouzi, Wolfgang
+  Macherey, Maxim Krikun, Yuan Cao, Qin Gao, Klaus Macherey, Jeff Klingner,
+  Apurva Shah, Melvin Johnson, Xiaobing Liu, Lukasz Kaiser, Stephan Gouws,
+  Yoshikiyo Kato, Taku Kudo, Hideto Kazawa, Keith Stevens, George Kurian,
+  Nishant Patil, Wei Wang, Cliff Young, Jason Smith, Jason Riesa, Alex Rudnick,
+  Oriol Vinyals, Greg Corrado, Macduff Hughes, and Jeffrey Dean. 2016.
+\newblock \href {http://arxiv.org/abs/1609.08144} {Google's neural machine
+  translation system: Bridging the gap between human and machine translation}.
+\newblock \emph{CoRR}, abs/1609.08144.
 
 \bibitem[{Zhu et~al.(2020)Zhu, Xia, Wu, He, Qin, Zhou, Li, and
   Liu}]{Zhu2020IncorporatingBI}
