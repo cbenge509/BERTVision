@@ -1,3 +1,29 @@
+@article{DBLP:journals/corr/abs-1806-03822,
+	author    = {Pranav Rajpurkar and
+	Robin Jia and
+	Percy Liang},
+	title     = {Know What You Don't Know: Unanswerable Questions for SQuAD},
+	journal   = {CoRR},
+	volume    = {abs/1806.03822},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1806.03822},
+	archivePrefix = {arXiv},
+	eprint    = {1806.03822},
+	timestamp = {Mon, 13 Aug 2018 16:48:21 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1806-03822.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{Aken2020,
+	abstract = {Explainability and interpretability are two important concepts, the absence of which can and should impede the application of well-performing neural networks to real-world problems. At the same time, they are difficult to incorporate into the large, black-box models that achieve state-of-the-art results in a multitude of NLP tasks. Bidirectional Encoder Representations from Transformers (BERT) is one such black-box model. It has become a staple architecture to solve many different NLP tasks and has inspired a number of related Transformer models. Understanding how these models draw conclusions is crucial for both their improvement and application. We contribute to this challenge by presenting VisBERT, a tool for visualizing the contextual token representations within BERT for the task of (multi-hop) Question Answering. Instead of analyzing attention weights, we focus on the hidden states resulting from each encoder block within the BERT model. This way we can observe how the semantic representations are transformed throughout the layers of the model. VisBERT enables users to get insights about the model’s internal state and to explore its inference steps or potential shortcomings. The tool allows us to identify distinct phases in BERT’s transformations that are similar to a traditional NLP pipeline and offer insights during failed predictions.},
+	author = {van Aken, Betty and Winter, Benjamin and Löser, Alexander and Gers, Felix A},
+	booktitle = {WWW '20: Companion Proceedings of the Web Conference 2020},
+	isbn = {9781450370240},
+	doi = {10.1145/3366424},
+	title = {{VisBERT: Hidden-State Visualizations for Transformers}},
+	year = {2020}
+}
+
 @inproceedings{Lin2014,
 abstract = {We propose a novel deep network structure called “Network In Network”(NIN) to enhance model discriminability for local patches within the receptive field. The conventional convolutional layer uses linear filters followed by a nonlinear activation function to scan the input. Instead, we build micro neural networks with more complex structures to abstract the data within the receptive field. We instantiate the micro neural network with a multilayer perceptron, which is a potent function approximator. The feature maps are obtained by sliding the micro networks over the input in a similar manner as CNN; they are then fed into the next layer. Deep NIN can be implemented by stacking mutiple of the above described structure. With enhanced local modeling via the micro network, we are able to utilize global average pooling over feature maps in the classification layer, which is easier to interpret and less prone to overfitting than traditional fully connected layers. We demonstrated the state-of-the-art classification performances with NIN on CIFAR-10 and CIFAR-100, and reasonable performances on SVHN and MNIST datasets.},
 author = {Lin, Min and Chen, Qiang and Yan, Shuicheng},
@@ -180,4 +206,88 @@ urldate = {2020-06-17}
 	timestamp = {Fri, 05 Oct 2018 11:34:52 +0200},
 	biburl    = {https://dblp.org/rec/journals/corr/abs-1809-09194.bib},
 	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/SzegedyLJSRAEVR14,
+	author    = {Christian Szegedy and
+	Wei Liu and
+	Yangqing Jia and
+	Pierre Sermanet and
+	Scott E. Reed and
+	Dragomir Anguelov and
+	Dumitru Erhan and
+	Vincent Vanhoucke and
+	Andrew Rabinovich},
+	title     = {Going Deeper with Convolutions},
+	journal   = {CoRR},
+	volume    = {abs/1409.4842},
+	year      = {2014},
+	url       = {http://arxiv.org/abs/1409.4842},
+	archivePrefix = {arXiv},
+	eprint    = {1409.4842},
+	timestamp = {Mon, 13 Aug 2018 16:48:52 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/SzegedyLJSRAEVR14.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/abs-1905-06316,
+	author    = {Ian Tenney and
+	Patrick Xia and
+	Berlin Chen and
+	Alex Wang and
+	Adam Poliak and
+	R. Thomas McCoy and
+	Najoung Kim and
+	Benjamin Van Durme and
+	Samuel R. Bowman and
+	Dipanjan Das and
+	Ellie Pavlick},
+	title     = {What do you learn from context? Probing for sentence structure in
+	contextualized word representations},
+	journal   = {CoRR},
+	volume    = {abs/1905.06316},
+	year      = {2019},
+	url       = {http://arxiv.org/abs/1905.06316},
+	archivePrefix = {arXiv},
+	eprint    = {1905.06316},
+	timestamp = {Tue, 28 May 2019 12:48:08 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1905-06316.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Zhu2020IncorporatingBI,
+	title={Incorporating BERT into Neural Machine Translation},
+	author={Jinhua Zhu and Yingce Xia and Lijun Wu and Di He and Tao Qin and Wengang Zhou and Houqiang Li and Tie-Yan Liu},
+	journal={ArXiv},
+	year={2020},
+	volume={abs/2002.06823}
+}
+
+@article{Chen_2020,
+	title={Table Search Using a Deep Contextualized Language Model},
+	ISBN={9781450380164},
+	url={http://dx.doi.org/10.1145/3397271.3401044},
+	DOI={10.1145/3397271.3401044},
+	journal={Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval},
+	publisher={ACM},
+	author={Chen, Zhiyu and Trabelsi, Mohamed and Heflin, Jeff and Xu, Yinan and Davison, Brian D.},
+	year={2020},
+	month={Jul}
+}
+
+@misc{sanh2019distilbert,
+	title={DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter},
+	author={Victor Sanh and Lysandre Debut and Julien Chaumond and Thomas Wolf},
+	year={2019},
+	eprint={1910.01108},
+	archivePrefix={arXiv},
+	primaryClass={cs.CL}
+}
+
+@inproceedings{Papineni02bleu:a,
+	author = {Kishore Papineni and Salim Roukos and Todd Ward and Wei-jing Zhu},
+	title = {BLEU: a Method for Automatic Evaluation of Machine Translation},
+	booktitle = {},
+	year = {2002},
+	pages = {311--318}
 }

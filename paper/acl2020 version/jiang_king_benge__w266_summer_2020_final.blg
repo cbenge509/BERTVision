@@ -9,48 +9,53 @@ Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
 Reallocating 'global_strs' (item size: 1) to 4000000 items.
 Reallocating 'singl_function' (item size: 4) to 100 items.
 Database file #1: references.bib
+Warning--entry type for "Kuefler2016" isn't style-file defined
+--line 100 of file references.bib
 Warning--entry type for "Limaye2019" isn't style-file defined
---line 84 of file references.bib
+--line 110 of file references.bib
+Warning--entry type for "Takeuchi2019" isn't style-file defined
+--line 120 of file references.bib
 Reallocating 'wiz_functions' (item size: 4) to 6000 items.
-You've used 5 entries,
+Warning--empty booktitle in Papineni02bleu:a
+You've used 24 entries,
             3571 wiz_defined-function locations,
-            721 strings with 6785 characters,
-and the built_in function-call counts, 3401 in all, are:
-= -- 262
-> -- 205
-< -- 0
-+ -- 65
-- -- 60
-* -- 243
-:= -- 557
-add.period$ -- 18
-call.type$ -- 5
-change.case$ -- 51
-chr.to.int$ -- 5
-cite$ -- 5
-duplicate$ -- 222
-empty$ -- 229
-format.name$ -- 75
-if$ -- 720
+            840 strings with 11355 characters,
+and the built_in function-call counts, 17545 in all, are:
+= -- 1336
+> -- 1177
+< -- 4
++ -- 375
+- -- 351
+* -- 1285
+:= -- 2787
+add.period$ -- 89
+call.type$ -- 24
+change.case$ -- 253
+chr.to.int$ -- 24
+cite$ -- 25
+duplicate$ -- 1139
+empty$ -- 1117
+format.name$ -- 421
+if$ -- 3718
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 47
-newline$ -- 27
-num.names$ -- 20
-pop$ -- 127
+missing$ -- 249
+newline$ -- 117
+num.names$ -- 96
+pop$ -- 610
 preamble$ -- 1
-purify$ -- 40
+purify$ -- 213
 quote$ -- 0
-skip$ -- 140
+skip$ -- 720
 stack$ -- 0
-substring$ -- 55
-swap$ -- 101
-text.length$ -- 0
+substring$ -- 296
+swap$ -- 539
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 45
-warning$ -- 0
-while$ -- 15
+type$ -- 216
+warning$ -- 1
+while$ -- 75
 width$ -- 0
-write$ -- 59
-(There was 1 warning)
+write$ -- 284
+(There were 4 warnings)

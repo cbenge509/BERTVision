@@ -1,3 +1,3 @@
-\section{Future Work}
+\section{Conclusion and future work}
 
-Work in Progress
+In this paper, we propose a parameter-efficient approach that achieves maximal BERT performance for QA span annotation and greatly reduces fine-tuning time required for BERT. Our models are trained on BERT hidden state activations (embeddings), and consistently outperform BERT at the same level of fine-tuning. By using an ensemble of our model with BERT’s predictions, we further surpass BERT performance, reducing the need for fine-tuning by 1 epoch. We achieved similarly promising results for QA classification, which suggests that this approach works well with both the full sequence BERT embeddings and with the CLS token embedding. Future work might look at reducing fine-tuning even further and applying this approach to other NLP tasks.
