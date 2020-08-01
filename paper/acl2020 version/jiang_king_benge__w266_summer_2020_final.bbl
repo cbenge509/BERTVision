@@ -1,11 +1,13 @@
 \begin{thebibliography}{14}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
-\bibitem[{van Aken et~al.(2020)van Aken, Winter, Löser, and Gers}]{Aken2020}
-Betty van Aken, Benjamin Winter, Alexander Löser, and Felix~A Gers. 2020.
-\newblock \href {https://doi.org/10.1145/3366424} {{VisBERT: Hidden-State
-  Visualizations for Transformers}}.
-\newblock In \emph{WWW '20: Companion Proceedings of the Web Conference 2020}.
+\bibitem[{van Aken et~al.(2019)van Aken, Winter, Löser, and
+  Gers}]{van_Aken_2019}
+Betty van Aken, Benjamin Winter, Alexander Löser, and Felix~A. Gers. 2019.
+\newblock \href {https://doi.org/10.1145/3357384.3358028} {How does bert answer
+  questions?}
+\newblock \emph{Proceedings of the 28th ACM International Conference on
+  Information and Knowledge Management}.
 
 \bibitem[{Chen et~al.(2020)Chen, Trabelsi, Heflin, Xu, and Davison}]{Chen_2020}
 Zhiyu Chen, Mohamed Trabelsi, Jeff Heflin, Yinan Xu, and Brian~D. Davison.

@@ -13,37 +13,37 @@ Reallocating 'wiz_functions' (item size: 4) to 6000 items.
 Warning--empty booktitle in Papineni02bleu:a
 You've used 14 entries,
             3571 wiz_defined-function locations,
-            789 strings with 9269 characters,
-and the built_in function-call counts, 11269 in all, are:
-= -- 859
-> -- 768
+            791 strings with 9343 characters,
+and the built_in function-call counts, 11232 in all, are:
+= -- 857
+> -- 769
 < -- 5
 + -- 246
 - -- 231
-* -- 837
-:= -- 1764
+* -- 836
+:= -- 1763
 add.period$ -- 55
 call.type$ -- 14
-change.case$ -- 155
+change.case$ -- 153
 chr.to.int$ -- 15
 cite$ -- 15
-duplicate$ -- 733
-empty$ -- 706
+duplicate$ -- 727
+empty$ -- 699
 format.name$ -- 271
-if$ -- 2392
+if$ -- 2383
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 161
+missing$ -- 159
 newline$ -- 72
 num.names$ -- 56
-pop$ -- 374
+pop$ -- 366
 preamble$ -- 1
 purify$ -- 133
 quote$ -- 0
-skip$ -- 459
+skip$ -- 462
 stack$ -- 0
 substring$ -- 228
-swap$ -- 363
+swap$ -- 360
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
