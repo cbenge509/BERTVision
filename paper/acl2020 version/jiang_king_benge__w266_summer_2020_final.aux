@@ -16,21 +16,62 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{Vaswani2017}
+\citation{Devlin2019}
+\citation{sanh2019distilbert}
+\citation{Zhu2020IncorporatingBI,Chen_2020}
+\citation{Papineni02bleu:a}
+\citation{Tenney2020}
+\citation{DBLP:journals/corr/abs-1905-06316}
+\citation{Aken2020}
 \citation{ma2019universal}
+\citation{Tenney2020}
 \citation{ma2019universal}
+\citation{DBLP:journals/corr/abs-1902-00751}
+\citation{DBLP:journals/corr/SzegedyLJSRAEVR14,DBLP:journals/corr/Chollet16a}
+\citation{Devlin2019}
+\newlabel{sec:methods}{{2}{2}{Methods}{section.2}{}}
+\citation{DBLP:journals/corr/abs-1806-03822}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:QnABertPerformance}{{1}{2}{QnA Performance, BERT SQuAD 2.0\relax }{figure.caption.1}{}}
-\newlabel{tbl:3_10_Models}{{1}{3}{Models at $\frac {3}{10}$ epochs but evaluated at 1 epoch\relax }{table.caption.2}{}}
-\newlabel{tbl:dev_set_performance}{{2}{4}{Dev set performance\relax }{table.caption.3}{}}
-\newlabel{fig:1_epoch_embeddings__adapter_386_with_skip}{{2}{4}{1 epoch embeddings - adapter 386 w/ skip\relax }{figure.caption.4}{}}
-\citation{*}
+\newlabel{fig:test}{{1}{3}{Architecture of our best model in relation to BERT. \textbf {Left}: BERT and its span annotation inference process. \textbf {Right}: For our model, BERT embeddings are first transformed through our custom adapter layer. Next, the last two dimensions are flattened. Optionally, a skip connection is added between the sequence outputs of the final BERT layer and this flattened representation. This is present in the best model discovered at 3/10 of an epoch, but was not necessary for the best model discovered at 1 full epoch. This tensor is then projected down to (386, 2) with a densely connected layer, and split on the last axis into two model heads, representing start span position and end span position.\relax }{figure.caption.1}{}}
+\newlabel{eq2}{{1}{3}{Ensembling}{equation.2.1}{}}
+\newlabel{fig:QnABertPerformance}{{2}{3}{QA Performance, BERT SQuAD 2.0\relax }{figure.caption.2}{}}
+\citation{DBLP:journals/corr/abs-1902-00751}
+\newlabel{tbl:qa_3_10_Models}{{1}{4}{Models at $\frac {3}{10}$ epochs\relax }{table.caption.3}{}}
+\newlabel{tbl:qa_dev_set_performance}{{2}{4}{Models at 1 epoch\relax }{table.caption.4}{}}
+\citation{Tenney2020}
+\newlabel{fig:1_epoch_embeddings__adapter_386_with_skip}{{3}{5}{Best model fractional data performance\relax }{figure.caption.5}{}}
+\newlabel{tbl:qa_ensembling}{{3}{5}{QA ensembling results\relax }{table.caption.6}{}}
+\newlabel{fig:bc_bert_performance}{{4}{5}{$BERT_{LARGE}$ classification performance\relax }{figure.caption.7}{}}
+\newlabel{fig:bc_2_10ths_performance}{{5}{5}{2/10ths epoch model vs BERT\relax }{figure.caption.8}{}}
+\newlabel{tbl:bc_best_models}{{4}{6}{Comparison of BERT and our models performance at 1 and 3 epochs on binary classification task\relax }{table.caption.9}{}}
+\newlabel{fig:qa_correct_answers_by_model_and_type}{{6}{6}{Correctly answer percentages by model\relax }{figure.caption.10}{}}
 \bibdata{references}
-\bibcite{Devlin2019}{{1}{2019}{{Devlin et~al.}}{{Devlin, Chang, Lee, and Toutanova}}}
-\bibcite{Kim2016}{{2}{2016}{{Kim et~al.}}{{Kim, Jernite, Sontag, and Rush}}}
-\bibcite{Limaye2019}{{3}{2019}{{Limaye et~al.}}{{Limaye, Pandit, and Vinay}}}
-\bibcite{ma2019universal}{{4}{2019}{{Ma et~al.}}{{Ma, Wang, Ng, Nallapati, and Xiang}}}
-\bibcite{Rajpurkar2016}{{5}{2016}{{Rajpurkar et~al.}}{{Rajpurkar, Zhang, Lopyrev, and Liang}}}
+\bibcite{Aken2020}{{1}{2020}{{van Aken et~al.}}{{van Aken, Winter, Löser, and Gers}}}
+\bibcite{Chen_2020}{{2}{2020}{{Chen et~al.}}{{Chen, Trabelsi, Heflin, Xu, and Davison}}}
+\bibcite{DBLP:journals/corr/Chollet16a}{{3}{2016}{{Chollet}}{{}}}
+\bibcite{Conneau2017}{{4}{2017}{{Conneau et~al.}}{{Conneau, Schwenk, Cun, and Barrault}}}
+\bibcite{Devlin2019}{{5}{2019}{{Devlin et~al.}}{{Devlin, Chang, Lee, and Toutanova}}}
+\bibcite{DBLP:journals/corr/abs-1902-00751}{{6}{2019}{{Houlsby et~al.}}{{Houlsby, Giurgiu, Jastrzebski, Morrone, de~Laroussilhe, Gesmundo, Attariyan, and Gelly}}}
+\bibcite{Kim2016}{{7}{2016}{{Kim et~al.}}{{Kim, Jernite, Sontag, and Rush}}}
+\bibcite{Kuefler2016}{{8}{2016}{{Kuefler}}{{}}}
+\bibcite{Limaye2019}{{9}{2019}{{Limaye et~al.}}{{Limaye, Pandit, and Vinay}}}
+\bibcite{Lin2014}{{10}{2014}{{Lin et~al.}}{{Lin, Chen, and Yan}}}
+\bibcite{DBLP:journals/corr/abs-1809-09194}{{11}{2018}{{Liu et~al.}}{{Liu, Li, Fang, Kim, Duh, and Gao}}}
+\bibcite{ma2019universal}{{12}{2019}{{Ma et~al.}}{{Ma, Wang, Ng, Nallapati, and Xiang}}}
+\bibcite{Papineni02bleu:a}{{13}{2002}{{Papineni et~al.}}{{Papineni, Roukos, Ward, and jing Zhu}}}
+\newlabel{tbl:bc_bert_fine_tuning}{{5}{7}{2 epochs embeddings evaluation results\relax }{table.caption.11}{}}
+\bibcite{peters2018deep}{{14}{2018}{{Peters et~al.}}{{Peters, Neumann, Iyyer, Gardner, Clark, Lee, and Zettlemoyer}}}
+\bibcite{DBLP:journals/corr/abs-1806-03822}{{15}{2018}{{Rajpurkar et~al.}}{{Rajpurkar, Jia, and Liang}}}
+\bibcite{Rajpurkar2016}{{16}{2016}{{Rajpurkar et~al.}}{{Rajpurkar, Zhang, Lopyrev, and Liang}}}
+\bibcite{ramach2019standalone}{{17}{2019}{{Ramachandran et~al.}}{{Ramachandran, Parmar, Vaswani, Bello, Levskaya, and Shlens}}}
+\bibcite{sanh2019distilbert}{{18}{2019}{{Sanh et~al.}}{{Sanh, Debut, Chaumond, and Wolf}}}
+\bibcite{DBLP:journals/corr/SzegedyLJSRAEVR14}{{19}{2014}{{Szegedy et~al.}}{{Szegedy, Liu, Jia, Sermanet, Reed, Anguelov, Erhan, Vanhoucke, and Rabinovich}}}
+\bibcite{Takeuchi2019}{{20}{2019}{{Takeuchi and Tran}}{{}}}
+\bibcite{Tenney2020}{{21}{2020}{{Tenney et~al.}}{{Tenney, Das, and Pavlick}}}
+\bibcite{DBLP:journals/corr/abs-1905-06316}{{22}{2019}{{Tenney et~al.}}{{Tenney, Xia, Chen, Wang, Poliak, McCoy, Kim, Durme, Bowman, Das, and Pavlick}}}
+\bibcite{Vaswani2017}{{23}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
+\bibcite{Zhu2020IncorporatingBI}{{24}{2020}{{Zhu et~al.}}{{Zhu, Xia, Wu, He, Qin, Zhou, Li, and Liu}}}
 \bibstyle{acl_natbib}
-\newlabel{tbl:3_10_embeddings__adpater_386}{{3}{5}{$\frac {3}{10}$ Epochs embeddings - adapter 386\relax }{table.caption.5}{}}
-\newlabel{sec:appendix}{{A}{5}{Appendices}{appendix.A}{}}
-\newlabel{sec:supplemental}{{B}{5}{Supplemental Material}{appendix.B}{}}
+\newlabel{sec:appendix}{{A}{8}{Appendices}{appendix.A}{}}
+\newlabel{sec:supplemental}{{B}{8}{Supplemental Material}{appendix.B}{}}

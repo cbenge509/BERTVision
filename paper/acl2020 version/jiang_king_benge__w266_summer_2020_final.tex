@@ -16,10 +16,14 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[hyperref]{acl2020}
 \usepackage{times}
+\usepackage{amsmath}
 \usepackage{latexsym}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{array}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{floatrow}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% SETUP
@@ -30,15 +34,19 @@
 \setlength\titlebox{5cm}
 \newcommand\BibTeX{B\textsc{ib}\TeX}
 
-\title{BERT Vision}
+\title{BERTVision - A Parameter-Efficient Approach for Question Answering}
 \author{Siduo Jiang \\
   UC Berkeley \\
+  \small{\texttt{siduojiang@berkeley.edu}}
   \And
   William Casey King \\
   UC Berkeley \\
+  \small{\texttt{caseyking@berkeley.edu}}
   \And
   Cristopher Benge \\
-  UC Berkeley}
+  UC Berkeley \\
+  \small{\texttt{cris.benge@berkeley.edu}}
+} 
 \date{}
 
 \newcommand\Tstrut{\rule{0pt}{2.6ex}}
@@ -48,6 +56,9 @@
 \newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
+\captionsetup{skip=2pt}
+\definecolor{laplane}{HTML}{00a598}
+\definecolor{berkeleyblue}{HTML}{003262}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% BUILD DOCUMENT
@@ -58,7 +69,9 @@
 	\maketitle
 	\input{chapters/abstract}
 	\input{chapters/introduction}
-	\input{chapters/background}
+	%\input{chapters/background}
+	\input{chapters/architecture}
+	
 	\input{chapters/methods}
 	\input{chapters/results}
 	\input{chapters/analysis}
@@ -72,7 +85,7 @@
 
 	\input{chapters/acknowledgements}
 
-	\nocite{*}
+	%\nocite{*}
 	\bibliography{references}
 	\bibliographystyle{acl_natbib}
 

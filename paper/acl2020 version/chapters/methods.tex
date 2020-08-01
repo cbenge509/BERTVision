@@ -1,29 +1,45 @@
 \section{Methods}
+\label{sec:methods}
 
-This section describes how we use the SQuAD 2.0 question-answering dataset as both span detection and classification, and our custom models for inference on BERT embeddings. We also detail two custom layers implemented for this task. \\
+This section introduces our baseline BERT model, and custom models trained on BERT embeddings. We also describe how we use the SQuAD 2.0 question-answering dataset for both span annotation and classification.
 
-\noindent
-\textbf{SQuAD 2.0 for Span Detection} \\ \\
+\subsection{Modeling Approach}
 
-\noindent
-\textbf{SQuAD 2.0 span detection and how 0,0} \\
-\textbf{SQuAD 2.0 as classification task} \\ \\
+Our custom models use the BERT activations from each encoder layer as input data. For a single SQuAD 2.0 example, our data point has a shape of (X,1024, 25), where $X=386$ for span annotation, and 1 for classification (see appendix [\ref{sec:appendix}] for details). We term this representation of the data as \textit{“embeddings.”}
 
-\noindent
-\textbf{Custom layers (Tenney and Adapter)} \\
-\textbf{Data processing details} \\ \\
+\subsection{Custom Models}
 
-In order to establish a baseline for our Q\&A task, we fine-tuned BERT for 6 epochs, measuring dev set performance at the end of each epoch. Our setup is similar to Devlin et. al. [?]. For questions that do not have answers, we assign the start and end span of the answer to be at the CLS token (position 0). We used the Adam optimizer with an initial learning rate of 1e-5. One major deviation from Devlin was a result of hardware limitations, which is the batch size. We used a batch size of 8, the maximum we could achieve, compared to a batch size of 48. At inference time, we predict the start and end spans based on the argmax probability at each token position. \\
+We implemented the pooling method described in \cite{Tenney2020}, which contracts the last dimension from 25 to 1 through a learned linear combination of each layer. We call this approach learned pooling (LP). We also evaluate the pooling approach reported in \cite{ma2019universal}, average pooling (AP), where each encoder layer is given equal weights. 
 
-For training of our custom models, for a single SQuAD 2.0 example, the data point has a shape of (386,1024,25), where 386 represents the text length dimension, 1024 the BERT embeddings dimension, and 25 the hidden state activations with the final sequence outputs for BERT. We found that for simple models, including the sequence outputs mildly improved performance (see Appendix). The pooling method described in Tenney et. al. [?] can handle data of this shape, reducing the 25 dimension down to 1. Our custom implementation of adapter pooling can also handle 3D inputs by either sharing weights across the encoder dimension, or learning separate weights. As a result, our data can be fed directly into 2D CNNs like regular “images”, be directly processed using pooling (reduce 25 to 1) and compression (reduce 1024 to adapter size), or processed by stacking CNNs with pooling and/or compression. We wanted to try all such combinations in order to find the best architecture. For all models, we train for a single epoch for three reasons: 1. Performance was already desirable at a single epoch. 2. Further training typically did not help performance (see Appendix), 3. Due to our data management issue, loading the data usually takes more than 90\% of the training time, which makes it impractical to train for extended numbers of epochs (See Data Processing section). \\
+\subsection{Adapter compression}
 
-In order to process the data further, we explored two pooling techniques to reduce the dimensionality of our encoder dimension from 26 to 1, before stacking our 1xN CNN model on top. \\
+We use the term “compression” to refer to methods that reduce the 1024 dimension of the BERT embeddings. The method proposed in \cite{DBLP:journals/corr/abs-1902-00751} is termed \textit{“adapter”}, which is an auto-encoder type architecture wherein the embeddings are first projected into a lower dimension using a fully-connected layer. For our purposes, the adapter serves as a bridge between BERT embeddings and downstream layers. The architecture in Houlsby et. al. can only handle 3D tensors (including batch), because each adapter handles data from a single transformer layer. Since we work with the activations from multiple layers at once, we need to be able to handle 4D tensors. To do this, our adapter implementation can treat each transformer layer as independent, learning separate compression weights for each layer. Alternatively, we can also employ weight-sharing, so that the compression for each encoder layer follows the same set of transformations. \\
 
-\subsection{Pooling} 
-This was suggested by \cite{ma2019universal} to perform significantly better than max pooling. Although Ma et. al. only present results averaging the first and last layers of the encoders, the authors state that averaging all layers mildly improved performance, which is the approach we take here. \\
+We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{sec:appendix}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERTVision}.
 
-\subsection{Adapters}
-The reason we wanted to evaluate 386 is that such a transformation results in embeddings with a square shape (386 x 386), which is the preferred input format for CNNs in computer vision. For SQuAD 1.1, Houlsby et. al. found that an adapter size of 64 provides the best F1 score when used in between transformer blocks. For our purposes, we tried adapter sizes of 64, and 386. For both adapter sizes of 64 and 386, we evaluated whether sharing parameters across each encoder layer would result in reasonable performance.  \\
-Next, we evaluated the possibility of using adapters first proposed by Houlsby et. al. This is desirable as sharing weights greatly reduces the number of parameters, by approximately 24x. Furthermore, with minimal parameter penalty, we also evaluated adding a skip connection between the final transformed adapter and the BERT input sequence used for inference. \\
+\subsection{Fine-tuning BERT}
 
-We found that for both sizes of 64 and 386, and for both shared and unshared weights, adding a skip connection mildly helps performance. For an adapter size of 64, sharing weights across each encoder does not significantly degrade performance. We achieve an EM of 0.680 and F1 of 0.732 with shared weights, and an EM of 0.689 and F1 of 0.733 with unshared weights. Surprisingly, for an adapter size of 386, sharing weights performed better than unshared weights when a skip connection is used, with an EM of 0.686 (compared to 0.676) and F1 of 0.732 (compared to 0.723). While an adapter size of 64 with shared weights performed the best on its own, the mild increase also comes with 4x penalty in the number of parameters. As a result, for downstream tests, we favor an adapter size of 386 with shared weights. 
+For all experiments, we use the $BERT_{LARGE}$ uncased implementation from \href{https://huggingface.co/}{Hugging Face}. To establish a baseline for our QA tasks, we fine-tuned BERT for 6 epochs with a setup similar to that described in \cite{Devlin2019}. For QA span annotation, questions that do not have answers have the start and end span positions assigned at the CLS token (position 0). We used the Adam optimizer with an initial learning rate of 1e-5. Due to hardware constraints, we use batch size of 8 rather than 48. At inference time, the most likely complete span is predicted based on the maximum softmax probability of the start- and end-span position. The setup is identical in classification, except that we used the pooled CLS token rather than the sequence outputs.
+%\begin{equation} \label{eq1}
+%Y_{\left(S,E\right)} = \left(\underset{start}{\arg\max} ,\; \underset{end}{\arg\max}\right)
+%\end{equation}
+
+\subsection{Ensembling} 
+
+We evaluated multiple ensemble approaches for span annotation. The most successful method presented in this paper takes the element-wise max of the softmax probabilities output by each model. This occurs independently for the start-span position and end-span position. The most likely complete span is then determined by the product of the generated start \& end span vectors.
+\begin{equation} \label{eq2}
+\begin{aligned}
+\text{Let Z be all model softmax probabilities}, \\
+K = 386,\;\text{and}\;N = len(Z) \\
+\arg\max\left(\prod_{i=1}^{K}{\prod_{j=1}^{N}{Z_{j,i}}}\right)
+\end{aligned}
+\end{equation}
+
+\subsection{Data processing and evaluation}
+
+We use SQuAD 2.0 for our QA dataset. Standard Exact Match (EM) and F1-score (F1) are used for evaluation as outlined in \cite{DBLP:journals/corr/abs-1806-03822}. For classification, EM is equivalent to accuracy as we are predicting a single binary outcome. For our BERT models, we restrict the maximum token length to 386 (See appendix [\ref{sec:appendix}] for rationale). Question-context pairs that exceed this maximum sequence are split into multiple segments (as many as needed) with an overlap between each segment of 128 tokens. For the splits that do not contain the answer, the labels for that split are set to “no answer”. At inference time, we take the argmax of the span probabilities predicted by each split as the final prediction for the example.
+%\begin{equation} \label{eq3}
+%EM = \begin{cases} \frac{1}{N}\sum_{i=1}^{N}{\left(\bar{s_i} = s_i,\;\bar{e_i} = e_i\right)} &\mbox{\small if QA} \\
+%	\frac{1}{N}\sum_{i=1}^{N}{\left(\bar{s_i} = s_i\right)} &\mbox{\small else}
+%	\end{cases} 
+%\end{equation}
