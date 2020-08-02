@@ -55,14 +55,14 @@ Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu. 2002.
   Liang}]{DBLP:journals/corr/abs-1806-03822}
 Pranav Rajpurkar, Robin Jia, and Percy Liang. 2018.
 \newblock \href {http://arxiv.org/abs/1806.03822} {Know what you don't know:
-  Unanswerable questions for squad}.
+  Unanswerable questions for {SQ}u{AD}}.
 \newblock \emph{CoRR}, abs/1806.03822.
 
 \bibitem[{Sanh et~al.(2019)Sanh, Debut, Chaumond, and
   Wolf}]{sanh2019distilbert}
 Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf. 2019.
 \newblock \href {http://arxiv.org/abs/1910.01108} {Distil{BERT}, a distilled
-  version of bert: smaller, faster, cheaper and lighter}.
+  version of {BERT}: smaller, faster, cheaper and lighter}.
 
 \bibitem[{Szegedy et~al.(2014)Szegedy, Liu, Jia, Sermanet, Reed, Anguelov,
   Erhan, Vanhoucke, and Rabinovich}]{DBLP:journals/corr/SzegedyLJSRAEVR14}
@@ -118,7 +118,7 @@ Yonghui Wu, Mike Schuster, Zhifeng Chen, Quoc~V. Le, Mohammad Norouzi, Wolfgang
   Liu}]{Zhu2020IncorporatingBI}
 Jinhua Zhu, Yingce Xia, Lijun Wu, Di~He, Tao Qin, Wengang Zhou, Houqiang Li,
   and Tie-Yan Liu. 2020.
-\newblock Incorporating bert into neural machine translation.
+\newblock Incorporating {BERT} into neural machine translation.
 \newblock \emph{ArXiv}, abs/2002.06823.
 
 \end{thebibliography}
