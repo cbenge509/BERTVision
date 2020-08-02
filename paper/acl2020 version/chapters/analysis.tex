@@ -4,7 +4,7 @@
 
 Model performance on SQuAD 2.0 can be categorized based on whether the question-context pair has an answer (Has Answer versus No Answer). The dev set is very balanced in this sense as it contains 5,928 ($\sim$49.93\%) pairs with answers and 5,945 ($\sim$50.07\%) pairs without answers. Figure [\ref{fig:qa_correct_answers_by_model_and_type}] shows the fraction of questions of each type that BERT and our best-performing models correctly answers. As BERT is fine-tuned, the number of correctly answered questions in both categories increases, but questions with “No Answer” increases more rapidly. Our best models answer more “No Answer” questions correctly than BERT, but underperform BERT in terms of “Has Answer” questions.
 
-To investigate further, we looked at our 3/10 epoch model’s incorrect predictions on “Has Answer” questions, and found that a large percentage, $\sim$65\%, were predicted as having no answer (rather than with the wrong answer). These results suggest that our models may be more liberal than BERT at predicting “no answer”.
+To investigate further, we looked at our 3/10 epoch model’s incorrect predictions on “Has Answer” questions, and found that a large percentage, $\sim$65\%, were predicted as having no answer (rather than with the wrong answer). These results suggest that our models may be more liberal than BERT at predicting “no answer.”
 
 \begin{figure}[ht]
 	\centering
@@ -18,7 +18,7 @@ For questions where our 3/10 epoch model’s most likely answer was incorrect, w
 
 \subsection{Context Length}
 
-The previous section shows that our models are better at recognizing questions with no answers compared to BERT. Here, we look at which models perform better on longer sequences. At 3/10 of an epoch of fine-tuning, BERT and our models performed similarly (BERT average length: 165.86, our model average length: 164.50). However, we believe this is because both models answered correctly many of the same questions. When looking at questions that were uniquely answered correctly by each model, a clear difference emerges: the average sequence length for BERT is longer (BERT: 175.30, our model: 161.58). This suggests that our models are better at answering questions with shorter contexts than BERT. The same trend holds at 1 epoch of fine-tuning.
+The previous section shows that our models are better at recognizing questions with no answers compared to BERT. Here, we look at which models perform better on longer sequences. At 3/10 of an epoch of fine-tuning, BERT and our models performed similarly (BERT average length: 165.86, our model average length: 164.50). However, we believe this is because both models answered many of the same questions correctly. When looking at questions that were uniquely answered correctly by each model, a clear difference emerges: the average sequence length for BERT is longer (BERT: 175.30, our model: 161.58). This suggests that our models are better at answering questions with shorter contexts than BERT. The same trend holds at 1 epoch of fine-tuning.
 
 \subsection{Do 2 epochs perform even better?}
 	
