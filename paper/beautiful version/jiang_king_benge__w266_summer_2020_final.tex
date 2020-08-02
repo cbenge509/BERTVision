@@ -26,26 +26,28 @@
 \author
 {
 		\href{https://www.linkedin.com/in/siduojiang/}{Siduo Jiang}, 
-		\href{https://jackson.yale.edu/person/casey-king/}{William Casey King}, 
-		\href{https://cbenge509.github.io/}{Cristopher Benge}
+		\href{https://cbenge509.github.io/}{Cristopher Benge},
+		\href{https://jackson.yale.edu/person/casey-king/}{William Casey King}
 }
 \title{BERT \textcolor{calberkeleyblue}{VISION}}
-\subtitle{Improving span annotation and classification task performance using parameter-efficient model architectures trained on BERT's hidden state activations}
+\subtitle{A parameter-efficient approach for Question Answering}
 \department
 {
 	Natural Language Processing with Deep Learning (W266)
 	\and
 	Summer 2020, Section 1, Tuesday 6:30pm PST
 }
-\faculty{Daniel Cer PhD, Joachim Rahmfeld, Mark Butler, Sid J Reddy PhD, Mike Tamir PhD, Drew Plant, Gurdit Chahal}
+\faculty{Daniel Cer PhD, Joachim Rahmfeld PhD, Mark Butler, Sid J Reddy PhD, Mike Tamir PhD, Drew Plant, Gurdit Chahal}
 \githubrepo{BERTVision}{https://github.com/cbenge509/BERTVision}
 
 \includeonly
 {
-	chapters/abstract,
-	chapters/background,
+	chapters/introduction,
 	chapters/methods,
 	chapters/results,
+	chapters/analysis,
+	chapters/futurework,
+	chapters/acknowledgements,
 	chapters/bibliography,
 	chapters/appendix,
 }
@@ -67,25 +69,28 @@
 %	\listoftables
 	
 	\setcounter{chapter}{1}\setcounter{section}{0}
-	\include{chapters/abstract}
+	\include{chapters/introduction}
 
 	\setcounter{chapter}{2}\setcounter{section}{0}
-	\include{chapters/background}
-
-	\setcounter{chapter}{3}\setcounter{section}{0}
 	\include{chapters/methods}
 
-	\setcounter{chapter}{4}\setcounter{section}{0}
+	\setcounter{chapter}{3}\setcounter{section}{0}
 	\include{chapters/results}
 
+	\setcounter{chapter}{4}\setcounter{section}{0}
+	\include{chapters/analysis}
+
+	\setcounter{chapter}{5}\setcounter{section}{0}
+	\include{chapters/futurework}
+	
 	%----------------------------------------------------------------------------------------
 	%	BIBLIOGRAPHY
 	%----------------------------------------------------------------------------------------
 
-	\setcounter{chapter}{5}\setcounter{section}{0}
+	\setcounter{chapter}{6}\setcounter{section}{0}
 	\include{chapters/bibliography}
 
-	\setcounter{chapter}{6}\setcounter{section}{0}
+	\setcounter{chapter}{7}\setcounter{section}{0}
 	\include{chapters/appendix}
 
 %----------------------------------------------------------------------------------------
