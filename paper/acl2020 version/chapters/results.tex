@@ -4,7 +4,7 @@
 For span annotation, we sought to generate useful embeddings with as little fine-tuning as possible. However, we were unable to find models that can fit BERT embeddings without some fine-tuning (see appendix [\ref{adpx:need_to_fine_tune}] for details). As a result, we decided that a small amount of fine-tuning would be necessary.
 
 \subsubsection{BERT fine-tuning as baseline}
-To establish a baseline, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{apdx:BERT_fine_tuning_span_annotation}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performance peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{apdx:comparison_with_devlin}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{apdx:explanation_of_input_embeddings_shape}])
+To establish a baseline, we fine-tuned BERT for up to 6 epochs with results shown in Figure [\ref{apdx:BERT_fine_tuning_span_annotation_sec}]. We measure performance for every 10th of a fractional epoch between 0 and 1 epochs, as well as full epochs up to 6. We observed that performance peaked at 2 epochs, achieving an Exact Match (EM) of 0.747, and an F1 score of 0.792. Between 0 and 1 epochs, performance consistently increased as measured by  both EM and F1. (For comparison with other published works, see appendix [\ref{apdx:comparison_with_devlin}]) For span detection we extracted embeddings at 3/10 of an epoch and at one full epoch. (for a rationale for this decision see appendix [\ref{apdx:explanation_of_input_embeddings_shape}])
 
 \subsubsection{Models trained at 3/10 epoch embeddings}
 Using the embeddings at 3/10 of an epoch, we explored over 20 parameter-efficient models using a combination of CNNs, pooling, and compression techniques\footnote{See appendix [\ref{apdx:model_training_strategy}] for training time and strategy}. Table [\ref{tbl:qa_3_10_Models}] shows that our best models outperform baseline BERT fine-tuned to 3/10 of an epoch. Results of all models are in appendix [\ref{apdx:span_annotation_all_results}].
@@ -23,7 +23,7 @@ While we extensively explored stacking pooling with adapters and CNNs, we did no
 		 & \textbf{BERT}$_{large}$ & \textbf{EM} & \textbf{F1}\\
 		\midrule
 		BERT $\frac{3}{10}e$ & 100\% & $0.654$ & $0.702$ \\
-		learned pooling (LP) & 0.001\% & $0.660$ & $0.703$ \\
+		learned pooling (LP) & 0.001\% & $0.675$ & $0.721$ \\
 		average pooling (AP) & 0.001\% & $0.657$ & $0.700$ \\
 		\textbf{adapter size 386} & \textbf{0.124}\% & \boldmath$0.699$ & \boldmath$0.740$ \\
 		\hspace{0.5em} - weights not shared & 2.957\% & $0.676$ & $0.723$ \\
