@@ -4,8 +4,8 @@
 \bibitem[{van Aken et~al.(2019)van Aken, Winter, Löser, and
   Gers}]{van_Aken_2019}
 Betty van Aken, Benjamin Winter, Alexander Löser, and Felix~A. Gers. 2019.
-\newblock \href {https://doi.org/10.1145/3357384.3358028} {How does bert answer
-  questions?}
+\newblock \href {https://doi.org/10.1145/3357384.3358028} {How does {BERT}
+  answer questions?}
 \newblock \emph{Proceedings of the 28th ACM International Conference on
   Information and Knowledge Management}.
 
@@ -43,12 +43,12 @@ Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin
 \bibitem[{Ma et~al.(2019)Ma, Wang, Ng, Nallapati, and Xiang}]{ma2019universal}
 Xiaofei Ma, Zhiguo Wang, Patrick Ng, Ramesh Nallapati, and Bing Xiang. 2019.
 \newblock \href {http://arxiv.org/abs/1910.07973} {Universal text
-  representation from bert: An empirical study}.
+  representation from {BERT}: An empirical study}.
 
 \bibitem[{Papineni et~al.(2002)Papineni, Roukos, Ward, and jing
   Zhu}]{Papineni02bleu:a}
 Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu. 2002.
-\newblock Bleu: a method for automatic evaluation of machine translation.
+\newblock {BLEU}: a method for automatic evaluation of machine translation.
 \newblock pages 311--318.
 
 \bibitem[{Rajpurkar et~al.(2018)Rajpurkar, Jia, and
@@ -61,7 +61,7 @@ Pranav Rajpurkar, Robin Jia, and Percy Liang. 2018.
 \bibitem[{Sanh et~al.(2019)Sanh, Debut, Chaumond, and
   Wolf}]{sanh2019distilbert}
 Victor Sanh, Lysandre Debut, Julien Chaumond, and Thomas Wolf. 2019.
-\newblock \href {http://arxiv.org/abs/1910.01108} {Distilbert, a distilled
+\newblock \href {http://arxiv.org/abs/1910.01108} {Distil{BERT}, a distilled
   version of bert: smaller, faster, cheaper and lighter}.
 
 \bibitem[{Szegedy et~al.(2014)Szegedy, Liu, Jia, Sermanet, Reed, Anguelov,
@@ -89,7 +89,7 @@ Ian Tenney, Patrick Xia, Berlin Chen, Alex Wang, Adam Poliak, R.~Thomas McCoy,
   Najoung Kim, Benjamin~Van Durme, Samuel~R. Bowman, Dipanjan Das, and Ellie
   Pavlick. 2019{\natexlab{b}}.
 \newblock \href {http://arxiv.org/abs/1905.06316} {What do you learn from
-  context? probing for sentence structure in contextualized word
+  context? {P}robing for sentence structure in contextualized word
   representations}.
 \newblock \emph{CoRR}, abs/1905.06316.
 
