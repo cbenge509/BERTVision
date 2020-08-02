@@ -18,7 +18,7 @@ For questions where our 3/10 epoch model’s most likely answer was incorrect, w
 
 \subsection{Context Length}
 
-The previous section shows that our models are better at recognizing questions with no answers compared to BERT. Here, we look at which models perform better on longer sequences. At 3/10 of an epoch of fine-tuning, BERT and our models performed similarly (BERT average length: 165.86, our model average length: 164.50). However, we believe this is because both models answered correctly many of the same questions. When looking at questions that were uniquely answered correctly by each model, a clear difference emerges: the average sequence length for BERT is longer (BERT: 175.30, our model: 161.68). This suggests that our models are better at answering questions with shorter contexts than BERT. The same trend holds at 1 epoch of fine-tuning.
+The previous section shows that our models are better at recognizing questions with no answers compared to BERT. Here, we look at which models perform better on longer sequences. At 3/10 of an epoch of fine-tuning, BERT and our models performed similarly (BERT average length: 165.86, our model average length: 164.50). However, we believe this is because both models answered correctly many of the same questions. When looking at questions that were uniquely answered correctly by each model, a clear difference emerges: the average sequence length for BERT is longer (BERT: 175.30, our model: 161.58). This suggests that our models are better at answering questions with shorter contexts than BERT. The same trend holds at 1 epoch of fine-tuning.
 
 \subsection{Do 2 epochs perform even better?}
 	
@@ -35,10 +35,10 @@ Table [\ref{tbl:bc_bert_fine_tuning}] shows the results. As expected, the 2-epoc
 		& \textbf{EM} & \textbf{F1}\\
 		\midrule
 		BERT $2e$ (\textit{best}) 		& $0.747$ & $0.792$ \\
-		best model $1e$ 				& $0.753$ & $0.797$ \\
-		\textbf{best model} \boldmath$\frac{3}{10}e$ & \boldmath$0.749$ & \boldmath$0.795$ \\
+		best model architecture from $1e$	& $0.753$ & $0.797$ \\
+		best model architecture from $\frac{3}{10}e$ 		& $0.749$ & $0.795$ \\
 		ensemble BERT $2e$ + best $1e$	& $0.751$ & $0.796$ \\
 		\bottomrule
 	\end{tabular}
-	\caption{\label{tbl:bc_bert_fine_tuning}2 epochs embeddings evaluation results}
+	\caption{\label{tbl:bc_bert_fine_tuning}Models trained on embeddings at 2 epochs}
 \end{table}
