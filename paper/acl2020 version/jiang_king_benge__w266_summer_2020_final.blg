@@ -1,57 +1,60 @@
-This is BibTeX, Version 0.99d
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: jiang_king_benge__w266_summer_2020_final.aux
-Reallocating 'name_of_file' (item size: 1) to 11 items.
-Reallocating 'name_of_file' (item size: 1) to 11 items.
 The style file: acl_natbib.bst
-Reallocating 'name_of_file' (item size: 1) to 22 items.
 A level-1 auxiliary file: chapters/appendix.aux
-Reallocating 'glb_str_end' (item size: 4) to 20 items.
-Reallocating 'glb_str_ptr' (item size: 4) to 20 items.
-Reallocating 'global_strs' (item size: 1) to 4000000 items.
-Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
-Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+I was expecting a `,' or a `}'---line 300 of file references.bib
+ : 
+ : @article{DBLP:journals/corr/WuSCLNMKCGMKSJL16,
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Warning--empty year in Papineni02bleu:a
 Warning--empty booktitle in Papineni02bleu:a
 You've used 15 entries,
             3571 wiz_defined-function locations,
-            799 strings with 10113 characters,
-and the built_in function-call counts, 13444 in all, are:
-= -- 967
+            797 strings with 10162 characters,
+and the built_in function-call counts, 13218 in all, are:
+= -- 934
 > -- 1054
-< -- 5
+< -- 4
 + -- 340
 - -- 324
-* -- 1049
-:= -- 2116
-add.period$ -- 59
+* -- 1041
+:= -- 2094
+add.period$ -- 57
 call.type$ -- 15
 change.case$ -- 189
 chr.to.int$ -- 16
-cite$ -- 16
-duplicate$ -- 854
-empty$ -- 773
+cite$ -- 17
+duplicate$ -- 840
+empty$ -- 755
 format.name$ -- 367
-if$ -- 2805
+if$ -- 2743
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 196
-newline$ -- 77
+missing$ -- 195
+newline$ -- 76
 num.names$ -- 60
-pop$ -- 441
+pop$ -- 446
 preamble$ -- 1
 purify$ -- 168
 quote$ -- 0
-skip$ -- 496
+skip$ -- 478
 stack$ -- 0
-substring$ -- 239
-swap$ -- 436
-text.length$ -- 2
+substring$ -- 207
+swap$ -- 422
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 135
-warning$ -- 1
-while$ -- 51
+warning$ -- 2
+while$ -- 48
 width$ -- 0
-write$ -- 189
-(There was 1 warning)
+write$ -- 186
+(There was 1 error message)
