@@ -10,22 +10,51 @@
 \addcontentsline{toc}{chapter}{Methods}
 \renewcommand{\chapter}[2]{}%q
 
-\lettrineabstract{We're no strangers to love. You know the rules and so do I. A full commitment's what I'm thinking of. You wouldn't get this from any other guy. I just wanna tell you how I'm feeling. Gotta make you understand. \\
-	Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. \\
-	We've known each other for so long. Your heart's been aching but you're too shy to say it. Inside we both know what's been going on. We know the game and we're gonna play it. And if you ask me how I'm feeling, don't tell me you're too blind to see. \\
-	Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you.  \\
-	Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give, never gonna give 	(Give you up). (Ooh) Never gonna give, never gonna give 	(Give you up). \\
-	We've known each other for so long. Your heart's been aching but you're too shy to say it. Inside we both know what's been going on. We know the game and we're gonna play it. I just wanna tell you how I'm feeling. Gotta make you understand. \\
-	Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you, Never gonna make you cry.}
+\lettrineabstract{This section introduces our baseline BERT model, and custom models trained on BERT embeddings. We also describe how we use the SQuAD 2.0 question-answering dataset for both span annotation and classification.}
 
 %----------------------------------------------------------------------------------------
 %	METHODS CONTENTS
 %----------------------------------------------------------------------------------------
 
-\section{Tools of the Trade}
-\label{sec:Methods_Tools_of_the_Trade}
+%\fakesection{Methods}
+\label{sec:methods}
+\doubleline
+\vspace{-1em}
 
-This sentence requires citation \cite{Devlin2019}. This sentence requires multiple citations to imply that it is better supported \citep{Kim2016,Rajpurkar2016}. I'm just adding some random text here to make you feel good... I certainly that it's working.
+\section{Modeling approach}
 
+Our custom models use the BERT activations from each encoder layer as input data. For a single SQuAD 2.0 example, our data point has a shape of (X,1024, 25), where $X=386$ for span annotation, and 1 for classification (see appendix [\ref{apdx:bertvision_span_annotation_data_pipeline_graph}] for details). We term this representation of the data as \textit{“embeddings.”}
+
+\section{Learned and average pooling}
+
+We implemented the pooling method described in \cite{tenney-etal-2019-bert}, which contracts the last dimension from 25 to 1 through a learned linear combination of each layer. We call this approach learned pooling (LP). We also evaluate the pooling approach reported in \cite{ma2019universal}, average pooling (AP), where each encoder layer is given equal weights. 
+
+\section{Adapter compression}
+
+We use the term “compression” to refer to methods that reduce the 1024 dimension of the BERT embeddings. The method proposed in \cite{DBLP:journals/corr/abs-1902-00751} is termed \textit{“adapter,”} which is an auto-encoder type architecture wherein the embeddings are first projected into a lower dimension using a fully-connected layer. For our purposes, the adapter serves as a bridge between BERT embeddings and downstream layers. The architecture in Houlsby et. al. can only handle 3D tensors (including batch), because each adapter handles data from a single transformer layer. Since we work with the activations from multiple layers at once, we need to be able to handle 4D tensors. To do this, our adapter implementation can treat each transformer layer as independent, learning separate compression weights for each layer. Alternatively, we can also employ weight-sharing, so that the compression for each encoder layer follows the same set of transformations.
+
+\section{Custom CNNs}
+
+We also implemented various novel CNN architectures, as well as modified existing models such as Inception and Xception \citep{DBLP:journals/corr/SzegedyLJSRAEVR14, DBLP:journals/corr/Chollet16a}. For span annotation, the key is that the CNN models must preserve the text length dimension of 386 (see appendix [\ref{apdx:cnn_models_preserving_seq_length}] for rationale). To view a notebook of all models we tried and their summaries, see: \href{https://github.com/cbenge509/BERTVision}{BERT Vision GitHub repo}.
+
+\section{Fine-tuning BERT}
+
+For all experiments, we use the $BERT_{LARGE}$ uncased implementation from \href{https://huggingface.co/}{Hugging Face}. To establish a baseline for our QA tasks, we fine-tuned BERT for 6 epochs with a setup similar to that described in \cite{Devlin2019}. For QA span annotation, questions that do not have answers have the start and end span positions assigned at the CLS token (position 0). We used the Adam optimizer with an initial learning rate of 1e-5. Due to hardware constraints, we use batch size of 4 rather than 48. At inference time, the most likely complete span is predicted based on the maximum softmax probability of the start- and end-span position. The setup is identical in classification, except that we used the pooled CLS token rather than the sequence outputs.
+%\begin{equation} \label{eq1}
+%Y_{\left(S,E\right)} = \left(\underset{start}{\arg\max} ,\; \underset{end}{\arg\max}\right)
+%\end{equation}
+
+\section{Ensembling} 
+
+We evaluated multiple ensemble approaches for span annotation. The most successful method takes the element-wise max of the softmax probabilities output by each model in the ensemble. Let $Z$ and $Y$ be two model softmax probabilities for start or end span position. Then, the predicted position is:
+\begin{equation} \label{eq2}
+\begin{aligned}
+\arg\max\left(\underset{{Z_i, Y_i}}{\max},\;\;\text{for i in \{1,2,...,386\}}\right)
+\end{aligned}
+\end{equation}
+
+\section{Data processing and evaluation}
+
+We use SQuAD 2.0 for our QA dataset. Standard Exact Match (EM) and F1-score (F1) are used for evaluation as outlined in \cite{DBLP:journals/corr/abs-1806-03822}. For classification, EM is equivalent to accuracy as we are predicting a single binary outcome. For our BERT models, we restrict the maximum token length to 386 (See appendix [\ref{apdx:explanation_max_sequence_length}] for rationale). Question-context pairs that exceed this maximum sequence are split into multiple segments (as many as needed) with an overlap between each segment of 128 tokens. For the splits that do not contain the answer, the labels for that split are set to “no answer.” At inference time, we take the argmax of the span probabilities predicted by each split as the final prediction for the example.
 %----------------------------------------------------------------------------------------
 \endgroup
