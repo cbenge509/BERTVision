@@ -208,5 +208,25 @@ template for Finals and Assignments by Cris Benge (v\fileversion)]
 \faculty{}
 \githubrepo{}{}
 
+\newcommand{\fakesection}[1]{%
+	\par\refstepcounter{section}% Increase section counter
+	\sectionmark{#1}% Add section mark (header)
+	\addcontentsline{toc}{section}{\protect\numberline{\thesection}#1}% Add section to ToC
+	% Add more content here, if needed.
+}
 
+\newcommand{\fakesubsection}[1]{%
+	\par\refstepcounter{subsection}% Increase subsection counter
+	\subsectionmark{#1}% Add subsection mark (header)
+	\addcontentsline{toc}{subsection}{\protect\numberline{\thesubsection}#1}% Add subsection to ToC
+	% Add more content here, if needed.
+}
 
+\def\doubleline{
+	
+	\noindent\rule{\linewidth}{0.3pt}%
+
+	\vspace{-0.95em}%
+	\noindent\rule{\linewidth}{0.3pt}%
+	\vspace{8pt}%	
+}
