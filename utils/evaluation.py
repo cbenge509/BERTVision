@@ -181,12 +181,12 @@ class SquadModelEvaluation(object):
 
         #Initialize model predictions
         if start_logits is None or end_logits is None:
-            start_logits, end_logits = model.predict([self.squad_answers.ids, self.squad_answers.masks])
+            start_logits, end_logits = model.predict([self.squad_answers.ids, self.squad_answers.masks, self.squad_answers.tokens])
 
         self.start_logits, self.end_logits = start_logits, end_logits
 
         self.already_prob = already_prob
-        
+
         self.true_answers = squad_answers.get_all_possible_answers()
         self.predicted_answers = self.get_best_prob_answer()
 
@@ -217,9 +217,9 @@ class SquadModelEvaluation(object):
         else:
             logits_start = self.start_logits.max(axis = 1)
             logits_end = self.end_logits.max(axis = 1)
-            
+
         prob = logits_start * logits_end
-            
+
         return prob
 
     def get_best_prob_answer(self):
@@ -233,7 +233,7 @@ class SquadModelEvaluation(object):
 
         answers = self.get_output_strings()
         probs = self.get_per_example_probs()
-        
+
         for i, answer in enumerate(answers):
             prob = probs[i]
             qas_id = self.squad_answers.qas_ids[i]
@@ -285,7 +285,7 @@ class SquadModelEvaluation(object):
             F1.append(f1)
 
         print("Exact match: %.3f" %(sum(EM)/len(EM)) + '\n' + "F1 score: %.3f" %np.mean(F1))
-
+        return (EM, F1)
 
     def eval_F1(self):
 
