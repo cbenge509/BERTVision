@@ -8,53 +8,47 @@ Reallocated global_strs (elt_size=20001) to 20 items from 10.
 Reallocated glb_str_end (elt_size=4) to 20 items from 10.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
-I was expecting a `,' or a `}'---line 300 of file references.bib
- : 
- : @article{DBLP:journals/corr/WuSCLNMKCGMKSJL16,
-(Error may have been on previous line)
-I'm skipping whatever remains of this entry
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-Warning--empty year in Papineni02bleu:a
 Warning--empty booktitle in Papineni02bleu:a
 You've used 15 entries,
             3571 wiz_defined-function locations,
-            797 strings with 10162 characters,
-and the built_in function-call counts, 13218 in all, are:
-= -- 934
+            799 strings with 10123 characters,
+and the built_in function-call counts, 13444 in all, are:
+= -- 967
 > -- 1054
-< -- 4
+< -- 5
 + -- 340
 - -- 324
-* -- 1041
-:= -- 2094
-add.period$ -- 57
+* -- 1049
+:= -- 2116
+add.period$ -- 59
 call.type$ -- 15
 change.case$ -- 189
 chr.to.int$ -- 16
-cite$ -- 17
-duplicate$ -- 840
-empty$ -- 755
+cite$ -- 16
+duplicate$ -- 854
+empty$ -- 773
 format.name$ -- 367
-if$ -- 2743
+if$ -- 2805
 int.to.chr$ -- 2
 int.to.str$ -- 1
-missing$ -- 195
-newline$ -- 76
+missing$ -- 196
+newline$ -- 77
 num.names$ -- 60
-pop$ -- 446
+pop$ -- 441
 preamble$ -- 1
 purify$ -- 168
 quote$ -- 0
-skip$ -- 478
+skip$ -- 496
 stack$ -- 0
-substring$ -- 207
-swap$ -- 422
-text.length$ -- 1
+substring$ -- 239
+swap$ -- 436
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 135
-warning$ -- 2
-while$ -- 48
+warning$ -- 1
+while$ -- 51
 width$ -- 0
-write$ -- 186
-(There was 1 error message)
+write$ -- 189
+(There was 1 warning)

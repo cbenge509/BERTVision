@@ -45,11 +45,11 @@ Xiaofei Ma, Zhiguo Wang, Patrick Ng, Ramesh Nallapati, and Bing Xiang. 2019.
 \newblock \href {http://arxiv.org/abs/1910.07973} {Universal text
   representation from {BERT}: An empirical study}.
 
-\bibitem[{Papineni et~al.()Papineni, Roukos, Ward, and jing
+\bibitem[{Papineni et~al.(2002)Papineni, Roukos, Ward, and jing
   Zhu}]{Papineni02bleu:a}
-Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu.
-\newblock {BLEU: a Method for Automatic Evaluation of Machine Translation},
-  booktitle = {}, year = {2002}, pages = {311--318}.
+Kishore Papineni, Salim Roukos, Todd Ward, and Wei jing Zhu. 2002.
+\newblock {BLEU}: a method for automatic evaluation of machine translation.
+\newblock pages 311--318.
 
 \bibitem[{Rajpurkar et~al.(2018)Rajpurkar, Jia, and
   Liang}]{DBLP:journals/corr/abs-1806-03822}
