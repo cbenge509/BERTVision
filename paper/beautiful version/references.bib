@@ -1,3 +1,31 @@
+@article{DBLP:journals/corr/abs-1806-03822,
+	author    = {Pranav Rajpurkar and
+	Robin Jia and
+	Percy Liang},
+	title     = {Know What You Don't Know: Unanswerable Questions for {SQ}u{AD}},
+	journal   = {CoRR},
+	volume    = {abs/1806.03822},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1806.03822},
+	archivePrefix = {arXiv},
+	eprint    = {1806.03822},
+	timestamp = {Mon, 13 Aug 2018 16:48:21 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1806-03822.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{van_Aken_2019,
+	title={How Does {BERT} Answer Questions?},
+	ISBN={9781450369763},
+	url={http://dx.doi.org/10.1145/3357384.3358028},
+	DOI={10.1145/3357384.3358028},
+	journal={Proceedings of the 28th ACM International Conference on Information and Knowledge Management},
+	publisher={ACM},
+	author={van Aken, Betty and Winter, Benjamin and Löser, Alexander and Gers, Felix A.},
+	year={2019},
+	month={Nov}
+}
+
 @inproceedings{Lin2014,
 abstract = {We propose a novel deep network structure called “Network In Network”(NIN) to enhance model discriminability for local patches within the receptive field. The conventional convolutional layer uses linear filters followed by a nonlinear activation function to scan the input. Instead, we build micro neural networks with more complex structures to abstract the data within the receptive field. We instantiate the micro neural network with a multilayer perceptron, which is a potent function approximator. The feature maps are obtained by sliding the micro networks over the input in a similar manner as CNN; they are then fed into the next layer. Deep NIN can be implemented by stacking mutiple of the above described structure. With enhanced local modeling via the micro network, we are able to utilize global average pooling over feature maps in the classification layer, which is easier to interpret and less prone to overfitting than traditional fully connected layers. We demonstrated the state-of-the-art classification performances with NIN on CIFAR-10 and CIFAR-100, and reasonable performances on SVHN and MNIST datasets.},
 author = {Lin, Min and Chen, Qiang and Yan, Shuicheng},
@@ -6,17 +34,20 @@ title = {{Network in network}},
 year = {2014}
 }
 
-@inproceedings{Tenney2020,
-	abstract = {Pre-trained text encoders have rapidly advanced the state of the art on many NLP tasks. We focus on one such model, BERT, and aim to quantify where linguistic information is captured within the network. We find that the model represents the steps of the traditional NLP pipeline in an interpretable and localizable way, and that the regions responsible for each step appear in the expected sequence: POS tagging, parsing, NER, semantic roles, then coreference. Qualitative analysis reveals that the model can and often does adjust this pipeline dynamically, revising lower-level decisions on the basis of disambiguating information from higher-level representations.},
-	archivePrefix = {arXiv},
-	arxivId = {1905.05950},
-	author = {Tenney, Ian and Das, Dipanjan and Pavlick, Ellie},
-	booktitle = {ACL 2019 - 57th Annual Meeting of the Association for Computational Linguistics, Proceedings of the Conference},
-	doi = {10.18653/v1/p19-1452},
-	eprint = {1905.05950},
-	isbn = {9781950737482},
-	title = {{BERT rediscovers the classical NLP pipeline}},
-	year = {2020}
+@inproceedings{tenney-etal-2019-bert,
+	title = "{BERT} Rediscovers the Classical {NLP} Pipeline",
+	author = "Tenney, Ian  and
+	Das, Dipanjan  and
+	Pavlick, Ellie",
+	booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+	month = jul,
+	year = "2019",
+	address = "Florence, Italy",
+	publisher = "Association for Computational Linguistics",
+	url = "https://www.aclweb.org/anthology/P19-1452",
+	doi = "10.18653/v1/P19-1452",
+	pages = "4593--4601",
+	abstract = "Pre-trained text encoders have rapidly advanced the state of the art on many NLP tasks. We focus on one such model, BERT, and aim to quantify where linguistic information is captured within the network. We find that the model represents the steps of the traditional NLP pipeline in an interpretable and localizable way, and that the regions responsible for each step appear in the expected sequence: POS tagging, parsing, NER, semantic roles, then coreference. Qualitative analysis reveals that the model can and often does adjust this pipeline dynamically, revising lower-level decisions on the basis of disambiguating information from higher-level representations.",
 }
 
 @inproceedings{Kim2016,
@@ -92,7 +123,7 @@ urldate = {2020-06-17}
 }
 
 @online{Takeuchi2019,
-abstract = {Bidirectional Encoder Representations from Transformers (BERT) is the current state-of-the-art language model which pretrains deep bidirectional representations for a wide-range of tasks. We aim to finetune this model for the task of SQUAD 2.0 question-answering by incorporating various deep learning techniques. First, we utilized dot-product attention and Convolutional Neural Networks to generate overall representation layers. Next, we modified the existing loss function to penalize the BERT model for predicting an answer when there isn’t one. Finally, we increased the complexity of BERT model to be more specific to the questionanswering task by incorporating highway networks, additional transformer layers and Bidirectional Attention Flow (BiDAF). Although well-motivated, some of these approaches increase performance because they either introduced noise or overfitted the model. However, running the model through a highway network and tuning hyper-parameters did nonetheless generate small gains in performance.},
+abstract = {Bidirectional Encoder Representations from Transformers (BERT) is the current state-of-the-art language model which pretrains deep bidirectional representations for a wide-range of tasks. We aim to finetune this model for the task of SQUAD 2.0 question-answering by rating various deep learning techniques. First, we utilized dot-product attention and Convolutional Neural Networks to generate overall representation layers. Next, we modified the existing loss function to penalize the BERT model for predicting an answer when there isn’t one. Finally, we increased the complexity of BERT model to be more specific to the questionanswering task by incorporating highway networks, additional transformer layers and Bidirectional Attention Flow (BiDAF). Although well-motivated, some of these approaches increase performance because they either introduced noise or overfitted the model. However, running the model through a highway network and tuning hyper-parameters did nonetheless generate small gains in performance.},
 author = {Takeuchi, Danny and Tran, Kevin},
 title = {{Improving SQUAD 2.0 Performance using BERT + X}},
 year = {2019},
@@ -134,7 +165,7 @@ urldate = {2020-06-17}
 }
  
 @misc{ma2019universal,
-    title={Universal Text Representation from BERT: An Empirical Study},
+    title={Universal Text Representation from {BERT}: An Empirical Study},
     author={Xiaofei Ma and Zhiguo Wang and Patrick Ng and Ramesh Nallapati and Bing Xiang},
     year={2019},
     eprint={1910.07973},
@@ -170,7 +201,7 @@ urldate = {2020-06-17}
 	Aerin Kim and
 	Kevin Duh and
 	Jianfeng Gao},
-	title     = {Stochastic Answer Networks for SQuAD 2.0},
+	title     = {Stochastic Answer Networks for {SQ}u{AD} 2.0},
 	journal   = {CoRR},
 	volume    = {abs/1809.09194},
 	year      = {2018},
@@ -179,5 +210,134 @@ urldate = {2020-06-17}
 	eprint    = {1809.09194},
 	timestamp = {Fri, 05 Oct 2018 11:34:52 +0200},
 	biburl    = {https://dblp.org/rec/journals/corr/abs-1809-09194.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/SzegedyLJSRAEVR14,
+	author    = {Christian Szegedy and
+	Wei Liu and
+	Yangqing Jia and
+	Pierre Sermanet and
+	Scott E. Reed and
+	Dragomir Anguelov and
+	Dumitru Erhan and
+	Vincent Vanhoucke and
+	Andrew Rabinovich},
+	title     = {Going Deeper with Convolutions},
+	journal   = {CoRR},
+	volume    = {abs/1409.4842},
+	year      = {2014},
+	url       = {http://arxiv.org/abs/1409.4842},
+	archivePrefix = {arXiv},
+	eprint    = {1409.4842},
+	timestamp = {Mon, 13 Aug 2018 16:48:52 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/SzegedyLJSRAEVR14.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/abs-1905-06316,
+	author    = {Ian Tenney and
+	Patrick Xia and
+	Berlin Chen and
+	Alex Wang and
+	Adam Poliak and
+	R. Thomas McCoy and
+	Najoung Kim and
+	Benjamin Van Durme and
+	Samuel R. Bowman and
+	Dipanjan Das and
+	Ellie Pavlick},
+	title     = {What do you learn from context? {P}robing for sentence structure in
+	contextualized word representations},
+	journal   = {CoRR},
+	volume    = {abs/1905.06316},
+	year      = {2019},
+	url       = {http://arxiv.org/abs/1905.06316},
+	archivePrefix = {arXiv},
+	eprint    = {1905.06316},
+	timestamp = {Tue, 28 May 2019 12:48:08 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1905-06316.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Zhu2020IncorporatingBI,
+	title={Incorporating {BERT} into Neural Machine Translation},
+	author={Jinhua Zhu and Yingce Xia and Lijun Wu and Di He and Tao Qin and Wengang Zhou and Houqiang Li and Tie-Yan Liu},
+	journal={ArXiv},
+	year={2020},
+	volume={abs/2002.06823}
+}
+
+@article{Chen_2020,
+	title={Table Search Using a Deep Contextualized Language Model},
+	ISBN={9781450380164},
+	url={http://dx.doi.org/10.1145/3397271.3401044},
+	DOI={10.1145/3397271.3401044},
+	journal={Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval},
+	publisher={ACM},
+	author={Chen, Zhiyu and Trabelsi, Mohamed and Heflin, Jeff and Xu, Yinan and Davison, Brian D.},
+	year={2020},
+	month={Jul}
+}
+
+@misc{sanh2019distilbert,
+	title={Distil{BERT}, a distilled version of {BERT}: smaller, faster, cheaper and lighter},
+	author={Victor Sanh and Lysandre Debut and Julien Chaumond and Thomas Wolf},
+	year={2019},
+	eprint={1910.01108},
+	archivePrefix={arXiv},
+	primaryClass={cs.CL}
+}
+
+@inproceedings{Papineni02bleu:a,
+	author = {Kishore Papineni and Salim Roukos and Todd Ward and Wei-jing Zhu},
+	title = {{BLEU}: a Method for Automatic Evaluation of Machine Translation},
+	booktitle = {},
+	year = {2002},
+	pages = {311--318}
+}
+
+@article{DBLP:journals/corr/WuSCLNMKCGMKSJL16,
+	author    = {Yonghui Wu and
+	Mike Schuster and
+	Zhifeng Chen and
+	Quoc V. Le and
+	Mohammad Norouzi and
+	Wolfgang Macherey and
+	Maxim Krikun and
+	Yuan Cao and
+	Qin Gao and
+	Klaus Macherey and
+	Jeff Klingner and
+	Apurva Shah and
+	Melvin Johnson and
+	Xiaobing Liu and
+	Lukasz Kaiser and
+	Stephan Gouws and
+	Yoshikiyo Kato and
+	Taku Kudo and
+	Hideto Kazawa and
+	Keith Stevens and
+	George Kurian and
+	Nishant Patil and
+	Wei Wang and
+	Cliff Young and
+	Jason Smith and
+	Jason Riesa and
+	Alex Rudnick and
+	Oriol Vinyals and
+	Greg Corrado and
+	Macduff Hughes and
+	Jeffrey Dean},
+	title     = {Google's Neural Machine Translation System: Bridging the Gap between
+	Human and Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1609.08144},
+	year      = {2016},
+	url       = {http://arxiv.org/abs/1609.08144},
+	archivePrefix = {arXiv},
+	eprint    = {1609.08144},
+	timestamp = {Thu, 14 Mar 2019 09:34:18 +0100},
+	biburl    = {https://dblp.org/rec/journals/corr/WuSCLNMKCGMKSJL16.bib},
 	bibsource = {dblp computer science bibliography, https://dblp.org}
 }

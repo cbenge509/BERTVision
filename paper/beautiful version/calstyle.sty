@@ -11,12 +11,16 @@
 \usepackage{microtype} % Better typography
 \usepackage{amsmath,amsfonts,amsthm} % Math packages for equations
 \usepackage[labelfont=bf, textfont=it]{caption} % Custom captions under/above tables and figures
+\usepackage{subcaption}
 \usepackage{booktabs} % Horizontal rules in tables
 \usepackage{lastpage} % Used to determine the number of pages in the document (for "Page X of Total")
 %\usepackage{graphicx} % Required for adding images
 \usepackage{enumitem} % Required for customising lists
 \setlist{noitemsep} % Remove spacing between bullet/numbered list elements
 \usepackage{sectsty} % Enables custom section titles
+\usepackage{array}
+\usepackage{floatrow}
+
 
 %----------------------------------------------------------------------------------------
 %	MARGINS AND SPACING
@@ -151,3 +155,8 @@ BoldItalicFont={MinionPro-BoldIt}]
 {\titlerule\vspace*{.4\baselineskip}\raggedright\spacedallcaps}[\normalsize\vspace*{.4\baselineskip}\titlerule]%
 \relax
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TABLE COLUMNS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}

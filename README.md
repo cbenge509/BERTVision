@@ -30,7 +30,8 @@ All models were trained on the hidden embedding activation states of BERT-large 
 
   |File | Description |
   |:----|:------------|
-  | [BERT Vision - Final Paper](/paper/acl2020%20version/jiang_king_benge__w266_summer_2020_final.pdf) | Our final write-up and submission for review of analysis and findings. |
+  | [BERT Vision - Final Paper (ACL 2020 Format)](/paper/acl2020%20version/jiang_king_benge__w266_summer_2020_final.pdf) | Our final write-up and submission for review of analysis and findings in ACL 2020 format. |
+  | [BERT Vision - Final Paper (Thesis Format)](/paper/acl2020%20version/jiang_king_benge__w266_summer_2020_final.pdf) | Our final write-up and submission for review of analysis and findings in masters thesis format (UC Berkeley palette). |
   | [BERT Vision - Presentation](/presentation/Jiang_King_Benge_W266_Final_Presentation.pptx) | Our presentation and overview of BERTVision. |
   | [Generate Span Annotation Embeddings](/notebooks/BERT_finetuning_Q_and_A_with_embedding_generation.ipynb) | Jupyter Notebook that walks through the extraction of hiden state activations from BERT (for span annotation) |
   | [BERT Fine Tuning - Span Annotation](/notebooks/BERT_finetuning_Q_and_A_with_embedding_generation.ipynb) | Jupyter Notebook that walks through the fine-tuning steps for BERT span annotation) |
