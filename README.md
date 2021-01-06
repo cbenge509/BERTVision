@@ -3,16 +3,19 @@ BERT Vision
 
 ![GitHub](https://img.shields.io/github/license/cbenge509/BERTVision) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/cbenge509/BERTVision) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/tensorflow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/transformers) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/altair) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/cbenge509/BERTVision/h5py)
 
-<img align="right" width="180" src="./images/ucb.png"/>
-
 #### Authors : [William Casey King, PhD](https://jackson.yale.edu/person/casey-king/) | [Cristopher Benge](https://cbenge509.github.io/) | [Siduo (Stone) Jiang](mailto:siduojiang@ischool.berkeley.edu) | [Andrew Fogarty](seekinginference.com)
+
+<br>
+<img align="right" width="180" src="./images/ucb.png"/>
 
 [![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/0)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/0)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/1)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/1)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/2)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/2)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/3)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/3)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/4)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/4)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/5)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/5)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/6)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/6)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/7)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/7)
 
 
 U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) <br>
-Spring 2021, W210 - <i>Capstone Project</i> - [Alberto Todeschini, PhD]([xxx](https://www.ischool.berkeley.edu/people/alberto-todeschini)) | [Puya H. Vahabi](https://scholar.google.com/citations?user=rT9WRSsAAAAJ&hl=en) <br>
+Spring 2021, W210 - <i>Capstone Project</i> - [Alberto Todeschini, PhD](https://www.ischool.berkeley.edu/people/alberto-todeschini) | [Puya H. Vahabi](https://scholar.google.com/citations?user=rT9WRSsAAAAJ&hl=en) <br><br>
 A continuation of our research from W266 - <i>Natural Language Processing</i> under the guidance of [Daniel Cer, PhD](https://scholar.google.com/citations?user=BrT1NW8AAAAJ&hl=en)
+
+<br>
 
 ---
 
