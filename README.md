@@ -5,13 +5,14 @@ BERT Vision
 
 <img align="right" width="180" src="./images/ucb.png"/>
 
-#### Authors : [William Casey King, PhD](https://jackson.yale.edu/person/casey-king/) | [Cristopher Benge](https://cbenge509.github.io/) | [Siduo (Stone) Jiang](mailto:siduojiang@ischool.berkeley.edu)
+#### Authors : [William Casey King, PhD](https://jackson.yale.edu/person/casey-king/) | [Cristopher Benge](https://cbenge509.github.io/) | [Siduo (Stone) Jiang](mailto:siduojiang@ischool.berkeley.edu) | [Andrew Fogarty](seekinginference.com)
 
 [![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/0)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/0)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/1)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/1)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/2)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/2)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/3)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/3)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/4)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/4)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/5)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/5)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/6)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/6)[![](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/images/7)](https://sourcerer.io/fame/cbenge509/cbenge509/BERTVision/links/7)
 
 
 U.C. Berkeley, Masters in Information & Data Science program - [datascience@berkeley](https://datascience.berkeley.edu/) <br>
-Summer 2020, W266 - Natural Language Processing - [Daniel Cer, PhD](https://scholar.google.com/citations?user=BrT1NW8AAAAJ&hl=en) - Section 1
+Spring 2021, W210 - <i>Capstone Project</i> - [Alberto Todeschini, PhD]([xxx](https://www.ischool.berkeley.edu/people/alberto-todeschini)) | [Puya H. Vahabi](https://scholar.google.com/citations?user=rT9WRSsAAAAJ&hl=en) <br>
+A continuation of our research from W266 - <i>Natural Language Processing</i> under the guidance of [Daniel Cer, PhD](https://scholar.google.com/citations?user=BrT1NW8AAAAJ&hl=en)
 
 ---
 
@@ -47,12 +48,12 @@ Data Pipeline
 
 For the task of span annotation, BERT was fine-tuned to 6 epochs on the SQuAD 2.0 train dataset and evaluated for accuracy and F1 score at each epoch.  Additionally, fractional epochs 1/10th through 9/10th were captured on the 0th to 1st epoch.  BERT was configured with a sequence length of 386 for all experiments, and during embedding extraction the full sequence length was retained for span annotation:
 
-<img src="/images/Data_Pipeline_Span_Annotation.png" align="center" width = 700>
+<img src="./images/Data_Pipeline_Span_Annotation.png" align="center" width = 700>
 <br>
 
 For the task of binary classification, BERT was fine-tuned to 6 epochs on the SQuAD 2.0 train dataset and evaluated for accuracy and F1 score at each epoch.  Additionally, fractional epochs 1/10th through 9/10th were captured on the 0th to 1st epoch.  BERT was configured with a sequence length of 386 for all experiments, however the sequence wasn't critical due to BERT's CLS token network.  Here, we retain a 1 x 1024 shape for each example:
 
-<img src="/images/Data_Pipeline_Binary_Classification.png" align="center" width = 700>
+<img src="./images/Data_Pipeline_Binary_Classification.png" align="center" width = 700>
 
 ---
 
@@ -61,7 +62,7 @@ Model Architecture
 
 Architecture of our best performing span annotation model in relation to BERT$_{large}$.  Left: BERT and its span annotation inference process. Right: For our model, BERT embeddings are first transformed through our custom adapter layer. Next, the last two dimensions are flattened. Optionally, a skip connection is added between the sequence outputs of the final BERT layer and this flattened representation. This is present in the best model discovered at 3/10 of an epoch, but was not necessary for the best model discovered at 1 full epoch.  This tensor is then projected down to (386,2) with a densely connected layer and split on the last axis into two model heads. These heads represent the logits of the start-span and end-span position.
 
-<img src="/images/BERTVision_QA_Model.png" align="center" width = 700>
+<img src="./images/BERTVision_QA_Model.png" align="center" width = 700>
 
 ---
 
