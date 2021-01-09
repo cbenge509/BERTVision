@@ -6,7 +6,7 @@ BERT Vision
 #### Authors : [William Casey King, PhD](https://jackson.yale.edu/person/casey-king/) | [Siduo (Stone) Jiang](https://www.linkedin.com/in/siduojiang/) | [Cristopher Benge](https://cbenge509.github.io/) | [Andrew Fogarty](http://seekinginference.com/)
 
 <br>
-<img align="right" width="180" src="./images/ucb.png"/>
+<img align="right" width="180" src="./images/ucb.png"/> 
 
 [![](./images/casey.png)](https://jackson.yale.edu/person/casey-king/)&nbsp;&nbsp;[![](./images/stone.png)](https://www.linkedin.com/in/siduojiang/)&nbsp;&nbsp;[![](./images/cbenge.png)](https://cbenge509.github.io/)&nbsp;&nbsp;[![](./images/andrew.png)](http://seekinginference.com/)
 
