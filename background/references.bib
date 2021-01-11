@@ -1,0 +1,352 @@
+@misc{kim2021ibert,
+	title={I-BERT: Integer-only BERT Quantization}, 
+	author={Sehoon Kim and Amir Gholami and Zhewei Yao and Michael W. Mahoney and Kurt Keutzer},
+	year={2021},
+	eprint={2101.01321},
+	archivePrefix={arXiv},
+	primaryClass={cs.CL}
+}
+
+@article{DBLP:journals/corr/abs-1806-03822,
+	author    = {Pranav Rajpurkar and
+	Robin Jia and
+	Percy Liang},
+	title     = {Know What You Don't Know: Unanswerable Questions for {SQ}u{AD}},
+	journal   = {CoRR},
+	volume    = {abs/1806.03822},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1806.03822},
+	archivePrefix = {arXiv},
+	eprint    = {1806.03822},
+	timestamp = {Mon, 13 Aug 2018 16:48:21 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1806-03822.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{van_Aken_2019,
+	title={How Does {BERT} Answer Questions?},
+	ISBN={9781450369763},
+	url={http://dx.doi.org/10.1145/3357384.3358028},
+	DOI={10.1145/3357384.3358028},
+	journal={Proceedings of the 28th ACM International Conference on Information and Knowledge Management},
+	publisher={ACM},
+	author={van Aken, Betty and Winter, Benjamin and Löser, Alexander and Gers, Felix A.},
+	year={2019},
+	month={Nov}
+}
+
+@inproceedings{Lin2014,
+abstract = {We propose a novel deep network structure called “Network In Network”(NIN) to enhance model discriminability for local patches within the receptive field. The conventional convolutional layer uses linear filters followed by a nonlinear activation function to scan the input. Instead, we build micro neural networks with more complex structures to abstract the data within the receptive field. We instantiate the micro neural network with a multilayer perceptron, which is a potent function approximator. The feature maps are obtained by sliding the micro networks over the input in a similar manner as CNN; they are then fed into the next layer. Deep NIN can be implemented by stacking mutiple of the above described structure. With enhanced local modeling via the micro network, we are able to utilize global average pooling over feature maps in the classification layer, which is easier to interpret and less prone to overfitting than traditional fully connected layers. We demonstrated the state-of-the-art classification performances with NIN on CIFAR-10 and CIFAR-100, and reasonable performances on SVHN and MNIST datasets.},
+author = {Lin, Min and Chen, Qiang and Yan, Shuicheng},
+booktitle = {2nd International Conference on Learning Representations, ICLR 2014 - Conference Track Proceedings},
+title = {{Network in network}},
+year = {2014}
+}
+
+@inproceedings{tenney-etal-2019-bert,
+	title = "{BERT} Rediscovers the Classical {NLP} Pipeline",
+	author = "Tenney, Ian  and
+	Das, Dipanjan  and
+	Pavlick, Ellie",
+	booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+	month = jul,
+	year = "2019",
+	address = "Florence, Italy",
+	publisher = "Association for Computational Linguistics",
+	url = "https://www.aclweb.org/anthology/P19-1452",
+	doi = "10.18653/v1/P19-1452",
+	pages = "4593--4601",
+	abstract = "Pre-trained text encoders have rapidly advanced the state of the art on many NLP tasks. We focus on one such model, BERT, and aim to quantify where linguistic information is captured within the network. We find that the model represents the steps of the traditional NLP pipeline in an interpretable and localizable way, and that the regions responsible for each step appear in the expected sequence: POS tagging, parsing, NER, semantic roles, then coreference. Qualitative analysis reveals that the model can and often does adjust this pipeline dynamically, revising lower-level decisions on the basis of disambiguating information from higher-level representations.",
+}
+
+@inproceedings{Kim2016,
+abstract = {We describe a simple neural language model that relies only on character-level inputs. Predictions are still made at the word-level. Our model employs a convolutional neural network (CNN) and a highway network over characters, whose output is given to a long short-Term memory (LSTM) recurrent neural network language model (RNN-LM). On the English Penn Treebank the model is on par with the existing state-of-The-Art despite having 60{\%} fewer parameters. On languages with rich morphology (Arabic, Czech, French, German, Spanish, Russian), the model outperforms word-level/morpheme-level LSTM baselines, again with fewer parameters. The results suggest that on many languages, character inputs are sufficient for language modeling. Analysis of word representations obtained from the character composition part of the model reveals that the model is able to encode, from characters only, both semantic and orthographic information.},
+archivePrefix = {arXiv},
+arxivId = {1508.06615},
+author = {Kim, Yoon and Jernite, Yacine and Sontag, David and Rush, Alexander M.},
+booktitle = {30th AAAI Conference on Artificial Intelligence, AAAI 2016},
+eprint = {1508.06615},
+isbn = {9781577357605},
+title = {{Character-Aware neural language models}},
+year = {2016}
+}
+
+@inproceedings{Rajpurkar2016,
+abstract = {We present the Stanford Question Answering Dataset (SQuAD), a new reading comprehension dataset consisting of 100,000+ questions posed by crowdworkers on a set of Wikipedia articles, where the answer to each question is a segment of text from the corresponding reading passage. We analyze the dataset to understand the types of reasoning required to answer the questions, leaning heavily on dependency and constituency trees. We build a strong logistic regression model, which achieves an F1 score of 51.0{\%}, a significant improvement over a simple baseline (20{\%}). However, human performance (86.8{\%}) is much higher, indicating that the dataset presents a good challenge problem for future research. The dataset is freely available at https://stanford-qa.com.},
+author = {Rajpurkar, Pranav and Zhang, Jian and Lopyrev, Konstantin and Liang, Percy},
+booktitle = {EMNLP 2016 - Conference on Empirical Methods in Natural Language Processing, Proceedings},
+isbn = {9781945626258},
+title = {{SQuad: 100,000+ questions for machine comprehension of text}},
+year = {2016}
+}
+
+@inproceedings{Devlin2019,
+abstract = {We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models (Peters et al., 2018a; Radford et al., 2018), BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. As a result, the pre-trained BERT model can be fine-tuned with just one additional output layer to create state-of-the-art models for a wide range of tasks, such as question answering and language inference, without substantial task-specific architecture modifications. BERT is conceptually simple and empirically powerful. It obtains new state-of-the-art results on eleven natural language processing tasks, including pushing the GLUE score to 80.5{\%} (7.7{\%} point absolute improvement), MultiNLI accuracy to 86.7{\%} (4.6{\%} absolute improvement), SQuAD v1.1 question answering Test F1 to 93.2 (1.5 point absolute improvement) and SQuAD v2.0 Test F1 to 83.1 (5.1 point absolute improvement).},
+archivePrefix = {arXiv},
+arxivId = {1810.04805},
+author = {Devlin, Jacob and Chang, Ming Wei and Lee, Kenton and Toutanova, Kristina},
+booktitle = {NAACL HLT 2019 - 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies - Proceedings of the Conference},
+eprint = {1810.04805},
+isbn = {9781950737130},
+title = {{BERT: Pre-training of deep bidirectional transformers for language understanding}},
+year = {2019}
+}
+
+@inproceedings{Vaswani2017,
+abstract = {The dominant sequence transduction models are based on complex recurrent or convolutional neural networks that include an encoder and a decoder. The best performing models also connect the encoder and decoder through an attention mechanism. We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results, including ensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.0 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature.},
+author = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+booktitle = {Advances in Neural Information Processing Systems},
+issn = {10495258},
+title = {{Attention is all you need}},
+year = {2017}
+}
+
+@inproceedings{Conneau2017,
+abstract = {The dominant approach for many NLP tasks are recurrent neural networks, in particular LSTMs, and convolutional neural networks. However, these architectures are rather shallow in comparison to the deep convolutional networks which have pushed the state-of-the-art in computer vision. We present a new architecture (VDCNN) for text processing which operates directly at the character level and uses only small convolutions and pooling operations. We are able to show that the performance of this model increases with the depth: using up to 29 convolutional layers, we report improvements over the state-ofthe- Art on several public text classification tasks. To the best of our knowledge, this is the first time that very deep convolutional nets have been applied to text processing.},
+author = {Conneau, Alexis and Schwenk, Holger and Cun, Yann Le and Barrault, L{\"{o}}c},
+booktitle = {15th Conference of the European Chapter of the Association for Computational Linguistics, EACL 2017 - Proceedings of Conference},
+doi = {10.18653/v1/e17-1104},
+isbn = {9781510838604},
+title = {{Very deep convolutional networks for text classification}},
+year = {2017}
+}
+
+@online{Kuefler2016,
+abstract = {Computer vision has driven many of the greatest advances in convolutional neural networks, a model family that has found only limited use for natural language processing. The inception module of GoogleNet in particular attains high classification accuracy with few parameters. This project attempts to harness the insights of the inception module in a jointly convolutional and recurrent natural language model. A set of 18 networks built on the idea of combining convolution and recurrence are evaluated on a fine-grained (8 class) sentiment analysis task using the IMDB Large Movie Dataset.},
+author = {Kuefler, Alex R.},
+title = {{Merging Recurrence and Inception-Like Convolution for Sentiment Analysis}},
+year = {2016},
+school = {Stanford University},
+url = {https://cs224d.stanford.edu/reports/akuefler.pdf},
+urldate = {2020-06-17}
+}
+
+@online{Limaye2019,
+abstract = {This paper presents BertNet, a high-performance question answering system utilizing BERT language representation combined with QANet inspired RNN-free attention and encoder layers which trains faster than baseline BiDAF model. We design the final layer of of our model to work with SQuAD 2.0 1 to effectively accommodate predictions on questions with no answers. This paper also demonstrates additional improvement to the performance by using back translation based data augmentation techniques. We used English-Arabic-English as back translation languages for increasing training data and show significant performance gain on "difficult" questions which the model otherwise doesn’t perform well on. On SQuAD 2.0 data-set, our single model trained with data augmentation produces an F1 Score of 77.15 on dev-set.},
+author = {Limaye, Girish and Pandit, Manish and Vinay, Sawal},
+title = {{BertNet: Combining BERT language representation with Attention and CNN for Reading Comprehension}},
+year = {2019},
+school = {Stanford University},
+url = {https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15783457.pdf},
+urldate = {2020-06-17}
+}
+
+@online{Takeuchi2019,
+abstract = {Bidirectional Encoder Representations from Transformers (BERT) is the current state-of-the-art language model which pretrains deep bidirectional representations for a wide-range of tasks. We aim to finetune this model for the task of SQUAD 2.0 question-answering by rating various deep learning techniques. First, we utilized dot-product attention and Convolutional Neural Networks to generate overall representation layers. Next, we modified the existing loss function to penalize the BERT model for predicting an answer when there isn’t one. Finally, we increased the complexity of BERT model to be more specific to the questionanswering task by incorporating highway networks, additional transformer layers and Bidirectional Attention Flow (BiDAF). Although well-motivated, some of these approaches increase performance because they either introduced noise or overfitted the model. However, running the model through a highway network and tuning hyper-parameters did nonetheless generate small gains in performance.},
+author = {Takeuchi, Danny and Tran, Kevin},
+title = {{Improving SQUAD 2.0 Performance using BERT + X}},
+year = {2019},
+school = {Stanford University},
+url = {https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/reports/default/15737384.pdf},
+urldate = {2020-06-17}
+}
+
+@misc{ramach2019standalone,
+    title={Stand-Alone Self-Attention in Vision Models},
+    author={Prajit Ramachandran and Niki Parmar and Ashish Vaswani and Irwan Bello and Anselm Levskaya and Jonathon Shlens},
+    year={2019},
+    eprint={1906.05909},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+
+@misc{peters2018deep,
+    title={Deep contextualized word representations},
+    author={Matthew E. Peters and Mark Neumann and Mohit Iyyer and Matt Gardner and Christopher Clark and Kenton Lee and Luke Zettlemoyer},
+    year={2018},
+    eprint={1802.05365},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL}
+}
+
+@article{DBLP:journals/corr/Chollet16a,
+  author    = {Fran{\c{c}}ois Chollet},
+  title     = {Xception: Deep Learning with Depthwise Separable Convolutions},
+  journal   = {CoRR},
+  volume    = {abs/1610.02357},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1610.02357},
+  archivePrefix = {arXiv},
+  eprint    = {1610.02357},
+  timestamp = {Mon, 13 Aug 2018 16:46:20 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/Chollet16a.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+ 
+@misc{ma2019universal,
+    title={Universal Text Representation from {BERT}: An Empirical Study},
+    author={Xiaofei Ma and Zhiguo Wang and Patrick Ng and Ramesh Nallapati and Bing Xiang},
+    year={2019},
+    eprint={1910.07973},
+    archivePrefix={arXiv},
+    primaryClass={cs.CL}
+}
+
+@article{DBLP:journals/corr/abs-1902-00751,
+  author    = {Neil Houlsby and
+               Andrei Giurgiu and
+               Stanislaw Jastrzebski and
+               Bruna Morrone and
+               Quentin de Laroussilhe and
+               Andrea Gesmundo and
+               Mona Attariyan and
+               Sylvain Gelly},
+  title     = {Parameter-Efficient Transfer Learning for {NLP}},
+  journal   = {CoRR},
+  volume    = {abs/1902.00751},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1902.00751},
+  archivePrefix = {arXiv},
+  eprint    = {1902.00751},
+  timestamp = {Tue, 21 May 2019 18:03:38 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1902-00751.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/abs-1809-09194,
+	author    = {Xiaodong Liu and
+	Wei Li and
+	Yuwei Fang and
+	Aerin Kim and
+	Kevin Duh and
+	Jianfeng Gao},
+	title     = {Stochastic Answer Networks for {SQ}u{AD} 2.0},
+	journal   = {CoRR},
+	volume    = {abs/1809.09194},
+	year      = {2018},
+	url       = {http://arxiv.org/abs/1809.09194},
+	archivePrefix = {arXiv},
+	eprint    = {1809.09194},
+	timestamp = {Fri, 05 Oct 2018 11:34:52 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1809-09194.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/SzegedyLJSRAEVR14,
+	author    = {Christian Szegedy and
+	Wei Liu and
+	Yangqing Jia and
+	Pierre Sermanet and
+	Scott E. Reed and
+	Dragomir Anguelov and
+	Dumitru Erhan and
+	Vincent Vanhoucke and
+	Andrew Rabinovich},
+	title     = {Going Deeper with Convolutions},
+	journal   = {CoRR},
+	volume    = {abs/1409.4842},
+	year      = {2014},
+	url       = {http://arxiv.org/abs/1409.4842},
+	archivePrefix = {arXiv},
+	eprint    = {1409.4842},
+	timestamp = {Mon, 13 Aug 2018 16:48:52 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/SzegedyLJSRAEVR14.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/corr/abs-1905-06316,
+	author    = {Ian Tenney and
+	Patrick Xia and
+	Berlin Chen and
+	Alex Wang and
+	Adam Poliak and
+	R. Thomas McCoy and
+	Najoung Kim and
+	Benjamin Van Durme and
+	Samuel R. Bowman and
+	Dipanjan Das and
+	Ellie Pavlick},
+	title     = {What do you learn from context? {P}robing for sentence structure in
+	contextualized word representations},
+	journal   = {CoRR},
+	volume    = {abs/1905.06316},
+	year      = {2019},
+	url       = {http://arxiv.org/abs/1905.06316},
+	archivePrefix = {arXiv},
+	eprint    = {1905.06316},
+	timestamp = {Tue, 28 May 2019 12:48:08 +0200},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1905-06316.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Zhu2020IncorporatingBI,
+	title={Incorporating {BERT} into Neural Machine Translation},
+	author={Jinhua Zhu and Yingce Xia and Lijun Wu and Di He and Tao Qin and Wengang Zhou and Houqiang Li and Tie-Yan Liu},
+	journal={ArXiv},
+	year={2020},
+	volume={abs/2002.06823}
+}
+
+@article{Chen_2020,
+	title={Table Search Using a Deep Contextualized Language Model},
+	ISBN={9781450380164},
+	url={http://dx.doi.org/10.1145/3397271.3401044},
+	DOI={10.1145/3397271.3401044},
+	journal={Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval},
+	publisher={ACM},
+	author={Chen, Zhiyu and Trabelsi, Mohamed and Heflin, Jeff and Xu, Yinan and Davison, Brian D.},
+	year={2020},
+	month={Jul}
+}
+
+@misc{sanh2019distilbert,
+	title={Distil{BERT}, a distilled version of {BERT}: smaller, faster, cheaper and lighter},
+	author={Victor Sanh and Lysandre Debut and Julien Chaumond and Thomas Wolf},
+	year={2019},
+	eprint={1910.01108},
+	archivePrefix={arXiv},
+	primaryClass={cs.CL}
+}
+
+@inproceedings{Papineni02bleu:a,
+	author = {Kishore Papineni and Salim Roukos and Todd Ward and Wei-jing Zhu},
+	title = {{BLEU}: a Method for Automatic Evaluation of Machine Translation},
+	booktitle = {},
+	year = {2002},
+	pages = {311--318}
+}
+
+@article{DBLP:journals/corr/WuSCLNMKCGMKSJL16,
+	author    = {Yonghui Wu and
+	Mike Schuster and
+	Zhifeng Chen and
+	Quoc V. Le and
+	Mohammad Norouzi and
+	Wolfgang Macherey and
+	Maxim Krikun and
+	Yuan Cao and
+	Qin Gao and
+	Klaus Macherey and
+	Jeff Klingner and
+	Apurva Shah and
+	Melvin Johnson and
+	Xiaobing Liu and
+	Lukasz Kaiser and
+	Stephan Gouws and
+	Yoshikiyo Kato and
+	Taku Kudo and
+	Hideto Kazawa and
+	Keith Stevens and
+	George Kurian and
+	Nishant Patil and
+	Wei Wang and
+	Cliff Young and
+	Jason Smith and
+	Jason Riesa and
+	Alex Rudnick and
+	Oriol Vinyals and
+	Greg Corrado and
+	Macduff Hughes and
+	Jeffrey Dean},
+	title     = {Google's Neural Machine Translation System: Bridging the Gap between
+	Human and Machine Translation},
+	journal   = {CoRR},
+	volume    = {abs/1609.08144},
+	year      = {2016},
+	url       = {http://arxiv.org/abs/1609.08144},
+	archivePrefix = {arXiv},
+	eprint    = {1609.08144},
+	timestamp = {Thu, 14 Mar 2019 09:34:18 +0100},
+	biburl    = {https://dblp.org/rec/journals/corr/WuSCLNMKCGMKSJL16.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
