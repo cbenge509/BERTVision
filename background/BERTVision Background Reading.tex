@@ -1,0 +1,79 @@
+%!TEX TS-program = xelatex
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BERT Vision : UC Berkeley MIDS - W210 Capstone
+% MIDS Spring 2021, Section 2 : Alberto Todeschini, PhD and Puya H. Vahabi, PhD
+% Final : BERT Vision
+% Authors : Cristopher Benge (cris.benge@berkeley.edu)
+%			William Casey King, PhD (cking@ischool.berkeley.edu)
+%			Siduo "Stone" Jiang (siduojiang@ischool.berkeley.edu)
+%			Andrew Fogarty (apfogarty@berkeley.edu)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[final,colophon]{caldoc}
+\RequirePackage{pdfpages}
+\RequirePackage{calstyle}
+\addbibresource{references.bib}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SETUP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author
+{
+		\href{https://www.linkedin.com/in/siduojiang/}{Siduo Jiang}, 
+		\href{https://cbenge509.github.io/}{Cristopher Benge},
+		\href{https://jackson.yale.edu/person/casey-king/}{William Casey King},
+		\href{http://seekinginference.com/}{Andrew Fogarty}
+}
+\title{BERT \textcolor{calberkeleyblue}{VISION} \textit{: Background Reading}}
+\subtitle{A summary list of background reading necessary for the BERTVision research project.}
+\department
+{
+	Capstone (W210)
+	\and
+	Spring 2021, Section 2, Tuesday 6:30pm PST
+}
+\faculty{Albert Todeschini PhD, Puya H. Vahabi PhD}
+\githubrepo{BERTVision}{https://github.com/cbenge509/BERTVision}
+
+\includeonly
+{
+	chapters/main,
+	chapters/bibliography,
+}
+
+\renewcommand\thechapter{\arabic{chapter}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% BUILD DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%    \frontmatter
+
+	\caltitle
+
+%    \tableofcontents
+%	\listoffigures
+%	\listoftables
+	
+	\setcounter{chapter}{1}\setcounter{section}{0}
+	\include{chapters/main}
+
+	%----------------------------------------------------------------------------------------
+	%	BIBLIOGRAPHY
+	%----------------------------------------------------------------------------------------
+
+	%\setcounter{chapter}{2}\setcounter{section}{0}
+	%\include{chapters/bibliography}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
