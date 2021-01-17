@@ -15,7 +15,7 @@ jobs:
           github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
           ado_organization: "crbenge0916"
           ado_project: "BERTVision"
-          ado_wit: "Work Item"
+          ado_wit: "Task"
           ado_new_state: "To Do"
           ado_active_state: "Doing"
           ado_close_state: "Done"
