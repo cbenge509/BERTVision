@@ -1,18 +1,18 @@
 [0] Config.pm:312> INFO - This is Biber 2.15 (beta)
 [0] Config.pm:315> INFO - Logfile is 'BERTVision Background Reading.blg'
-[78] biber-MSWIN64:330> INFO - === 
-[93] Biber.pm:415> INFO - Reading 'BERTVision Background Reading.bcf'
-[177] Biber.pm:949> INFO - Using all citekeys in bib section 0
-[191] Biber.pm:4334> INFO - Processing section 0
-[203] Biber.pm:4523> INFO - Looking for bibtex format file 'references.bib' for section 0
-[212] bibtex.pm:1682> INFO - LaTeX decoding ...
-[252] bibtex.pm:1494> INFO - Found BibTeX data source 'references.bib'
-[319] Utils.pm:395> WARN - month field 'Nov' in entry 'van_Aken_2019' is not an integer - this will probably not sort properly.
-[328] Utils.pm:395> WARN - month field 'Jul' in entry 'Chen_2020' is not an integer - this will probably not sort properly.
-[475] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[475] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[475] Biber.pm:4162> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'en-US'
-[475] Biber.pm:4168> INFO - No sort tailoring available for locale 'en-US'
-[497] bbl.pm:651> INFO - Writing 'BERTVision Background Reading.bbl' with encoding 'UTF-8'
-[520] bbl.pm:754> INFO - Output to BERTVision Background Reading.bbl
-[525] Biber.pm:128> INFO - WARNINGS: 2
+[81] biber-MSWIN64:330> INFO - === 
+[97] Biber.pm:415> INFO - Reading 'BERTVision Background Reading.bcf'
+[182] Biber.pm:949> INFO - Using all citekeys in bib section 0
+[196] Biber.pm:4334> INFO - Processing section 0
+[208] Biber.pm:4523> INFO - Looking for bibtex format file 'references.bib' for section 0
+[217] bibtex.pm:1682> INFO - LaTeX decoding ...
+[256] bibtex.pm:1494> INFO - Found BibTeX data source 'references.bib'
+[298] Utils.pm:395> WARN - month field 'Nov' in entry 'van_Aken_2019' is not an integer - this will probably not sort properly.
+[402] Utils.pm:395> WARN - month field 'Jul' in entry 'Chen_2020' is not an integer - this will probably not sort properly.
+[491] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[491] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[492] Biber.pm:4162> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'en-US'
+[492] Biber.pm:4168> INFO - No sort tailoring available for locale 'en-US'
+[514] bbl.pm:651> INFO - Writing 'BERTVision Background Reading.bbl' with encoding 'UTF-8'
+[539] bbl.pm:754> INFO - Output to BERTVision Background Reading.bbl
+[543] Biber.pm:128> INFO - WARNINGS: 2
