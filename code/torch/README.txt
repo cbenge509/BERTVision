@@ -14,8 +14,11 @@ python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 
 ### AdapterPooler on BERT-QA SQuAD 2.0 embeddings
 python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-3
 
-### SST on BERT for SequenceClassification
-python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+### SST-2 on BERT for SequenceClassification
+python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5
+
+### SST-5 on BERT for SequenceClassification
+python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5 --is-multilabel
 
 
 
@@ -30,5 +33,4 @@ epoch  exact,    f1,      loss dev
 adapter pooler
 exact,    f1,      loss dev
 69.013  71.9318    1.05
-
 

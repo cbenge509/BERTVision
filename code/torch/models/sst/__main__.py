@@ -44,6 +44,7 @@ if __name__ == '__main__':
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
+
     # set seed for multi-gpu
     if n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
@@ -53,25 +54,24 @@ if __name__ == '__main__':
     # set tokenizer
     tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # use it to create the train set
-    train_processor = processor(type='train',
-                      is_multilabel=False,
-                      transform=Tokenize_Transform(tokenizer=tokenizer))
+    train_processor = processor(args=args,
+                                type='train',
+                                transform=Tokenize_Transform(tokenizer=tokenizer))
+
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
     args.n_gpu = n_gpu
+
     # set num labels
     args.num_labels = train_processor.num_labels
-    # set flag for multi-label or not
-    args.is_multilabel = train_processor.is_multilabel
+
+    # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = BertConfig.from_pretrained('bert-base-uncased')
-    model.num_labels = args.num_labels
-    print(model.num_labels)
-    print(args.num_labels)
-    model = BertForSequenceClassification(model).to(device)
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+                                                          num_labels=args.num_labels).to(device)
 
     # print metrics
     print('Device:', str(device).upper())
