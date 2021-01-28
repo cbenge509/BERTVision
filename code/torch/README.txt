@@ -15,8 +15,8 @@ python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 
 python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-3
 
 ### SST on BERT for SequenceClassification
-python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 1 --lr 0.001
-# i am only predicting 0s for some reason
+python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+
 
 
 # some results
