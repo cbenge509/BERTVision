@@ -1,6 +1,5 @@
-import os
-import sys
-sys.path.append("C:\\BERTVision")
+import os, sys
+sys.path.append("C:/BERTVision/code/torch")
 import torch
 import models.args
 

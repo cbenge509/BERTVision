@@ -1,8 +1,8 @@
 # packages
 import os, sys, datetime
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from utils.collate import collate_squad_train
-from common.evaluators.bert_evaluator import BertEvaluator
+from common.evaluators.bert_qa_evaluator import BertQAEvaluator
 from torch.cuda.amp import autocast
 import torch
 from torch.utils.data import DataLoader
@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 from tqdm.notebook import trange
 
 
-class BertTrainer(object):
+class BertQATrainer(object):
     '''
     This class handles the training of QA models with BERT architecture.
 

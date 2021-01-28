@@ -156,6 +156,7 @@ class AP_Model(torch.nn.Module):
 
     def forward(self, x):
         x = self.AP1(x)  # [batch_sz, tokens, tokens, layers]
+        # if we are receiving BertConcat transformed data:
         if x.shape[-1] == 1:
             # reshape to [batch_sz, tokens, tokens*layers]
             x = torch.reshape(x, shape=(self.n_batch_sz, self.n_tokens, self.n_tokens*1))
@@ -166,6 +167,7 @@ class AP_Model(torch.nn.Module):
             start = torch.squeeze(start, dim=-1)  # [batch_sz, tokens]
             end = torch.squeeze(end, dim=-1)  # [batch_sz, tokens]
             return start, end
+        # else we are recieving data from the data loader
         else:
             # reshape to [batch_sz, tokens, tokens*layers]
             x = torch.reshape(x, shape=(-1, self.n_tokens, self.n_tokens*self.n_layers))
