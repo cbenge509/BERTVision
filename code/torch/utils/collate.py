@@ -164,3 +164,26 @@ def collate_H5(batch):
               'end_ids': end_ids,
               'idx': idxs}
     return sample
+
+# collate fn for SST
+def collate_SST(batch):
+    ''' This function packages the tokens and squeezes out the extra
+    dimension.
+    '''
+    # turn data to tensors
+    input_ids = torch.stack([torch.as_tensor(item['input_ids']) for item in batch]).squeeze(1)
+    # get attn_mask
+    attention_mask = torch.stack([torch.as_tensor(item['attention_mask']) for item in batch]).squeeze(1)
+    # get token_type_ids
+    token_type_ids = torch.stack([torch.as_tensor(item['token_type_ids']) for item in batch]).squeeze(1)
+    # get labels
+    labels = torch.stack([torch.as_tensor(item['labels']) for item in batch])
+    # get idxs
+    idxs = torch.stack([torch.as_tensor(item['idx']) for item in batch])
+    # repackage
+    sample = {'input_ids': input_ids,
+              'attention_mask': attention_mask,
+              'token_type_ids': token_type_ids,
+              'labels': labels,
+              'idx': idxs}
+    return sample

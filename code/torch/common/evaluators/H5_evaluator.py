@@ -1,6 +1,6 @@
 # packages
 import os, sys, datetime, time
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from utils.collate import collate_H5
 import numpy as np
 import torch

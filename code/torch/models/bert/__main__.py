@@ -1,8 +1,8 @@
 # packages
 import sys, os, random
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from data.bert_processors.squad_processor import SQuADProcessor
-from common.trainers.bert_trainer import BertTrainer
+from common.trainers.bert_qa_trainer import BertQATrainer
 from models.bert.args import get_args
 import numpy as np
 import torch
@@ -85,7 +85,7 @@ if __name__ == '__main__':
                               lr=args.lr,
                               correct_bias=False,
                               weight_decay=args.l2)
-    
+
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
