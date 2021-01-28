@@ -95,7 +95,7 @@ class BertClassEvaluator(object):
                                  labels=labels
                                  )
 
-                probas = F.log_softmax(out.logits, dim=1)
+                pred = out.logits.max(1)[1]  # get the index of the max log-probability
                 _, pred_labels = torch.max(probas, 1)
             # loss
             if self.args.n_gpu > 1:
@@ -108,7 +108,7 @@ class BertClassEvaluator(object):
                 self.target_labels.extend(labels.cpu().detach().numpy())
             else:
 
-                predicted_labels.extend(pred_labels.cpu().detach().numpy())
+                predicted_labels.extend(pred.cpu().detach().numpy().flatten())
                 target_labels.extend(labels.cpu().detach().numpy())
 
             # loss metrics
