@@ -4,7 +4,7 @@ sys.path.append("C:/BERTVision/code/torch")
 import torch, json, pytreebank
 import pandas as pd
 from transformers import BertTokenizerFast
-#from models.sst.args import get_args
+
 
 tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
 
@@ -31,11 +31,11 @@ class SSTProcessor(torch.utils.data.Dataset):
 
     NAME = 'SST'
 
-    def __init__(self, type, is_multilabel=True, transform=None):
+    def __init__(self, args, type, transform=None):
         # set path for data
         self.path = 'C:\\BERTVision\\code\\torch\\data\\data_sets\\sst\\trees'
         # initialize flag; set false for binary classification
-        self.is_multilabel = is_multilabel
+        self.is_multilabel = args.is_multilabel
         # flag for multilabel
         if self.is_multilabel == True:
             # then set the labels

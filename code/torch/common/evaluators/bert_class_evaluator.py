@@ -13,8 +13,6 @@ import warnings
 # Suppress warnings from sklearn.metrics
 warnings.filterwarnings('ignore')
 
-# tokenizer
-#tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
 
 class BertClassEvaluator(object):
     '''
@@ -24,10 +22,13 @@ class BertClassEvaluator(object):
     Parameters
     ----------
     model : object
-        A huggingface QuestionAnswering BERT transformer
+        A HuggingFace QuestionAnswering BERT transformer
 
     processor: object
         A Torch Dataset processor that emits data
+
+    tokenizer: object
+        A HuggingFace tokenizer that fits the HuggingFace transformer
 
     args: object
         A argument parser object; see args.py
@@ -58,9 +59,9 @@ class BertClassEvaluator(object):
         This function prepares the data and handles the validation set testing.
         '''
         # instantiate dev set processor
-        self.dev_examples = self.processor(type='dev',
-                          is_multilabel=False,
-                          transform=Tokenize_Transform(tokenizer=self.tokenizer))
+        self.dev_examples = self.processor(args=self.args,
+                                           type='dev',
+                                           transform=Tokenize_Transform(tokenizer=self.tokenizer))
 
         # craete dev set data loader
         dev_dataloader = DataLoader(self.dev_examples,
@@ -91,23 +92,25 @@ class BertClassEvaluator(object):
                 out = self.model(
                                  input_ids=input_ids,
                                  attention_mask=attn_mask,
-                                 token_type_ids=None,
+                                 token_type_ids=token_type_ids,
                                  labels=labels
                                  )
 
+                # preds
                 pred = out.logits.max(1)[1]  # get the index of the max log-probability
-                _, pred_labels = torch.max(probas, 1)
+
             # loss
             if self.args.n_gpu > 1:
                 loss = out.loss.mean()
             else:
                 loss = out.loss
 
+                # in case we need something special for multi-label
             if self.args.is_multilabel:
-                self.predicted_labels.extend(F.sigmoid(out.logits).round().long().cpu().detach().numpy())
-                self.target_labels.extend(labels.cpu().detach().numpy())
+                predicted_labels.extend(pred.cpu().detach().numpy().flatten())
+                target_labels.extend(labels.cpu().detach().numpy())
             else:
-
+                # for binary
                 predicted_labels.extend(pred.cpu().detach().numpy().flatten())
                 target_labels.extend(labels.cpu().detach().numpy())
 

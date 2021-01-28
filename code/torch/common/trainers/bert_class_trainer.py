@@ -21,6 +21,9 @@ class BertClassTrainer(object):
     model : object
         A HuggingFace Classification BERT transformer
 
+    tokenizer: object
+        A HuggingFace tokenizer that fits the HuggingFace transformer        
+
     optimizer: object
         A compatible Torch optimizer
 
@@ -55,9 +58,9 @@ class BertClassTrainer(object):
         self.scheduler = scheduler
         self.scaler = scaler
         # specify training data set
-        self.train_examples = processor(type='train',
-                          is_multilabel=False,
-                          transform=Tokenize_Transform(tokenizer=tokenizer))
+        self.train_examples = processor(args=self.args,
+                                        type='train',
+                                        transform=Tokenize_Transform(tokenizer=tokenizer))
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         # create a location to save the files
@@ -95,7 +98,7 @@ class BertClassTrainer(object):
                 out = self.model(
                                  input_ids=input_ids,
                                  attention_mask=attn_mask,
-                                 token_type_ids=None,
+                                 token_type_ids=token_type_ids,
                                  labels=labels
                                  )
 
