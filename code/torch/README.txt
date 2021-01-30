@@ -1,21 +1,28 @@
-Only contains BERT for QA and SQuAD 2.0 in the new framework.
+
+Conda environment:
+conda create -n my_ml python=3.7 jupyter numpy pandas matplotlib scikit-learn pip 'ipykernel<5.0.0' python-language-server[all] tensorflow-gpu nltk pytorch torchvision cudatoolkit=10.1 huggingface transformers tokenizer datasets elasticsearch tqdm
+
 
 To run on CLI:
-
 conda activate my_ml
+cd c:\BERTVision\code\torch
 
-cd c:\BERTVision
 
-BERT-QA on SQuAD 2.0:
+### BERT-QA on SQuAD 2.0:
 python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 --batch-size 16 --epochs 3
 
-AdapterPooler on BERT-QA SQuAD 2.0 embeddings
+### AdapterPooler on BERT-QA SQuAD 2.0 embeddings
 python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-3
 
+### SST-2 on BERT for SequenceClassification
+python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5
+
+### SST-5 on BERT for SequenceClassification
+python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5 --is-multilabel
 
 
 
-results to add: 
+# some results
 
 bert qa
 epoch  exact,    f1,      loss dev
@@ -26,3 +33,4 @@ epoch  exact,    f1,      loss dev
 adapter pooler
 exact,    f1,      loss dev
 69.013  71.9318    1.05
+

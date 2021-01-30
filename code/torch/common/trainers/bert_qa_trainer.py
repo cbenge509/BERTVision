@@ -1,8 +1,8 @@
 # packages
 import os, sys, datetime
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from utils.collate import collate_squad_train
-from common.evaluators.bert_evaluator import BertEvaluator
+from common.evaluators.bert_qa_evaluator import BertQAEvaluator
 from torch.cuda.amp import autocast
 import torch
 from torch.utils.data import DataLoader
@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 from tqdm.notebook import trange
 
 
-class BertTrainer(object):
+class BertQATrainer(object):
     '''
     This class handles the training of QA models with BERT architecture.
 
@@ -133,11 +133,11 @@ class BertTrainer(object):
             # train
             self.train_epoch(train_dataloader)
             # get dev loss
-            dev_loss = BertEvaluator(self.model, self.processor, self.args).get_loss()
+            dev_loss = BertQAEvaluator(self.model, self.processor, self.args).get_loss()
             # get scoring logits and indices
-            logits, indices = BertEvaluator(self.model, self.processor, self.args).get_scores()
+            logits, indices = BertQAEvaluator(self.model, self.processor, self.args).get_scores()
             # compute scores
-            metrics = BertEvaluator(self.model, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
+            metrics = BertQAEvaluator(self.model, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
 
             # print validation results
             tqdm.write(self.log_header)
