@@ -157,6 +157,7 @@ class BertClassTrainer(object):
             else:
                 # stop training with early stopping
                 self.unimproved_iters += 1
+                self.unimproved_iters = 0
                 if self.unimproved_iters >= self.args.patience:
                     self.early_stop = True
                     tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.metric))

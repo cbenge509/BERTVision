@@ -34,3 +34,21 @@ adapter pooler
 exact,    f1,      loss dev
 69.013  71.9318    1.05
 
+
+***GLUE Tasks***
+
+RTE -- Accuracy
+C:\BERTVision\code\torch>python -m models.rte --dataset SST --model RTE --num-workers 0 --batch-size 16 --epochs 100 --lr 1e-5
+
+| BERT-Base Dev (Us)      | BERT-Large Reported |
+| ----------- | ----------- |
+| 0.657 (epoch 4)      | 0.701       |
+| 0.668 (epoch 16)   |         |
+
+QNLI -- Accuracy
+python -m models.qnli --dataset SST --model QNLI --num-workers 0 --batch-size 16 --epochs 30 --lr 1e-5
+
+| BERT-Base Dev (Us)      | BERT-Large Reported |
+| ----------- | ----------- |
+| 0.895 (epoch 2)      | 0.927       |
+| 0.904 (epoch 3)   |         |
