@@ -1,7 +1,7 @@
 # packages
 import os, sys, datetime
 sys.path.append("C:/BERTVision/code/torch")
-from common.evaluators.bert_class_evaluator import BertClassEvaluator
+from common.evaluators.bert_class_evaluator_sj import BertClassEvaluator
 from data.bert_processors.sst_processor import SSTProcessor, Tokenize_Transform
 from utils.collate import collate_SST
 from torch.cuda.amp import autocast
@@ -68,12 +68,11 @@ class BertClassTrainer(object):
             len(self.train_examples) / args.batch_size) * args.epochs
 
         # set log info and template
-        self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
-        self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
+        self.log_header = 'Epoch Iteration Progress   Acc'
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
-        self.best_dev_f1, self.unimproved_iters = 0, 0
+        self.metric, self.unimproved_iters = 0, 0
         self.early_stop = False
 
     def train_epoch(self, train_dataloader):
@@ -119,7 +118,7 @@ class BertClassTrainer(object):
 
         # print end of trainig results
         print('\n', 'train loss', self.tr_loss / self.nb_tr_steps)
-
+        return self.tr_loss / self.nb_tr_steps
     def train(self):
         '''
         This function handles the entirety of the training, dev, and scoring.
@@ -137,21 +136,22 @@ class BertClassTrainer(object):
                                       drop_last=False,
                                       collate_fn=collate_SST)
         # for each epoch
+        log = {'metric':[], 'train_loss':[]}
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
             # train
-            self.train_epoch(train_dataloader)
+            log['train_loss'].append(self.train_epoch(train_dataloader))
             # get dev loss
-            dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertClassEvaluator(self.model, self.tokenizer, self.processor, self.args).get_loss()
-
+            #dev_acc, dev_precision, dev_recall, dev_f1, dev_loss
+            metric = BertClassEvaluator(self.model, self.processor, self.args).get_loss()
+            log['metric'].append(metric)
             # print validation results
             tqdm.write(self.log_header)
-            tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+            tqdm.write(str(epoch)+ ": " + str(metric))
 
             # update validation results
-            if dev_f1 > self.best_dev_f1:
+            if metric > self.metric:
                 self.unimproved_iters = 0
-                self.best_dev_f1 = dev_f1
+                self.metric = metric
                 torch.save(self.model, self.snapshot_path)
 
             else:
@@ -159,7 +159,8 @@ class BertClassTrainer(object):
                 self.unimproved_iters += 1
                 if self.unimproved_iters >= self.args.patience:
                     self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                    tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.metric))
                     break
+        print(log)
 
 #

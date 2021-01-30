@@ -4,7 +4,7 @@ import torch
 import models.args
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+print(device)
 def get_args():
     # retreive the general models.args and attach them here
     parser = models.args.get_args()
