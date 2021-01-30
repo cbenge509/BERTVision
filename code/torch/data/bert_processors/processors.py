@@ -213,7 +213,8 @@ class QNLI(TwoSentenceLoader):
             # initialize dev
             self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
-                                     encoding='latin-1')
+                                     encoding='latin-1',
+                                     error_bad_lines=False)
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
