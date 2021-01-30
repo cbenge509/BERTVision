@@ -109,7 +109,7 @@ class TwoSentenceLoader(torch.utils.data.Dataset):
         if self.type == 'dev':
             sample = {'text': self.dev.sentence1[idx],
                       'text2': self.dev.sentence2[idx],
-                      'is_duplicate': self.dev.label[idx],
+                      'label': self.dev.label[idx],
                       'idx': self.dev.id[idx]}
             if self.transform:
                 sample = self.transform(sample)
@@ -139,10 +139,9 @@ class RTE(TwoSentenceLoader):
 
         if self.type == 'dev':
             # initialize dev
-            self.dev = pd.read_csv(self.path + '\\' + 'dev.txt', sep='\t',
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
                                      encoding='latin-1')
-            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
 
@@ -176,7 +175,7 @@ class WNLI(TwoSentenceLoader):
 
         if self.type == 'dev':
             # initialize dev
-            self.dev = pd.read_csv(self.path + '\\' + 'dev.txt', sep='\t',
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
                                      encoding='latin-1')
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
@@ -212,7 +211,7 @@ class QNLI(TwoSentenceLoader):
 
         if self.type == 'dev':
             # initialize dev
-            self.dev = pd.read_csv(self.path + '\\' + 'dev.txt', sep='\t',
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
                                      encoding='latin-1')
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
@@ -260,7 +259,7 @@ class QQPairs(torch.utils.data.Dataset):
                                      encoding='latin-1')
         if self.type == 'dev':
             # initialize dev
-            self.dev = pd.read_csv(self.path + '\\' + 'dev.txt', sep='\t',
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
                                      encoding='latin-1')
 
