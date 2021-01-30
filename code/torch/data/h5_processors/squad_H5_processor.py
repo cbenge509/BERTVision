@@ -1,6 +1,6 @@
 # packages
 import sys
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 import torch, h5py
 
 

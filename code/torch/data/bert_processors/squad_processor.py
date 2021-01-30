@@ -1,6 +1,6 @@
 # packages
 import sys
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 import torch
 from datasets import load_dataset
 from utils.squad_preprocess import prepare_train_features, prepare_validation_features

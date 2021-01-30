@@ -1,6 +1,6 @@
 # packages
 import sys, os, random
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from data.h5_processors.squad_H5_processor import SQuADH5Processor
 from utils.compress_utils import AdapterPooler, AP_Model
 from common.trainers.H5_trainer import H5Trainer

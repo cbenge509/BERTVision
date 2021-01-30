@@ -1,6 +1,6 @@
 # packages
-import pathlib, time, os
-sys.path.append("C:/BERTVision")
+import time, os, sys, datetime
+sys.path.append("C:/BERTVision/code/torch")
 from utils.collate import collate_squad_train, collate_squad_dev, collate_squad_score
 import numpy as np
 import torch
@@ -13,7 +13,7 @@ import subprocess
 subprocess.Popen('C:\\elasticsearch-7.10.2\\bin\\elasticsearch.bat')
 
 
-class BertEvaluator(object):
+class BertQAEvaluator(object):
     '''
     This class handles the evaluation of QA models with BERT architecture.
 

@@ -1,6 +1,6 @@
 # packages
 import os, sys, datetime
-sys.path.append("C:/BERTVision")
+sys.path.append("C:/BERTVision/code/torch")
 from utils.collate import collate_H5
 from common.evaluators.H5_evaluator import H5Evaluator
 from torch.cuda.amp import autocast
