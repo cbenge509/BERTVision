@@ -2,7 +2,7 @@
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 sys.path.append("C:/BERTVision/code/torch/bert_processors")
-from data.bert_processors.processors import WNLI
+from data.bert_processors.processors import MSR
 from common.trainers.bert_trainer_sj import BertClassTrainer
 from models.sst.args import get_args
 import numpy as np
@@ -12,6 +12,7 @@ from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW
 from torch.cuda.amp import GradScaler
 from utils.bert_models import RTE_model
 
+
 # main fun.
 if __name__ == '__main__':
     # set default configuration in args.py
@@ -19,11 +20,11 @@ if __name__ == '__main__':
 
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'WNLI': WNLI
+        'MSR': MSR
     }
 
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'WNLI'
+    args.dataset = 'MSR'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = RTE_model(0.9, 768).cuda() #dropout rate, bert base uncased hidden_state_size
+    model = RTE_model(0.7, 768).cuda() #dropout rate, bert base uncased hidden_state_size
 
     # print metrics
     print('Device:', str(device).upper())
