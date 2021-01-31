@@ -12,7 +12,6 @@ from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW
 from torch.cuda.amp import GradScaler
 from utils.bert_models import RTE_model
 
-
 # main fun.
 if __name__ == '__main__':
     # set default configuration in args.py
@@ -69,7 +68,7 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = RTE_model(0.7, 768).cuda() #dropout rate, bert base uncased hidden_state_size
+    model = RTE_model(0.9, 768).cuda() #dropout rate, bert base uncased hidden_state_size
 
     # print metrics
     print('Device:', str(device).upper())
