@@ -5,6 +5,7 @@ import torch, json, pytreebank
 import pandas as pd
 import numpy as np
 import sys
+import csv
 
 from transformers import BertTokenizerFast
 
@@ -218,6 +219,85 @@ class QNLI(TwoSentenceLoader):
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
             self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()
+
+class QNLI(TwoSentenceLoader):
+    NAME = 'QNLI'
+    def __init__(self, type, transform = None):
+        '''
+        Example line:
+        index	question	sentence	label
+        0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
+        1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
+
+        This prepares the RTE task from GLUE
+        '''
+
+        self.path = 'C:\w266\data\GLUE\Question NLI\QNLI'
+        self.type = type
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False) #SOME BAD LINES IN THIS DATA
+            self.train.columns = ['id', 'sentence1', 'sentence2', 'label']
+            self.train.label = np.where(self.train.label == 'entailment', 1, 0)
+
+        if self.type == 'dev':
+            # initialize dev
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False)
+            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
+            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
+            self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()
+
+class MSR(TwoSentenceLoader):
+    NAME = 'MSR'
+    def __init__(self, type, transform = None):
+        '''
+        Example line:
+        index	question	sentence	label
+        0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
+        1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
+
+        This prepares the RTE task from GLUE
+        '''
+
+        self.path = 'C:\w266\data\GLUE\Microsoft Research Paraphrase Corpus'
+        self.type = type
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'msr_paraphrase_train.txt', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False,
+                                     quoting = csv.QUOTE_NONE) #SOME BAD LINES IN THIS DATA
+
+            self.train.columns = ['label', 'id', 'NoneField', 'sentence1', 'sentence2']
+
+        if self.type == 'dev':
+            # initialize dev
+            self.dev = pd.read_csv(self.path + '\\' + 'msr_paraphrase_test.txt', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False,
+                                     quoting = csv.QUOTE_NONE)
+
+            self.dev.columns = ['label', 'id', 'NoneField', 'sentence1', 'sentence2']
 
         # initialize the transform if specified
         if transform:
