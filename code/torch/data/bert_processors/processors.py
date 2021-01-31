@@ -305,3 +305,48 @@ class QQPairs(torch.utils.data.Dataset):
             if self.transform:
                 sample = self.transform(sample)
             return sample
+
+class STSB(TwoSentenceLoader):
+    NAME = 'STSB'
+    def __init__(self, type, transform = None):
+        '''
+        Example line:
+        index	genre	filename	year	old_index	source1	source2	sentence1	sentence2	score
+        0	main-captions	MSRvid	2012test	0001	none	none	A plane is taking off.	An air plane is taking off.	5.000
+        1	main-captions	MSRvid	2012test	0004	none	none	A man is playing a large flute.	A man is playing a flute.	3.800
+        2	main-captions	MSRvid	2012test	0005	none	none	A man is spreading shreded cheese on a pizza.	A man is spreading shredded cheese on an uncooked pizza.	3.800
+        3	main-captions	MSRvid	2012test	0006	none	none	Three men are playing chess.	Two men are playing chess.	2.600
+        4	main-captions	MSRvid	2012test	0009	none	none	A man is playing the cello.	A man seated is playing the cello.	4.250
+
+        This prepares the STSB task from GLUE
+        '''
+
+        self.path = 'C:\\w266\\data\\GLUE\\Semantic Textual Similarity Benchmark\\STS-B'
+        self.type = type
+        # STS-B columns
+        __cols = ['id','genre','filename','year','old_index','source1','source2','sentence1','sentence2','label']
+        __dtypes = {'score':np.float16, 'index':np.int16}
+
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t', encoding='latin-1',
+                                     error_bad_lines=False, warn_bad_lines=False, dtype = __dtypes,
+                                     quoting=csv.QUOTE_NONE)
+            self.train.columns = __cols
+            self.train = self.train[['id','sentence1','sentence2','label']]
+            self.train.label = self.train.label.to_numpy(dtype=np.float16)
+
+        if self.type == 'dev':
+            # initialize dev
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t', encoding='latin-1',
+                                     error_bad_lines=False, warn_bad_lines=False, dtype = __dtypes,
+                                     quoting=csv.QUOTE_NONE)
+            self.dev.columns = __cols
+            self.dev = self.dev[['id','sentence1','sentence2','label']]
+            self.dev.label = self.dev.label.to_numpy(dtype=np.float16)
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()

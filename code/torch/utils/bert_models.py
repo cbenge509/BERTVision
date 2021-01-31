@@ -38,3 +38,23 @@ class RTE_model(torch.nn.Module):
         self.logits = x
         self.loss = self.loss_fct(x, labels)
         return self
+
+class STSB_model(torch.nn.Module):
+    '''Semantic Textual Similarity Benchmark (STS-B) Model
+       ref: http://ixa2.si.ehu.eus/stswiki/index.php/STSbenchmark'''
+
+    def __init__(self, dropout_rate, hidden_state_size):
+        super(STSB_model, self).__init__()
+        self.bert = BertModel.from_pretrained('bert-base-uncased').cuda()
+        self.dropout = nn.Dropout(dropout_rate).cuda()
+        self.cls = nn.Linear(hidden_state_size, 1).cuda()
+        self.loss_fct = torch.nn.MSELoss().cuda()
+
+    def forward(self, input_ids, attention_mask, token_type_ids, labels):
+        x = self.bert(input_ids = input_ids, attention_mask = attention_mask, token_type_ids = token_type_ids)
+        x = x[1] #pull out cls token
+        x = self.dropout(x)
+        x = self.cls(x).squeeze(-1)
+        self.logits = x
+        self.loss = self.loss_fct(x, labels).type(torch.float64)
+        return self
