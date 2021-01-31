@@ -39,6 +39,65 @@ class RTE_model(torch.nn.Module):
         self.loss = self.loss_fct(x, labels)
         return self
 
+class MNLI(TwoSentenceLoader):
+    NAME = 'MNLI'
+    def __init__(self, type, transform = None):
+        '''
+        Line header:
+        index	promptID	pairID	genre	sentence1_binary_parse	sentence2_binary_parse	sentence1_parse	sentence2_parse	sentence1	sentence2	label1	gold_label
+
+        This prepares the RTE task from GLUE
+        '''
+
+        self.path = 'C:\w266\data\GLUE\MultiNLI (Matched and Mismatched)\MNLI'
+        self.type = type
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False,
+                                     quoting = csv.QUOTE_NONE) #SOME BAD LINES IN THIS DATA
+
+            self.train.columns = ['id', 'promptID', 'pairID', 'genre', 'sentence1_binary_parse', 'sentence2_binary_parse',
+                                  'sentence1_parse', 'sentence2_parse', 'sentence1', 'sentence2', 'label1', 'gold_label']
+            #Three labels: entailment neutral contradiction
+            label_map = {'neutral':0,
+                         'entailment':1,
+                         'contradiction':2}
+            self.train['label'] = [label_map[i] for i in self.train.gold_label]
+
+        else:
+            if self.type == 'dev_matched':
+                # initialize dev (dev_matched set)
+                self.dev = pd.read_csv(self.path + '\\' + 'dev_matched.tsv', sep='\t',
+                                         #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                         encoding='latin-1',
+                                         error_bad_lines=False,
+                                         quoting = csv.QUOTE_NONE)
+            else:
+                self.dev = pd.read_csv(self.path + '\\' + 'dev_mismatched.tsv', sep='\t',
+                                         #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                         encoding='latin-1',
+                                         error_bad_lines=False,
+                                         quoting = csv.QUOTE_NONE)
+
+            self.dev.columns = ['id', 'promptID', 'pairID', 'genre', 'sentence1_binary_parse', 'sentence2_binary_parse',
+                                  'sentence1_parse', 'sentence2_parse', 'sentence1', 'sentence2',
+                                  'label1', 'label2', 'label3', 'label4', 'label5', 'gold_label']
+            #Three labels: entailment neutral contradiction
+            label_map = {'neutral':0,
+                         'entailment':1,
+                         'contradiction':2}
+            self.dev['label'] = [label_map[i] for i in self.dev.gold_label]
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()
+
+    
 class STSB_model(torch.nn.Module):
     '''Semantic Textual Similarity Benchmark (STS-B) Model
        ref: http://ixa2.si.ehu.eus/stswiki/index.php/STSbenchmark'''
@@ -54,6 +113,10 @@ class STSB_model(torch.nn.Module):
         x = self.bert(input_ids = input_ids, attention_mask = attention_mask, token_type_ids = token_type_ids)
         x = x[1] #pull out cls token
         x = self.dropout(x)
+        x = self.cls(x)
+        self.logits = x
+        self.loss = self.loss_fct(x, labels)
+        return self
         x = self.cls(x).squeeze(-1)
         self.logits = x
         self.loss = self.loss_fct(x, labels).type(torch.float64)

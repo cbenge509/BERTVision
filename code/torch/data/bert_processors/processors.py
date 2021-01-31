@@ -66,7 +66,7 @@ class Tokenize_Transform():
                                                    dtype=torch.long),
 
                 'labels': torch.as_tensor(sample['label'],
-                                          dtype=torch.float),
+                                          dtype=torch.long),
 
                 'idx': torch.as_tensor(sample['idx'],
                                        dtype=torch.int)}
@@ -85,7 +85,7 @@ class TwoSentenceLoader(torch.utils.data.Dataset):
         if self.type == 'train':
             return len(self.train)
 
-        if self.type == 'dev':
+        if 'dev' in self.type:
             return len(self.dev)
 
     # pull a sample of data
@@ -103,17 +103,25 @@ class TwoSentenceLoader(torch.utils.data.Dataset):
                       'label': self.train.label[idx],
                       'idx': self.train.id[idx]}
             if self.transform:
-                sample = self.transform(sample)
+                try:
+                    sample = self.transform(sample)
+                except:
+                    print(sample)
+                    raise RuntimeError("See train misformed sample")
             return sample
 
         # if dev, package this
-        if self.type == 'dev':
+        if 'dev' in self.type:
             sample = {'text': self.dev.sentence1[idx],
                       'text2': self.dev.sentence2[idx],
                       'label': self.dev.label[idx],
                       'idx': self.dev.id[idx]}
             if self.transform:
-                sample = self.transform(sample)
+                try:
+                    sample = self.transform(sample)
+                except:
+                    print(sample)
+                    raise RuntimeError("See dev misformed sample")
             return sample
 
 class RTE(TwoSentenceLoader):
@@ -386,6 +394,58 @@ class QQPairs(torch.utils.data.Dataset):
                 sample = self.transform(sample)
             return sample
 
+class MNLI(TwoSentenceLoader):
+    NAME = 'MNLI'
+    def __init__(self, type, transform = None):
+        '''
+        Line header:
+        index	promptID	pairID	genre	sentence1_binary_parse	sentence2_binary_parse	sentence1_parse	sentence2_parse	sentence1	sentence2	label1	gold_label
+
+        This prepares the RTE task from GLUE
+        '''
+
+        self.path = 'C:\w266\data\GLUE\MultiNLI (Matched and Mismatched)\MNLI'
+        self.type = type
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1',
+                                     error_bad_lines=False,
+                                     quoting = csv.QUOTE_NONE) #SOME BAD LINES IN THIS DATA
+
+            self.train.columns = ['id', 'promptID', 'pairID', 'genre', 'sentence1_binary_parse', 'sentence2_binary_parse',
+                                  'sentence1_parse', 'sentence2_parse', 'sentence1', 'sentence2', 'label1', 'gold_label']
+            #Three labels: entailment neutral contradiction
+            label_map = {'neutral':0,
+                         'entailment':1,
+                         'contradiction':2}
+            self.train['label'] = [label_map[i] for i in self.train.gold_label]
+
+        else:
+            if self.type == 'dev_matched':
+                # initialize dev (dev_matched set)
+                self.dev = pd.read_csv(self.path + '\\' + 'dev_matched.tsv', sep='\t',
+                                         #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                         encoding='latin-1',
+                                         error_bad_lines=False,
+                                         quoting = csv.QUOTE_NONE)
+            else:
+                self.dev = pd.read_csv(self.path + '\\' + 'dev_mismatched.tsv', sep='\t',
+                                         #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                         encoding='latin-1',
+                                         error_bad_lines=False,
+                                         quoting = csv.QUOTE_NONE)
+
+            self.dev.columns = ['id', 'promptID', 'pairID', 'genre', 'sentence1_binary_parse', 'sentence2_binary_parse',
+                                  'sentence1_parse', 'sentence2_parse', 'sentence1', 'sentence2',
+                                  'label1', 'label2', 'label3', 'label4', 'label5', 'gold_label']
+            #Three labels: entailment neutral contradiction
+            label_map = {'neutral':0,
+                         'entailment':1,
+                         'contradiction':2}
+            self.dev['label'] = [label_map[i] for i in self.dev.gold_label]
+            
 class STSB(TwoSentenceLoader):
     NAME = 'STSB'
     def __init__(self, type, transform = None):

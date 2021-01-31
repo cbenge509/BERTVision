@@ -53,13 +53,13 @@ class BertClassEvaluator(object):
         self.nb_dev_steps = 0
         self.nb_dev_examples = 0
 
-    def get_loss(self):
+    def get_loss(self, t = 'dev'):
         '''
         This function prepares the data and handles the validation set testing.
         '''
         # instantiate dev set processor
         self.dev_examples = self.processor(
-                                           type='dev'
+                                           type=t
                                            )
         # craete dev set data loader
         dev_dataloader = DataLoader(self.dev_examples,
@@ -96,6 +96,8 @@ class BertClassEvaluator(object):
 
                 # preds
             pred = out.logits#.max(1)[1]  # get the index of the max log-probability
+            if len(pred.shape) > 1 and pred.shape[1] > 1:
+                pred = torch.argmax(pred, dim = 1)
 
             # loss
             if self.args.n_gpu > 1:
@@ -118,6 +120,7 @@ class BertClassEvaluator(object):
             self.nb_dev_steps += 1
 
         # metrics
+        #print(predicted_labels, target_labels)
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels, dtype = int)
         def sigmoid_threshold(x, threshold = 0.5):
             return np.array(1 / (1 + np.exp(-x)) > threshold, dtype = int)
