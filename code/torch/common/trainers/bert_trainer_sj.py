@@ -142,26 +142,42 @@ class BertClassTrainer(object):
             log['train_loss'].append(self.train_epoch(train_dataloader))
             # get dev loss
             #dev_acc, dev_precision, dev_recall, dev_f1, dev_loss
-            metric = BertClassEvaluator(self.model, self.processor, self.args).get_loss()
-            log['metric'].append(metric)
-            # print validation results
-            tqdm.write(self.log_header)
-            tqdm.write(str(epoch)+ ": " + str(metric))
-            torch.save(self.model, self.snapshot_path + '_epoch' + str(epoch) + '.pt')
-            # update validation results
-            if metric > self.metric:
-                self.unimproved_iters = 0
-                self.metric = metric
-                torch.save(self.model, self.snapshot_path)
+            if self.processor.NAME != 'MNLI':
+                metric = BertClassEvaluator(self.model, self.processor, self.args).get_loss()
+                log['metric'].append(metric)
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(str(epoch)+ ": " + str(metric))
+                torch.save(self.model, self.snapshot_path + '_epoch' + str(epoch) + '.pt')
+                # update validation results
+                if metric > self.metric:
+                    self.unimproved_iters = 0
+                    self.metric = metric
+                    torch.save(self.model, self.snapshot_path)
 
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    self.unimproved_iters = 0
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.metric))
+                        break
             else:
-                # stop training with early stopping
-                self.unimproved_iters += 1
-                self.unimproved_iters = 0
-                if self.unimproved_iters >= self.args.patience:
-                    self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.metric))
-                    break
+                print('eval is MNLI')
+                metric = BertClassEvaluator(self.model, self.processor, self.args).get_loss('dev_matched')
+                log['metric'].append(metric)
+                tqdm.write(self.log_header)
+                tqdm.write(str(epoch)+ ": " + str(metric))
+
+                metric_2 = BertClassEvaluator(self.model, self.processor, self.args).get_loss('dev_mismatched')
+                if 'second_metric' not in log:
+                    log['second_metric'] = [metric_2]
+                else:
+                    log['second_metric'].append(metric_2)
+                tqdm.write(self.log_header)
+                tqdm.write(str(epoch)+ ": " + str(metric))
+                torch.save(self.model, self.snapshot_path + '_epoch' + str(epoch) + '.pt')
         print(log)
 
 #
