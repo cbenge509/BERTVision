@@ -147,7 +147,7 @@ class BertClassTrainer(object):
             # print validation results
             tqdm.write(self.log_header)
             tqdm.write(str(epoch)+ ": " + str(metric))
-
+            torch.save(self.model, self.snapshot_path + '_epoch' + str(epoch) + '.pt')
             # update validation results
             if metric > self.metric:
                 self.unimproved_iters = 0

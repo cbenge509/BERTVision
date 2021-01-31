@@ -300,7 +300,7 @@ class QQPairs(torch.utils.data.Dataset):
         if self.type == 'dev':
             sample = {'text': self.dev.question1[idx],
                       'text2': self.dev.question2[idx],
-                      'is_duplicate': self.dev.is_duplicate[idx],
+                      'label': self.dev.is_duplicate[idx],
                       'idx': self.dev.id[idx]}
             if self.transform:
                 sample = self.transform(sample)
