@@ -52,3 +52,10 @@ python -m models.qnli --dataset SST --model QNLI --num-workers 0 --batch-size 16
 | ----------- | ----------- |
 | 0.895 (epoch 2)      | 0.927       |
 | 0.904 (epoch 3)   |         |
+
+QQPairs -- Accuracy
+
+| BERT-Base Dev (Us)      | BERT-Large Reported |
+| ----------- | ----------- |
+| 0.908 (epoch 2)      | 0.893       |
+| 0.911 (epoch 3)   |         |
