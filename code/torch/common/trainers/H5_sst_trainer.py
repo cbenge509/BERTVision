@@ -128,7 +128,7 @@ class H5_SST_Trainer(object):
                                       batch_size=self.args.batch_size,
                                       shuffle=True,
                                       num_workers=self.args.num_workers,
-                                      drop_last=True,  # need to swap to False; find error
+                                      drop_last=False,  # need to swap to False; find error
                                       collate_fn=collate_H5_SST)
         # for each epoch
         for epoch in trange(int(self.args.epochs), desc="Epoch"):

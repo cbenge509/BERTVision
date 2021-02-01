@@ -54,7 +54,7 @@ class H5_SST_Evaluator(object):
                                     batch_size=self.args.batch_size,
                                     shuffle=True,
                                     num_workers=self.args.num_workers,
-                                    drop_last=True,
+                                    drop_last=False,
                                     collate_fn=collate_H5_SST)
 
         # set the model to evaluation
