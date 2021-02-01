@@ -1,7 +1,7 @@
 # packages
 from argparse import ArgumentParser
 import sys
-sys.path.append("C:/utils/utils")
+sys.path.append("C:/BERTVision/code/torch")
 from tools import AverageMeter, ProgressBar, format_time
 from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import get_linear_schedule_with_warmup, AdamW
