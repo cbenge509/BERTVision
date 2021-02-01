@@ -168,7 +168,7 @@ class SST_AP(torch.nn.Module):
         # reshape to [batch_sz, tokens, tokens*layers]
         x = torch.reshape(x, shape=(-1, self.n_tokens, self.n_tokens*self.n_layers))
         # reshape again to combine dimensions
-        x = x.view(16, -1)  # [batch_sz, tokens*tokens*layers]
+        x = x.view(-1, self.n_tokens*self.n_tokens*self.n_layers)  # [batch_sz, tokens*tokens*layers]
         # output layer
         x = self.linear1(x)  # [batch_sz, num_labels]
         return x
