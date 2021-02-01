@@ -96,8 +96,10 @@ class BertClassEvaluator(object):
 
                 # preds
             pred = out.logits#.max(1)[1]  # get the index of the max log-probability
+            apply_sigmoid = True
             if len(pred.shape) > 1 and pred.shape[1] > 1:
                 pred = torch.argmax(pred, dim = 1)
+                apply_sigmoid = False
 
             # loss
             if self.args.n_gpu > 1:
@@ -124,7 +126,9 @@ class BertClassEvaluator(object):
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels, dtype = int)
         def sigmoid_threshold(x, threshold = 0.5):
             return np.array(1 / (1 + np.exp(-x)) > threshold, dtype = int)
-        predicted_labels = sigmoid_threshold(predicted_labels)
+        if apply_sigmoid:
+            predicted_labels = sigmoid_threshold(predicted_labels)
+        print(predicted_labels, target_labels)
         accuracy = sum(target_labels == predicted_labels) / len(target_labels)
         #accuracy = metrics.accuracy_score(target_labels, predicted_labels)
         #precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
