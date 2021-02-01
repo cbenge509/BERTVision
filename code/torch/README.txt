@@ -20,7 +20,8 @@ python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 -
 ### SST-5 on BERT for SequenceClassification
 python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5 --is-multilabel
 
-
+### AdapterPooler SST-2 for SequenceClassification
+python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5
 
 # some results
 
