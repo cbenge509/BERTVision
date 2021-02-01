@@ -7,7 +7,7 @@ from models.sst.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup, BertConfig
+from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from torch.cuda.amp import GradScaler
 
 

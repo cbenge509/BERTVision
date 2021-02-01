@@ -1,7 +1,7 @@
 # packages
 from argparse import ArgumentParser
 import sys
-sys.path.append("C:/utils/utils")
+sys.path.append("C:/BERTVision/code/torch")
 from tools import AverageMeter, ProgressBar, format_time
 from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import get_linear_schedule_with_warmup, AdamW
@@ -18,7 +18,8 @@ import numpy as np
 
 
 # prepare torch data set
-class SST5DataSet(torch.utils.data.Dataset):
+
+class SSTProcessor(torch.utils.data.Dataset):
     '''
     This prepares the official Stanford Sentiment Treebank
     (https://nlp.stanford.edu/~socherr/EMNLP2013_RNTN.pdf) for traininig
@@ -26,7 +27,7 @@ class SST5DataSet(torch.utils.data.Dataset):
 
     Parameters
     ----------
-    is_finegrained : flag
+    is_multilabel : flag
         Whether or not we should do 5-label or 2-label sentiment analysis
 
     transform : optionable, callable flag
@@ -38,62 +39,91 @@ class SST5DataSet(torch.utils.data.Dataset):
         A dictionary containing: (1) text, (2) labels,
         and index positions
     '''
-    def __init__(self, is_finegrained=True, transform=None):
-        self.path = 'C:\\utils\\data\\sst'
+
+    NAME = 'SST'
+
+    def __init__(self, type, transform=None):
+        # set path for data
+        self.path = 'C:\\BERTVision\\code\\torch\\data\\data_sets\\sst\\trees'
         # initialize flag; set false for binary classification
-        self.is_finegrained = is_finegrained
+        self.is_multilabel = False
+        # flag for multilabel
+        if self.is_multilabel == True:
+            # then set the labels
+            self.num_labels = 5
+        else:
+            self.num_labels = 2
         # binary categories: 1 and 3 only
         self.binary = [1, 3]
-        # set sst path
-        dataset = pytreebank.load_sst(self.path)
+        # set type; train or dev?
+        self.type = type
 
-        # prase train test dev
-        for category in ['train', 'test', 'dev']:
-            with open(self.path + '\\' + 'sst_{}.txt'.format(category), 'w') as outfile:
-                for item in dataset[category]:
-                    outfile.write("{}\t{}\n".format(
-                        item.to_labeled_lines()[0][0],
-                        item.to_labeled_lines()[0][1]))
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'sst_train.txt', sep='\t',
+                                     header=None, names=['label', 'text'],
+                                     encoding='latin-1')
 
-        # initialize train
-        self.train = pd.read_csv(self.path + '\\' + 'sst_train.txt', sep='\t',
-                                 header=None, names=['label', 'text'],
-                                 encoding='latin-1')
+            # filter if fine_grained
+            if self.is_multilabel is False:
+                self.train = self.train.loc[self.train['label'].isin(self.binary)].reset_index(drop=True)
+                # map to binary then: 0, 1
+                self.train['label'] = self.train['label'].map({1: 0, 3: 1})
 
-        # filter if fine_grained
-        if self.is_finegrained is False:
-            self.train = self.train.loc[self.train['label'].isin(self.binary)].reset_index(drop=True)
+        if self.type == 'dev':
+            # initialize dev
+            self.dev = pd.read_csv(self.path + '\\' + 'sst_dev.txt', sep='\t',
+                                     header=None, names=['label', 'text'],
+                                     encoding='latin-1')
 
-            # map to binary then: 0, 1
-            self.train['label'] = self.train['label'].map({1: 0, 3: 1})
+            # filter if fine_grained
+            if self.is_multilabel is False:
+                self.dev = self.dev.loc[self.dev['label'].isin(self.binary)].reset_index(drop=True)
+                # map to binary then: 0, 1
+                self.dev['label'] = self.dev['label'].map({1: 0, 3: 1})
+
 
         # initialize the transform if specified
         self.transform = transform
 
     # get len
     def __len__(self):
-        return len(self.train)
+        if self.type == 'train':
+            return len(self.train)
+
+        if self.type == 'dev':
+            return len(self.dev)
 
     # pull a sample of data
     def __getitem__(self, idx):
+        '''
+        Torch's lazy emission system
+        '''
         if torch.is_tensor(idx):
             idx = idx.tolist()
-            print(idx)
 
-        # return train, dev, test
-        sample = {'text': self.train.text[idx],
+        # if train, package this up
+        if self.type == 'train':
+            sample = {'text': self.train.text[idx],
                   'label': self.train.label[idx],
                   'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
 
-        if self.transform:
-            sample = self.transform(sample)
-
-        return sample
+        # if dev, package this
+        if self.type == 'dev':
+            sample = {'text': self.dev.text[idx],
+                  'label': self.dev.label[idx],
+                  'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
 
 
 class Tokenize_Transform():
     '''
-    This function tokenize transforms the data organized in SST5DataSet().
+    This function tokenize transforms the data organized in SSTProcessor().
 
     Parameters
     ----------
@@ -105,7 +135,7 @@ class Tokenize_Transform():
     -------
     sample : dict
         A dictionary containing: (1) input tokens, (2) attention masks,
-        (3) labels, and (4) data set index.
+        (3) token type ids, (4) labels, and (5) data set index.
     '''
     def __init__(self, tokenizer):
         # instantiate the tokenizer
@@ -117,7 +147,7 @@ class Tokenize_Transform():
         encodings = self.tokenizer(
                             sample['text'],  # document to encode.
                             add_special_tokens=True,  # add '[CLS]' and '[SEP]'
-                            max_length=64,  # set max length
+                            max_length=64,  # set max length; SST is 64
                             truncation=True,  # truncate longer messages
                             padding='max_length',  # add padding
                             return_attention_mask=True,  # create attn. masks
@@ -128,10 +158,13 @@ class Tokenize_Transform():
         return {'input_ids': torch.as_tensor(encodings['input_ids'],
                                          dtype=torch.long),
 
-                'attn_mask': torch.as_tensor(encodings['attention_mask'],
+                'attention_mask': torch.as_tensor(encodings['attention_mask'],
                                           dtype=torch.long),
 
-                'label': torch.as_tensor(sample['label'],
+                 'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
+                                                   dtype=torch.long),
+
+                'labels': torch.as_tensor(sample['label'],
                                           dtype=torch.long),
 
                 'idx': torch.as_tensor(sample['idx'],
@@ -147,14 +180,18 @@ def train(model, dataloader, scaler, optimizer, device):
     count = 0
     model.train()
     for batch_idx, batch in enumerate(dataloader):
-        input_ids, attn_mask, label = (batch['input_ids'].to(device),
-                                       batch['attn_mask'].to(device),
-                                       batch['label'].to(device))
+        input_ids, attn_mask, token_type_ids, label, idx = (batch['input_ids'].to(device),
+                                       batch['attention_mask'].to(device),
+                                       batch['token_type_ids'].to(device),
+                                       batch['labels'].to(device),
+                                       batch['idx'].to(device))
         optimizer.zero_grad()
         with autocast():
             out = model(input_ids=input_ids.squeeze(1),
                         attention_mask=attn_mask.squeeze(1),
+                        token_type_ids=token_type_ids.squeeze(1),
                         labels=label)
+
         pred = out['logits'].argmax(dim=1, keepdim=True)
         correct = pred.eq(label.view_as(pred)).sum().item()
         f1 = f1_score(pred.cpu().numpy(), label.cpu().numpy(), average='weighted')
@@ -175,34 +212,39 @@ def train(model, dataloader, scaler, optimizer, device):
 def emit_embeddings(dataloader, train_dataset, model, device, args):
     # timing metrics
     t0 = time.time()
-    batch_num = args.batch_size
+    batch_num = 20
+    embedding_batch_size = 20 # needs to perfectly divide data set
     num_documents = len(train_dataset)
     # set a manipulable var to handle any batch size
     train_len = len(train_dataset)
-    # check whether or not batch is divisible.
-    if len(train_dataset) % args.batch_size != 0:
-        remainder = len(train_dataset) % args.batch_size
-        train_len = len(train_dataset) - remainder
 
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(train_len, 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
-                                chunks=(args.batch_size, 13, args.max_seq_length, 768),
+                                chunks=(embedding_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(train_len,),
-                                      maxshape=(None,), chunks=(args.batch_size,),
+                                      maxshape=(None,), chunks=(embedding_batch_size,),
+                                      dtype=np.int64)
+
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'w') as i:
+        # create empty data set; [batch_sz]
+        idx_dset = i.create_dataset('idx', shape=(train_len,),
+                                      maxshape=(None,), chunks=(embedding_batch_size,),
                                       dtype=np.int64)
 
     print('Generating embeddings for all {:,} documents...'.format(len(train_dataset)))
     for step, batch in enumerate(dataloader):
         # send necessary items to GPU
-        input_ids, attn_mask, label = (batch['input_ids'].to(device),
-                                       batch['attn_mask'].to(device),
-                                       batch['label'].to(device))
+        input_ids, attn_mask, token_type_ids, label, idx = (batch['input_ids'].to(device),
+                                       batch['attention_mask'].to(device),
+                                       batch['token_type_ids'].to(device),
+                                       batch['labels'].to(device),
+                                       batch['idx'].to(device))
 
         if step % 20 == 0 and not batch_num == 0:
             # calc elapsed time
@@ -219,6 +261,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             # ['hidden_states'] is embeddings for all layers
             out = model(input_ids=input_ids.squeeze(1),
                         attention_mask=attn_mask.squeeze(1),
+                        token_type_ids=token_type_ids.squeeze(1),
                         labels=label)
 
         # stack embeddings [layers, batch_sz, tokens, features]
@@ -231,25 +274,35 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
-            start = step*args.batch_size
+            start = step*embedding_batch_size
             # [batch_sz, layer, tokens, features]
-            dset[start:start+args.batch_size, :, :, :] = embeddings[:, :, :, :]
+            dset[start:start+embedding_batch_size, :, :, :] = embeddings[:, :, :, :]
             # Create attribute with last_index value
-            dset.attrs['last_index'] = (step+1)*args.batch_size
+            dset.attrs['last_index'] = (step+1)*embedding_batch_size
             # check the integrity of the embeddings
-            x = f['embeds'][start:start+args.batch_size, :, :, :]
+            x = f['embeds'][start:start+embedding_batch_size, :, :, :]
 
         # add labels to ds
         with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'a') as l:
             label_dset = l['labels']
             # add chunk of rows
-            start = step*args.batch_size
+            start = step*embedding_batch_size
             # [batch_sz, layer, tokens, features]
-            label_dset[start:start+args.batch_size] = label.cpu().numpy()
+            label_dset[start:start+embedding_batch_size] = label.cpu().numpy()
             # Create attribute with last_index value
-            label_dset.attrs['last_index'] = (step+1)*args.batch_size
+            label_dset.attrs['last_index'] = (step+1)*embedding_batch_size
 
-        batch_num += args.batch_size
+        # add idx to ds
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'a') as i:
+            idx_dset = i['idx']
+            # add chunk of rows
+            start = step*embedding_batch_size
+            # [batch_sz, layer, tokens, features]
+            idx_dset[start:start+embedding_batch_size] = idx.cpu().numpy()
+            # Create attribute with last_index value
+            idx_dset.attrs['last_index'] = (step+1)*embedding_batch_size
+
+        batch_num += embedding_batch_size
         torch.cuda.empty_cache()
 
     # check data
@@ -268,15 +321,15 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
 
 def main():
     # training settings
-    parser = ArgumentParser(description='SST5 Sentiment')
+    parser = ArgumentParser(description='SST2 Sentiment')
     parser.add_argument('--tokenizer', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
     parser.add_argument('--model', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
-    parser.add_argument('--batch-size', type=int, default=16, metavar='N',
-                         help='input batch size for training (default: 16)')
+    parser.add_argument('--batch-size', type=int, default=20, metavar='N',
+                         help='input batch size for training (default: 20)')
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                          help='number of epochs to train (default: 1)')
     parser.add_argument('--lr', type=float, default=1e-5, metavar='LR',
@@ -285,10 +338,10 @@ def main():
                          help='random seed (default: 1)')
     parser.add_argument('--num-workers', type=int, default=4, metavar='N',
                          help='number of CPU cores (default: 4)')
-    parser.add_argument('--num-labels', type=int, default=5, metavar='N',
-                         help='number of labels to classify (default: 5)')
-    parser.add_argument('--l2', type=float, default=1.0, metavar='LR',
-                         help='l2 regularization weight (default: 1.0)')
+    parser.add_argument('--num-labels', type=int, default=2, metavar='N',
+                         help='number of labels to classify (default: SST-2)')
+    parser.add_argument('--l2', type=float, default=0.01, metavar='LR',
+                         help='l2 regularization weight (default: 0.01)')
     parser.add_argument('--max-seq-length', type=int, default=64, metavar='N',
                          help='max sequence length for encoding (default: 64)')
     args = parser.parse_args()
@@ -305,14 +358,23 @@ def main():
     tokenizer = BertTokenizerFast.from_pretrained(args.tokenizer)
 
     # build df
-    train_ds = SST5DataSet(is_finegrained=True, transform=Tokenize_Transform(tokenizer=tokenizer))
+    train_ds = SSTProcessor(type='train',
+                            transform=Tokenize_Transform(tokenizer=tokenizer))
 
     # create training dataloader
     train_dataloader = DataLoader(train_ds,
                                   batch_size=args.batch_size,
                                   shuffle=True,
                                   num_workers=args.num_workers,
-                                  drop_last=True)
+                                  drop_last=False)
+
+    # create embed dataloader
+    embed_dataloader = DataLoader(train_ds,
+                                batch_size=10,
+                                shuffle=True,
+                                num_workers=args.num_workers,
+                                drop_last=False)
+
 
     # load the model
     model = BertForSequenceClassification.from_pretrained(args.model,
@@ -321,11 +383,22 @@ def main():
     # create gradient scaler for mixed precision
     scaler = GradScaler()
 
-    # create optimizer with L2
-    optimizer = AdamW(model.parameters(),
-                      lr=args.lr,
-                      weight_decay=args.l2,
-                      )
+    # set optimizer
+    param_optimizer = list(model.named_parameters())
+
+    # exclude these from regularization
+    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+    # give l2 regularization to any parameter that is not named after no_decay list
+    # give no l2 regulariation to any bias parameter or layernorm bias/weight
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+
+    # set optimizer
+    optimizer = AdamW(optimizer_grouped_parameters,
+                              lr=args.lr,
+                              correct_bias=False,
+                              weight_decay=args.l2)
 
     # set epochs
     epochs = args.epochs
@@ -350,7 +423,7 @@ def main():
     model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-sst_epoch_1.pt'))
 
     # export embeddings
-    emit_embeddings(train_dataloader, train_ds, model, device, args)
+    emit_embeddings(embed_dataloader, train_ds, model, device, args)
 
 # run program
 if __name__ == '__main__':
