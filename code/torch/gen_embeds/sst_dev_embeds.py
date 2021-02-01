@@ -170,68 +170,30 @@ class Tokenize_Transform():
                 'idx': torch.as_tensor(sample['idx'],
                                        dtype=torch.int)}
 
-
-# train function
-def train(model, dataloader, scaler, optimizer, device):
-    pbar = ProgressBar(n_total=len(dataloader), desc='Training')
-    train_loss = AverageMeter()
-    train_acc = AverageMeter()
-    train_f1 = AverageMeter()
-    count = 0
-    model.train()
-    for batch_idx, batch in enumerate(dataloader):
-        input_ids, attn_mask, token_type_ids, label, idx = (batch['input_ids'].to(device),
-                                       batch['attention_mask'].to(device),
-                                       batch['token_type_ids'].to(device),
-                                       batch['labels'].to(device),
-                                       batch['idx'].to(device))
-        optimizer.zero_grad()
-        with autocast():
-            out = model(input_ids=input_ids.squeeze(1),
-                        attention_mask=attn_mask.squeeze(1),
-                        token_type_ids=token_type_ids.squeeze(1),
-                        labels=label)
-
-        pred = out['logits'].argmax(dim=1, keepdim=True)
-        correct = pred.eq(label.view_as(pred)).sum().item()
-        f1 = f1_score(pred.cpu().numpy(), label.cpu().numpy(), average='weighted')
-        scaler.scale(out['loss']).backward()
-        scaler.step(optimizer)
-        scaler.update()
-        count += input_ids.size(0)
-        pbar(step=batch_idx, info={'loss': out['loss'].item()})
-        train_loss.update(out['loss'].item(), n=1)
-        train_f1.update(f1, n=input_ids.size(0))
-        train_acc.update(correct, n=1)
-    return {'loss': train_loss.avg,
-            'acc': train_acc.sum / count,
-            'f1': train_f1.avg}
-
-
 # prepare embedding extraction
 def emit_embeddings(dataloader, train_dataset, model, device, args):
     # timing metrics
     t0 = time.time()
-    batch_num = 20
-    embedding_batch_size = 20 # needs to perfectly divide data set
+    batch_num = 2
+    embedding_batch_size = 2 # needs to perfectly divide data set
     num_documents = len(train_dataset)
     # set a manipulable var to handle any batch size
     train_len = len(train_dataset)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'w') as f:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(train_len, 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
                                 chunks=(embedding_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'w') as l:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(train_len,),
                                       maxshape=(None,), chunks=(embedding_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'w') as i:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
         idx_dset = i.create_dataset('idx', shape=(train_len,),
                                       maxshape=(None,), chunks=(embedding_batch_size,),
@@ -271,7 +233,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'a') as f:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_bert_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
             start = step*embedding_batch_size
@@ -283,7 +245,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             x = f['embeds'][start:start+embedding_batch_size, :, :, :]
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'a') as l:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_labels.h5', 'a') as l:
             label_dset = l['labels']
             # add chunk of rows
             start = step*embedding_batch_size
@@ -293,7 +255,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             label_dset.attrs['last_index'] = (step+1)*embedding_batch_size
 
         # add idx to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'a') as i:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_idx.h5', 'a') as i:
             idx_dset = i['idx']
             # add chunk of rows
             start = step*embedding_batch_size
@@ -306,12 +268,12 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'r') as f:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_bert_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         print('embed shape', f['embeds'].shape)
         print('last entry:', f['embeds'][-1, :, :, :])
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'r') as l:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_dev_labels.h5', 'r') as l:
         print('last embed batch entry', l['labels'].attrs['last_index'])
         print('embed shape', l['labels'].shape)
         print('last entry:', l['labels'][train_len-10: train_len])
@@ -328,8 +290,8 @@ def main():
     parser.add_argument('--model', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
-    parser.add_argument('--batch-size', type=int, default=20, metavar='N',
-                         help='input batch size for training (default: 20)')
+    parser.add_argument('--batch-size', type=int, default=2, metavar='N',
+                         help='input batch size for training (default: 2)')
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                          help='number of epochs to train (default: 1)')
     parser.add_argument('--lr', type=float, default=1e-5, metavar='LR',
@@ -358,19 +320,12 @@ def main():
     tokenizer = BertTokenizerFast.from_pretrained(args.tokenizer)
 
     # build df
-    train_ds = SSTProcessor(type='train',
+    dev_ds = SSTProcessor(type='dev',
                             transform=Tokenize_Transform(tokenizer=tokenizer))
 
-    # create training dataloader
-    train_dataloader = DataLoader(train_ds,
-                                  batch_size=args.batch_size,
-                                  shuffle=True,
-                                  num_workers=args.num_workers,
-                                  drop_last=False)
-
     # create embed dataloader
-    embed_dataloader = DataLoader(train_ds,
-                                batch_size=10,
+    embed_dataloader = DataLoader(dev_ds,
+                                batch_size=args.batch_size,
                                 shuffle=True,
                                 num_workers=args.num_workers,
                                 drop_last=False)
@@ -378,52 +333,17 @@ def main():
 
     # load the model
     model = BertForSequenceClassification.from_pretrained(args.model,
-                                                          num_labels=args.num_labels).to(device)
+                                                          num_labels=args.num_labels,
+                                                          output_hidden_states=True).to(device)
+
+    # load weights from 1 epoch
+    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-sst_epoch_1.pt'))
 
     # create gradient scaler for mixed precision
     scaler = GradScaler()
 
-    # set optimizer
-    param_optimizer = list(model.named_parameters())
-
-    # exclude these from regularization
-    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-    # give l2 regularization to any parameter that is not named after no_decay list
-    # give no l2 regulariation to any bias parameter or layernorm bias/weight
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-
-    # set optimizer
-    optimizer = AdamW(optimizer_grouped_parameters,
-                              lr=args.lr,
-                              correct_bias=False,
-                              weight_decay=args.l2)
-
-    # set epochs
-    epochs = args.epochs
-
-    # train
-    best_loss = np.inf
-    for epoch in range(1, epochs + 1):
-        train_log = train(model, train_dataloader, scaler, optimizer, device)
-        logs = dict(train_log)
-        if logs['loss'] < best_loss:
-            # torch save
-            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-sst' + '_epoch_{}.pt'.format(epoch))
-            best_loss = logs['loss']
-        show_info = f'\nEpoch: {epoch} - ' + "-".join([f' {key}: {value:.4f} ' for key, value in logs.items()])
-        print(show_info)
-
-    # now proceed to emit embeddings
-    model = BertForSequenceClassification.from_pretrained(args.model,
-                                                          num_labels=args.num_labels,
-                                                          output_hidden_states=True).to(device)
-    # load weights from 1 epoch
-    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-sst_epoch_1.pt'))
-
     # export embeddings
-    emit_embeddings(embed_dataloader, train_ds, model, device, args)
+    emit_embeddings(embed_dataloader, dev_ds, model, device, args)
 
 # run program
 if __name__ == '__main__':
