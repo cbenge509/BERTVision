@@ -1,8 +1,6 @@
 # packages
 import pathlib, time, datetime, h5py, sys
-path = pathlib.Path("C:\\BERTVision")
-path.parent.mkdir(parents=True, exist_ok=True)
-sys.path.append("C:\\BERTVision\\utils")
+sys.path.append("C:/BERTVision/code/torch")
 from argparse import ArgumentParser
 from collate import collate_squad_train, collate_squad_dev, collate_squad_score
 from tools import AverageMeter, ProgressBar, format_time

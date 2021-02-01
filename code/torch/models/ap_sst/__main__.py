@@ -1,15 +1,15 @@
 # packages
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.sst_processor import SSTProcessor, Tokenize_Transform
-from common.trainers.bert_class_trainer import BertClassTrainer
-from models.sst.args import get_args
+from data.h5_processors.sst_H5_processor import SSTH5Processor
+from utils.compress_utils import AdapterPooler, SST_AP
+from common.trainers.H5_sst_trainer import H5_SST_Trainer
+from models.ap_sst.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from torch.cuda.amp import GradScaler
-
+from transformers import AdamW, get_linear_schedule_with_warmup, BertTokenizerFast
 
 
 # main fun.
@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'SST': SSTProcessor
+        'SSTH5': SSTH5Processor
     }
 
     # tell the CLI user that they mistyped the data set
@@ -44,34 +44,24 @@ if __name__ == '__main__':
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-
     # set seed for multi-gpu
     if n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
+    # instantiate model and attach it to device
+    model = SST_AP(n_layers=13, n_batch_sz=args.batch_size, n_tokens=64, n_features=768, n_labels=2).to(device)
     # set data set processor
     processor = dataset_map[args.dataset]
-    # set tokenizer
-    tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # use it to create the train set
-    train_processor = processor(args=args,
-                                type='train',
-                                transform=Tokenize_Transform(tokenizer=tokenizer))
+    train_processor = processor(type='train')
+    # set loss
+    criterion = nn.CrossEntropyLoss()
 
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
     args.n_gpu = n_gpu
-
-    # set num labels
-    args.num_labels = train_processor.num_labels
-
-    # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
-
-    # instantiate model and attach it to device
-    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
-                                                          num_labels=args.num_labels).to(device)
 
     # print metrics
     print('Device:', str(device).upper())
@@ -82,18 +72,7 @@ if __name__ == '__main__':
         model = torch.nn.DataParallel(model)
 
     # set optimizer
-    param_optimizer = list(model.named_parameters())
-
-    # exclude these from regularization
-    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
-    # give l2 regularization to any parameter that is not named after no_decay list
-    # give no l2 regulariation to any bias parameter or layernorm bias/weight
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-
-    # set optimizer
-    optimizer = AdamW(optimizer_grouped_parameters,
+    optimizer = AdamW(model.parameters(),
                               lr=args.lr,
                               correct_bias=False,
                               weight_decay=args.l2)
@@ -103,7 +82,7 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = BertClassTrainer(model, tokenizer, optimizer, processor, scheduler, args, scaler)
+    trainer = H5_SST_Trainer(model, criterion, optimizer, processor, scheduler, args, scaler)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint

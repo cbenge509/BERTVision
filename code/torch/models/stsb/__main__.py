@@ -1,15 +1,18 @@
 # packages
 import sys, os, random
-sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.sst_processor import SSTProcessor, Tokenize_Transform
-from common.trainers.bert_class_trainer import BertClassTrainer
-from models.sst.args import get_args
+sys.path.append("C:/media/temp")
+sys.path.append("C:/media/temp/data")
+sys.path.append("C:/media/temp/data/bert_processors")
+
+from data.bert_processors.processors import STSB
+from common.trainers.bert_trainer_cb import BertClassTrainer
+from models.stsb.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
+from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup, BertConfig
 from torch.cuda.amp import GradScaler
-
+from utils.bert_models import STSB_model
 
 
 # main fun.
@@ -19,10 +22,11 @@ if __name__ == '__main__':
 
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'SST': SSTProcessor
+        'STSB': STSB
     }
 
     # tell the CLI user that they mistyped the data set
+    args.dataset = 'STSB'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
@@ -52,26 +56,23 @@ if __name__ == '__main__':
     # set data set processor
     processor = dataset_map[args.dataset]
     # set tokenizer
-    tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
+    #tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # use it to create the train set
-    train_processor = processor(args=args,
-                                type='train',
-                                transform=Tokenize_Transform(tokenizer=tokenizer))
-
+    train_processor = processor(type='train')
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
     args.n_gpu = n_gpu
 
     # set num labels
-    args.num_labels = train_processor.num_labels
+    #args.num_labels = train_processor.num_labels
 
     # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
-                                                          num_labels=args.num_labels).to(device)
+    #dropout rate, bert base uncased hidden_state_size
+    model = STSB_model(0.7, 768).cuda()
 
     # print metrics
     print('Device:', str(device).upper())
@@ -103,7 +104,7 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = BertClassTrainer(model, tokenizer, optimizer, processor, scheduler, args, scaler)
+    trainer = BertClassTrainer(model, optimizer, processor, scheduler, args, scaler)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint
