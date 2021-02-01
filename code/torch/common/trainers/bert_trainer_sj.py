@@ -6,9 +6,11 @@ from data.bert_processors.sst_processor import SSTProcessor, Tokenize_Transform
 from utils.collate import collate_SST
 from torch.cuda.amp import autocast
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
+from torch.utils.data.sampler import SubsetRandomSampler
 
 
 class BertClassTrainer(object):
@@ -129,12 +131,16 @@ class BertClassTrainer(object):
         print("Number of optimization steps:", self.num_train_optimization_steps)
 
         # instantiate dataloader
+        #random_sample = np.random.choice(np.arange(392662), 392662//100)
+        #np.random.shuffle(random_sample)
         train_dataloader = DataLoader(self.train_examples,
                                       batch_size=self.args.batch_size,
                                       shuffle=True,
                                       num_workers=self.args.num_workers,
                                       drop_last=False,
-                                      collate_fn=collate_SST)
+                                      collate_fn=collate_SST,
+                                      #sampler=SubsetRandomSampler(random_sample)
+                                      )
         # for each epoch
         log = {'metric':[], 'train_loss':[]}
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
@@ -176,7 +182,7 @@ class BertClassTrainer(object):
                 else:
                     log['second_metric'].append(metric_2)
                 tqdm.write(self.log_header)
-                tqdm.write(str(epoch)+ ": " + str(metric))
+                tqdm.write(str(epoch)+ ": " + str(metric_2))
                 torch.save(self.model, self.snapshot_path + '_epoch' + str(epoch) + '.pt')
         print(log)
 
