@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 import sys
 sys.path.append("C:/BERTVision/code/torch")
-from tools import AverageMeter, ProgressBar, format_time
+from utils.tools import AverageMeter, ProgressBar, format_time
 from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import get_linear_schedule_with_warmup, AdamW
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
@@ -172,7 +172,7 @@ class Tokenize_Transform():
 
 
 # train function
-def train(model, dataloader, scaler, optimizer, device):
+def train(model, dataloader, scaler, optimizer, scheduler, device):
     pbar = ProgressBar(n_total=len(dataloader), desc='Training')
     train_loss = AverageMeter()
     train_acc = AverageMeter()
@@ -198,6 +198,7 @@ def train(model, dataloader, scaler, optimizer, device):
         scaler.scale(out['loss']).backward()
         scaler.step(optimizer)
         scaler.update()
+        scheduler.step()
         count += input_ids.size(0)
         pbar(step=batch_idx, info={'loss': out['loss'].item()})
         train_loss.update(out['loss'].item(), n=1)
@@ -212,29 +213,26 @@ def train(model, dataloader, scaler, optimizer, device):
 def emit_embeddings(dataloader, train_dataset, model, device, args):
     # timing metrics
     t0 = time.time()
-    batch_num = 20
-    embedding_batch_size = 20 # needs to perfectly divide data set
+    batch_num = args.embed_batch_size  # needs to perfectly divide data set
     num_documents = len(train_dataset)
-    # set a manipulable var to handle any batch size
-    train_len = len(train_dataset)
 
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
-        dset = f.create_dataset('embeds', shape=(train_len, 13, args.max_seq_length, 768),
+        dset = f.create_dataset('embeds', shape=(len(train_dataset), 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
-                                chunks=(embedding_batch_size, 13, args.max_seq_length, 768),
+                                chunks=(args.embed_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
-        label_dset = l.create_dataset('labels', shape=(train_len,),
-                                      maxshape=(None,), chunks=(embedding_batch_size,),
+        label_dset = l.create_dataset('labels', shape=(len(train_dataset),),
+                                      maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
-        idx_dset = i.create_dataset('idx', shape=(train_len,),
-                                      maxshape=(None,), chunks=(embedding_batch_size,),
+        idx_dset = i.create_dataset('idx', shape=(len(train_dataset),),
+                                      maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
     print('Generating embeddings for all {:,} documents...'.format(len(train_dataset)))
@@ -274,35 +272,35 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_bert_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
-            start = step*embedding_batch_size
+            start = step*args.embed_batch_size
             # [batch_sz, layer, tokens, features]
-            dset[start:start+embedding_batch_size, :, :, :] = embeddings[:, :, :, :]
+            dset[start:start+args.embed_batch_size, :, :, :] = embeddings[:, :, :, :]
             # Create attribute with last_index value
-            dset.attrs['last_index'] = (step+1)*embedding_batch_size
+            dset.attrs['last_index'] = (step+1)*args.embed_batch_size
             # check the integrity of the embeddings
-            x = f['embeds'][start:start+embedding_batch_size, :, :, :]
+            x = f['embeds'][start:start+args.embed_batch_size, :, :, :]
 
         # add labels to ds
         with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'a') as l:
             label_dset = l['labels']
             # add chunk of rows
-            start = step*embedding_batch_size
+            start = step*args.embed_batch_size
             # [batch_sz, layer, tokens, features]
-            label_dset[start:start+embedding_batch_size] = label.cpu().numpy()
+            label_dset[start:start+args.embed_batch_size] = label.cpu().numpy()
             # Create attribute with last_index value
-            label_dset.attrs['last_index'] = (step+1)*embedding_batch_size
+            label_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add idx to ds
         with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_idx.h5', 'a') as i:
             idx_dset = i['idx']
             # add chunk of rows
-            start = step*embedding_batch_size
+            start = step*args.embed_batch_size
             # [batch_sz, layer, tokens, features]
-            idx_dset[start:start+embedding_batch_size] = idx.cpu().numpy()
+            idx_dset[start:start+args.embed_batch_size] = idx.cpu().numpy()
             # Create attribute with last_index value
-            idx_dset.attrs['last_index'] = (step+1)*embedding_batch_size
+            idx_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
-        batch_num += embedding_batch_size
+        batch_num += args.embed_batch_size
         torch.cuda.empty_cache()
 
     # check data
@@ -314,7 +312,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
     with h5py.File('C:\\w266\\data2\\h5py_embeds\\sst_labels.h5', 'r') as l:
         print('last embed batch entry', l['labels'].attrs['last_index'])
         print('embed shape', l['labels'].shape)
-        print('last entry:', l['labels'][train_len-10: train_len])
+        print('last entry:', l['labels'][len(train_dataset)-10: len(train_dataset)])
 
     return None
 
@@ -344,6 +342,10 @@ def main():
                          help='l2 regularization weight (default: 0.01)')
     parser.add_argument('--max-seq-length', type=int, default=64, metavar='N',
                          help='max sequence length for encoding (default: 64)')
+    parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
+                         help='Warmup proportion (default: 0.1)')
+    parser.add_argument('--embed-batch-size', type=int, default=2, metavar='N',
+                         help='Embedding batch size emission (default: 2)')
     args = parser.parse_args()
 
     # set seeds and determinism
@@ -370,7 +372,7 @@ def main():
 
     # create embed dataloader
     embed_dataloader = DataLoader(train_ds,
-                                batch_size=10,
+                                batch_size=args.embed_batch_size,
                                 shuffle=True,
                                 num_workers=args.num_workers,
                                 drop_last=False)
@@ -391,7 +393,7 @@ def main():
     # give l2 regularization to any parameter that is not named after no_decay list
     # give no l2 regulariation to any bias parameter or layernorm bias/weight
     optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
         {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
 
     # set optimizer
@@ -400,13 +402,18 @@ def main():
                               correct_bias=False,
                               weight_decay=args.l2)
 
+    num_train_optimization_steps = int(len(train_ds) / args.batch_size) * args.epochs
+
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
+                                                num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
+
     # set epochs
     epochs = args.epochs
 
     # train
     best_loss = np.inf
     for epoch in range(1, epochs + 1):
-        train_log = train(model, train_dataloader, scaler, optimizer, device)
+        train_log = train(model, train_dataloader, scaler, optimizer, scheduler, device)
         logs = dict(train_log)
         if logs['loss'] < best_loss:
             # torch save
