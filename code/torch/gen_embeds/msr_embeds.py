@@ -177,8 +177,6 @@ class Tokenize_Transform():
 
 
 
-
-
 # train function
 def train(model, dataloader, scaler, optimizer, scheduler, device):
     pbar = ProgressBar(n_total=len(dataloader), desc='Training')
@@ -353,8 +351,8 @@ def main():
                          help='max sequence length for encoding (default: 512)')
     parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                          help='Warmup proportion (default: 0.1)')
-    parser.add_argument('--embed-batch-size', type=int, default=15, metavar='N',
-                         help='Embedding batch size emission; dev size is 1725 (default: 15)')
+    parser.add_argument('--embed-batch-size', type=int, default=2, metavar='N',
+                         help='Embedding batch size emission')
     args = parser.parse_args()
 
     # set seeds and determinism
