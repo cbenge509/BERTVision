@@ -15,7 +15,11 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 import pandas as pd
 import numpy as np
+<<<<<<< HEAD
 import csv
+=======
+
+>>>>>>> d6c3177bc829c1dcb8e1a1efef544515c6451b5d
 
 # prepare torch data set
 class TwoSentenceLoader(torch.utils.data.Dataset):
@@ -325,11 +329,20 @@ def main():
     tokenizer = BertTokenizerFast.from_pretrained(args.tokenizer)
 
     # build df
+<<<<<<< HEAD
     dev_ds = MSR(type='dev')
 
     # create embed dataloader
     embed_dataloader = DataLoader(dev_ds,
                                 batch_size=args.embed_batch_size,
+=======
+    dev_ds = SSTProcessor(type='dev',
+                            transform=Tokenize_Transform(tokenizer=tokenizer))
+
+    # create embed dataloader
+    embed_dataloader = DataLoader(dev_ds,
+                                batch_size=args.batch_size,
+>>>>>>> d6c3177bc829c1dcb8e1a1efef544515c6451b5d
                                 shuffle=True,
                                 num_workers=args.num_workers,
                                 drop_last=False)
@@ -341,7 +354,11 @@ def main():
                                                           output_hidden_states=True).to(device)
 
     # load weights from 1 epoch
+<<<<<<< HEAD
     model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-MSR_epoch_1.pt'))
+=======
+    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-sst_epoch_1.pt'))
+>>>>>>> d6c3177bc829c1dcb8e1a1efef544515c6451b5d
 
     # create gradient scaler for mixed precision
     scaler = GradScaler()
