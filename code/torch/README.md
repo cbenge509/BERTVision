@@ -4,7 +4,7 @@
 conda create -n my_ml python=3.7 pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 conda activate my_ml
 conda install -c conda-forge jupyter numpy pandas matplotlib scikit-learn pip python-language-server[all] tensorflow-gpu transformers datasets elasticsearch tqdm
-conda install -c conda-forge huggingface tokenizers
+conda install -c install tokenizers
 ```
 
 # SQuAD 2.0 Results
