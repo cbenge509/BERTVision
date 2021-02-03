@@ -15,6 +15,7 @@ def get_args():
     parser.add_argument('--dataset', type=str, default='SQuADH5', choices=['SQuADH5'])
     parser.add_argument('--model-name', default='AP', type=str)
     parser.add_argument('--save-path', type=str, default=os.path.join('model_checkpoints'))
+    parser.add_argument('--max-seq-length', type=int, default=384, help='Token length for SQuAD - default 384')
     parser.add_argument('--warmup-proportion',
                         default=0.1,
                         type=float,

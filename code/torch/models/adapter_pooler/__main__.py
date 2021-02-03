@@ -48,7 +48,7 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(args.seed)
 
     # instantiate model and attach it to device
-    model = AP_Model().to(device)
+    model = AP_Model(n_layers=13, n_batch_sz=args.batch_size, n_tokens=args.max_seq_length, n_features=768).to(device)
     # set data set processor
     processor = dataset_map[args.dataset]
     # use it to create the train set
