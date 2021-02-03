@@ -23,6 +23,9 @@ python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 -
 ### AdapterPooler SST-2 for SequenceClassification
 python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5
 
+### AdapterPooler MSR for SequenceClassification
+python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 --batch-size 16 --epochs 3 --lr 3e-5
+
 # some results
 
 bert qa
