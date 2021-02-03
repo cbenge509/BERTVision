@@ -4,11 +4,7 @@ sys.path.append("C:/BERTVision/code/torch")
 from data.h5_processors.msr_H5_processor import MSRH5Processor
 from utils.compress_utils import AdapterPooler, SST_AP
 from common.trainers.H5_sst_trainer import H5_SST_Trainer
-<<<<<<< HEAD
 from models.ap_msr.args import get_args
-=======
-from models.ap_sst.args import get_args
->>>>>>> d6c3177bc829c1dcb8e1a1efef544515c6451b5d
 import numpy as np
 import torch
 import torch.nn as nn
