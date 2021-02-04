@@ -13,6 +13,8 @@ pip install pytreebank
 
 ## SQuAD 2.0
 
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
 `python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
 
 `python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
@@ -25,13 +27,15 @@ pip install pytreebank
 
 ### SST-2
 
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
 `python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5`
 
 `python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5`
 
 |BERT-base SST-2 | BERTVision SST-2 |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.2958</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>0.8750</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>Dev. Loss</td><td>Dev. Acc.</td><td>Dev. F1</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.2958</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.3351</td><td>0.8750</td><td>0.8750</td></tr> </table>|
 
 
 
