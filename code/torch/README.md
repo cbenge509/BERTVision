@@ -8,7 +8,10 @@ conda install -c install tokenizers
 pip install pytreebank
 ```
 
-# SQuAD 2.0 Results
+# Our Results
+
+
+## SQuAD 2.0
 
 `python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
 
@@ -18,9 +21,9 @@ pip install pytreebank
 |--|--|
 |<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.9970</td><td>72.0542</td><td>75.0912</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>Dev. Loss</td><td>Dev. Acc.</td><td>Dev. F1</td></tr> </table>|
 
-# GLUE
+## GLUE
 
-## SST-2 Results
+### SST-2
 
 `python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 3 --lr 1e-5`
 
