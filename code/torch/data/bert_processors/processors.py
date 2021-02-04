@@ -66,7 +66,7 @@ class Tokenize_Transform():
                                                    dtype=torch.long),
 
                 'labels': torch.as_tensor(sample['label'],
-                                          dtype=torch.long),
+                                          dtype=torch.float),
 
                 'idx': torch.as_tensor(sample['idx'],
                                        dtype=torch.int)}
@@ -445,7 +445,13 @@ class MNLI(TwoSentenceLoader):
                          'entailment':1,
                          'contradiction':2}
             self.dev['label'] = [label_map[i] for i in self.dev.gold_label]
-            
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()
+
 class STSB(TwoSentenceLoader):
     NAME = 'STSB'
     def __init__(self, type, transform = None):
