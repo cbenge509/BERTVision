@@ -2,7 +2,7 @@
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 sys.path.append("C:/BERTVision/code/torch/bert_processors")
-from data.bert_processors.processors import MSR
+from data.bert_processors.processors import MSR, Tokenize_Transform, TwoSentenceLoader
 from common.trainers.bert_trainer_sj import BertClassTrainer
 from models.msr.args import get_args
 import numpy as np
