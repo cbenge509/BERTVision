@@ -74,6 +74,17 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 |<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td></tr> </table>|
 
 
+### QQPairs
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+`python -m models.qqpairs --dataset QQPairs --model QQPairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+`python -m models.ap_qqpairs --dataset QNLIH5 --model ap_qqpairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+|BERT-base RTE | BERTVision RTE |
+|--|--|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td></tr> </table>|
 
 
 
