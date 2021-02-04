@@ -1,7 +1,7 @@
 # packages
 import os, sys, datetime, time
 sys.path.append("C:/BERTVision/code/torch")
-from utils.collate import collate_H5_SST
+from utils.collate import collate_H5
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
