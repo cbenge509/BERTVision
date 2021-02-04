@@ -38,19 +38,6 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 |<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.2958</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.3351</td><td>0.8750</td><td>0.8750</td></tr> </table>|
 
 
-### MSR
-
-To replicate our results, please run the follow commands from `BERTVision\code\torch`:
-
-`python -m models.msr --dataset MSR --model msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
-
-`python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
-
-|BERT-base MSR | BERTVision MSR |
-|--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.6030</td><td>0.75188</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8383</td><td>0.7820</td><td>0.7820</td></tr> </table>|
-
-
 
 # OLD TO BE REPLACED
 

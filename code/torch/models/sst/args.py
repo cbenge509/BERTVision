@@ -13,7 +13,7 @@ def get_args():
 
     parser.add_argument('--device', default=device)
 
-    parser.add_argument('--dataset', type=str, default='SST', choices=['SST'])
+    parser.add_argument('--dataset', type=str, default='SST')
 
     parser.add_argument('--model-name', default='SST', type=str)
 
