@@ -21,7 +21,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 |BERT-base SQuAD 2.0 | BERTVision SQuAD 2.0 |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.9970</td><td>72.0542</td><td>75.0912</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>Dev. Loss</td><td>Dev. Acc.</td><td>Dev. F1</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>72.0542</td><td>75.0912</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>Dev. Acc.</td><td>Dev. F1</td></tr> </table>|
 
 ## GLUE
 
@@ -35,7 +35,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 |BERT-base SST-2 | BERTVision SST-2 |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.2958</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.3351</td><td>0.8750</td><td>0.8750</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8750</td><td>0.8750</td></tr> </table>|
 
 ### MSR
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
@@ -46,7 +46,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 |BERT-base MSR | BERTVision MSR |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.6030</td><td>0.75188</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8383</td><td>0.7820</td><td>0.7820</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.75188</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.7820</td><td>0.7820</td></tr> </table>|
 
 ### RTE
 
@@ -58,7 +58,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 |BERT-base RTE | BERTVision RTE |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.7183</td><td>0.5884</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8549</td><td>0.6137</td><td>0.6137</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.5884</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.6137</td><td>0.6137</td></tr> </table>|
 
 
 ### QNLI
@@ -71,7 +71,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 |BERT-base RTE | BERTVision RTE |
 |--|--|
-|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td><td>0.xxx</td></tr> </table>|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td></tr> </table>|
 
 
 
