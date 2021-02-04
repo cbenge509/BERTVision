@@ -37,6 +37,45 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 |--|--|
 |<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.2958</td><td>0.8856</td><td>0.8856</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.3351</td><td>0.8750</td><td>0.8750</td></tr> </table>|
 
+### MSR
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+`python -m models.msr --dataset MSR --model msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
+
+`python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0`
+
+|BERT-base MSR | BERTVision MSR |
+|--|--|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.6030</td><td>0.75188</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8383</td><td>0.7820</td><td>0.7820</td></tr> </table>|
+
+### RTE
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+`python -m models.rte --dataset RTE --model RTE --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+`python -m models.ap_rte --dataset RTEH5 --model ap_rte --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+|BERT-base RTE | BERTVision RTE |
+|--|--|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.7183</td><td>0.5884</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.8549</td><td>0.6137</td><td>0.6137</td></tr> </table>|
+
+
+### QNLI
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+`python -m models.qnli --dataset qnli --model qnli --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+`python -m models.ap_qnli --dataset QNLIH5 --model ap_qnli --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+
+|BERT-base RTE | BERTVision RTE |
+|--|--|
+|<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td><td>NA</td></tr> </table>| <table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Loss</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>0.xxx</td><td>0.xxx</td><td>0.xxx</td></tr> </table>|
+
+
+
+
 
 
 # OLD TO BE REPLACED
