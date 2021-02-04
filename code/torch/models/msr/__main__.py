@@ -4,7 +4,7 @@ sys.path.append("C:/BERTVision/code/torch")
 sys.path.append("C:/BERTVision/code/torch/bert_processors")
 from data.bert_processors.processors import MSR
 from common.trainers.bert_trainer_sj import BertClassTrainer
-from models.sst.args import get_args
+from models.msr.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
