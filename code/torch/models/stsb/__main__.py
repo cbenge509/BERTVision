@@ -5,7 +5,7 @@ sys.path.append("C:/media/temp/data")
 sys.path.append("C:/media/temp/data/bert_processors")
 
 from data.bert_processors.processors import STSB
-from common.trainers.bert_class_trainer_cb import BertClassTrainer
+from common.trainers.bert_trainer_cb import BertClassTrainer
 from models.stsb.args import get_args
 import numpy as np
 import torch
