@@ -20,7 +20,7 @@ import csv
 
 # prepare torch data set
 
-class (torch.utils.data.Dataset):
+class COLA(torch.utils.data.Dataset):
     '''
     Example line:
     source | label | original label | sentence
