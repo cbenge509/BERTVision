@@ -8,6 +8,8 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from sklearn import metrics
 import warnings
+from scipy.stats import pearsonr, spearmanr
+
 # Suppress warnings from sklearn.metrics
 warnings.filterwarnings('ignore')
 
@@ -76,11 +78,17 @@ class H5_SST_Evaluator(object):
             with torch.no_grad():
                 logits = self.model(embeddings)
 
-                # get loss for start and ending positions
-                loss = self.criterion(logits, labels)
+                # get loss
+                if self.args.num_labels == 1:
+                    loss = self.criterion(logits.view(-1), labels.view(-1))
+                if self.args.num_labels > 1:
+                    loss = self.criterion(logits, labels)
 
                 # preds
-                pred = logits.max(1)[1]  # get the index of the max log-probability
+                if self.args.num_labels > 1:
+                    pred = logits.max(1)[1]  # get the index of the max log-probability
+                if self.args.num_labels == 1:
+                    pred = logits
 
             # multigpu loss
             if self.args.n_gpu > 1:
@@ -102,11 +110,22 @@ class H5_SST_Evaluator(object):
 
         # metrics
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
-        accuracy = metrics.accuracy_score(target_labels, predicted_labels)
-        precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
-        recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
-        f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
         avg_loss = self.dev_loss / self.nb_dev_steps
+
+        if self.args.num_labels == 1:
+            mse = metrics.mean_squared_error(predicted_labels, target_labels)
+            rmse = np.sqrt(mse)
+            pearson_r = pearsonr(predicted_labels, target_labels)
+            spearman_r = spearmanr(predicted_labels, target_labels)
+
+            return rmse, pearson_r[0], spearman_r[0]
+
+        if self.args.num_labels > 1:
+            accuracy = metrics.accuracy_score(target_labels, predicted_labels)
+            precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
+            recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
+            f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
+
 
         return accuracy, precision, recall, f1, avg_loss
 
