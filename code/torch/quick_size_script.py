@@ -3,7 +3,7 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "behavioral-bennett",
+   "id": "recent-compatibility",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -13,7 +13,7 @@
   {
    "cell_type": "code",
    "execution_count": 13,
-   "id": "furnished-aquatic",
+   "id": "inner-xerox",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -25,7 +25,7 @@
   {
    "cell_type": "code",
    "execution_count": 9,
-   "id": "hybrid-recall",
+   "id": "chemical-uzbekistan",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -35,7 +35,7 @@
   {
    "cell_type": "code",
    "execution_count": 19,
-   "id": "removable-german",
+   "id": "metropolitan-tutorial",
    "metadata": {},
    "outputs": [
     {
@@ -93,7 +93,7 @@
   {
    "cell_type": "code",
    "execution_count": 20,
-   "id": "split-senate",
+   "id": "disturbed-string",
    "metadata": {},
    "outputs": [
     {
@@ -114,7 +114,7 @@
   {
    "cell_type": "code",
    "execution_count": 22,
-   "id": "serial-celebrity",
+   "id": "floppy-liquid",
    "metadata": {},
    "outputs": [
     {
@@ -152,7 +152,7 @@
   {
    "cell_type": "code",
    "execution_count": 23,
-   "id": "challenging-intent",
+   "id": "wireless-green",
    "metadata": {},
    "outputs": [
     {
@@ -173,7 +173,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "prepared-execution",
+   "id": "demonstrated-directive",
    "metadata": {},
    "source": [
     "### Manually evaluating model and dataset"
@@ -182,7 +182,7 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "sustained-yorkshire",
+   "id": "wrong-taxation",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -197,7 +197,7 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "phantom-arbor",
+   "id": "political-greece",
    "metadata": {},
    "outputs": [
     {
@@ -219,7 +219,7 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "organizational-problem",
+   "id": "ahead-sheriff",
    "metadata": {
     "scrolled": true
    },
@@ -255,8 +255,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
-   "id": "concerned-peeing",
+   "execution_count": 5,
+   "id": "nervous-brunei",
    "metadata": {
     "scrolled": true
    },
@@ -266,7 +266,22 @@
      "output_type": "stream",
      "text": [
       "b'Skipping line 660: expected 4 fields, saw 5\\n'\n",
-      "Evaluating:  81%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                         | 537/659 [01:00<00:13,  9.17it/s]"
+      "Evaluating: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 659/659 [01:13<00:00,  8.97it/s]"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0 0 1 ... 1 0 1] [0 0 1 ... 1 0 1]\n",
+      "0.9078997341435625\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "\n"
      ]
     }
    ],
@@ -277,7 +292,7 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "brutal-narrative",
+   "id": "parallel-pension",
    "metadata": {},
    "outputs": [],
    "source": []
