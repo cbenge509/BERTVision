@@ -94,7 +94,7 @@ class H5_SST_Trainer(object):
                 logits = self.model(embeddings)
 
                 # get loss
-            if args.num_labels == 1:
+            if self.args.num_labels == 1:
                 loss = criterion(logits.view(-1), labels.view(-1))
             else:
                 loss = criterion(logits, labels)
