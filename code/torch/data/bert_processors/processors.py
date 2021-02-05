@@ -234,44 +234,6 @@ class QNLI(TwoSentenceLoader):
         else:
             self.transform = Tokenize_Transform()
 
-class QNLI(TwoSentenceLoader):
-    NAME = 'QNLI'
-    def __init__(self, type, transform = None):
-        '''
-        Example line:
-        index	question	sentence	label
-        0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
-        1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
-
-        This prepares the RTE task from GLUE
-        '''
-
-        self.path = 'C:\w266\data\GLUE\Question NLI\QNLI'
-        self.type = type
-        if self.type == 'train':
-            # initialize train
-            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
-                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
-                                     encoding='latin-1',
-                                     error_bad_lines=False) #SOME BAD LINES IN THIS DATA
-            self.train.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.train.label = np.where(self.train.label == 'entailment', 1, 0)
-
-        if self.type == 'dev':
-            # initialize dev
-            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
-                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
-                                     encoding='latin-1',
-                                     error_bad_lines=False)
-            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
-
-        # initialize the transform if specified
-        if transform:
-            self.transform = transform
-        else:
-            self.transform = Tokenize_Transform()
 
 class MSR(TwoSentenceLoader):
     NAME = 'MSR'
@@ -393,6 +355,94 @@ class QQPairs(torch.utils.data.Dataset):
             if self.transform:
                 sample = self.transform(sample)
             return sample
+
+
+class COLA(torch.utils.data.Dataset):
+    '''
+    https://nyu-mll.github.io/CoLA/
+    Example line:
+    source | label | original label | sentence
+    clc95	0	*	In which way is Sandy very anxious to see if the students will be able to solve the homework problem?
+    c-05	1		The book was written by John.
+    c-05	0	*	Books were sent to each other by the students.
+    swb04	1		She voted for herself.
+    swb04	1		I saw that gas can explode.
+
+    This prepares the Quora Question Pairs GLUE Task
+
+    Parameters
+    ----------
+    transform : optionable, callable flag
+        Whether or not we need to tokenize transform the data
+
+    Returns
+    -------
+    sample : dict
+        A dictionary containing: (1) text, (2) text2, (3) labels,
+        and index positions
+    '''
+
+    NAME = 'COLA'
+
+    def __init__(self, type, transform=None):
+        # set path for data
+        self.path = 'C:\w266\data\GLUE\The Corpus of Linguistic Acceptability\CoLA'
+        self.type = type
+        if self.type == 'train':
+            # initialize train
+            self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1')
+            self.train.columns = ['source', 'label', 'original_judgement', 'sentence']
+
+        if self.type == 'dev':
+            # initialize dev
+            self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
+                                     #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
+                                     encoding='latin-1')
+            self.dev.columns = ['source', 'label', 'original_judgement', 'sentence']
+
+        # initialize the transform if specified
+        if transform:
+            self.transform = transform
+        else:
+            self.transform = Tokenize_Transform()
+
+    # get len
+    def __len__(self):
+        if self.type == 'train':
+            return len(self.train)
+
+        if self.type == 'dev':
+            return len(self.dev)
+
+    # pull a sample of data
+    def __getitem__(self, idx):
+        '''
+        Torch's lazy emission system
+        '''
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        # if train, package this up
+        if self.type == 'train':
+            sample = {'text': self.train.sentence[idx],
+                      'label': self.train.label[idx],
+                      'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
+
+        # if dev, package this
+        if self.type == 'dev':
+            sample = {'text': self.dev.sentence[idx],
+                      'label': self.dev.label[idx],
+                      'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
+
+
 
 class MNLI(TwoSentenceLoader):
     NAME = 'MNLI'

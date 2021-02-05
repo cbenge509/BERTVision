@@ -66,7 +66,6 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    #dropout rate, bert base uncased hidden_state_size
     model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
                                                           num_labels=args.num_labels).to(device)
 
