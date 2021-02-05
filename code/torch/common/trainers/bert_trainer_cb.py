@@ -89,6 +89,9 @@ class BertClassTrainer(object):
                 batch['idx'].to(self.args.device)
             )
 
+            if self.args.num_labels == 1:
+                labels = labels.float()
+
             # FP16
             with autocast():
                 # forward
@@ -138,7 +141,7 @@ class BertClassTrainer(object):
                                       drop_last=False,
                                       collate_fn=collate_SST)
         # for each epoch
-        
+
         log = {'metric':[], 'train_loss':[], 'pearsonr':[], 'spearmanr':[]}
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
             # train
