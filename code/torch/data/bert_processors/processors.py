@@ -66,7 +66,7 @@ class Tokenize_Transform():
                                                    dtype=torch.long),
 
                 'labels': torch.as_tensor(sample['label'],
-                                          dtype=torch.float),
+                                          dtype=torch.long),
 
                 'idx': torch.as_tensor(sample['idx'],
                                        dtype=torch.int)}

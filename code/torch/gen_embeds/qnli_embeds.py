@@ -332,7 +332,7 @@ def main():
     parser.add_argument('--model', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
-    parser.add_argument('--batch-size', type=int, default=16, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=4, metavar='N',
                          help='input batch size for training (default: 16)')
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                          help='number of epochs to train (default: 1)')
