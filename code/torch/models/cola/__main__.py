@@ -1,18 +1,16 @@
 # packages
 import sys, os, random
-sys.path.append("C:/media/temp")
-sys.path.append("C:/media/temp/data")
-sys.path.append("C:/media/temp/data/bert_processors")
-
-from data.bert_processors.processors import STSB
-from common.trainers.bert_trainer_cb import BertClassTrainer
-from models.stsb.args import get_args
+sys.path.append("C:/BERTVision/code/torch")
+sys.path.append("C:/BERTVision/code/torch/bert_processors")
+from data.bert_processors.processors import COLA
+from common.trainers.bert_class_trainer_alt import BertClassTrainer
+from models.cola.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
 from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup, BertConfig
 from torch.cuda.amp import GradScaler
-from utils.bert_models import STSB_model
+from utils.bert_models import RTE_model
 
 
 # main fun.
@@ -22,11 +20,11 @@ if __name__ == '__main__':
 
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'STSB': STSB
+        'COLA': COLA
     }
 
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'STSB'
+    args.dataset = 'COLA'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
@@ -55,6 +53,8 @@ if __name__ == '__main__':
 
     # set data set processor
     processor = dataset_map[args.dataset]
+    # set tokenizer
+    tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # use it to create the train set
     train_processor = processor(type='train')
     # set some other training objects
@@ -104,6 +104,8 @@ if __name__ == '__main__':
     trainer.train()
     # load the checkpoint
     model = torch.load(trainer.snapshot_path)
+
+
 
 
 #
