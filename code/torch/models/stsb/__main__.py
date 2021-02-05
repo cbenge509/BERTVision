@@ -5,7 +5,7 @@ sys.path.append("C:/media/temp/data")
 sys.path.append("C:/media/temp/data/bert_processors")
 
 from data.bert_processors.processors import STSB
-from common.trainers.bert_class_trainer import BertClassTrainer
+from common.trainers.bert_class_trainer_cb import BertClassTrainer
 from models.stsb.args import get_args
 import numpy as np
 import torch
@@ -53,8 +53,6 @@ if __name__ == '__main__':
     if n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
-    # set tokenizer
-    tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # set data set processor
     processor = dataset_map[args.dataset]
     # use it to create the train set
@@ -102,7 +100,7 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = BertClassTrainer(model, tokenizer, optimizer, processor, scheduler, args, scaler)
+    trainer = BertClassTrainer(model, optimizer, processor, scheduler, args, scaler)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint

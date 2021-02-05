@@ -93,15 +93,15 @@ class H5_SST_Trainer(object):
                 # forward
                 logits = self.model(embeddings)
 
-                # get loss
-            if self.args.num_labels == 1:
-                loss = criterion(logits.view(-1), labels.view(-1))
-            else:
-                loss = criterion(logits, labels)
+            # get loss
+        if self.args.num_labels == 1:
+            loss = criterion(logits.view(-1), labels.view(-1))
+        else:
+            loss = criterion(logits, labels)
 
-            # multi-gpu loss
-            if self.args.n_gpu > 1:
-                raise NotImplementedError
+        # multi-gpu loss
+        if self.args.n_gpu > 1:
+            raise NotImplementedError
 
             # backward
             self.scaler.scale(loss).backward()
