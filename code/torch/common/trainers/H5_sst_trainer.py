@@ -171,23 +171,23 @@ class H5_SST_Trainer(object):
             if self.args.num_labels == 1:
                 rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
-            # print validation results
-            tqdm.write(self.log_header)
-            tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                rmse, pearson_r, spearman_r))
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    rmse, pearson_r, spearman_r))
 
-            # update validation results
-            if spearman_r > self.pearson_score:
-                self.unimproved_iters = 0
-                self.pearson_score = spearman_r
-                torch.save(self.model, self.snapshot_path)
+                # update validation results
+                if spearman_r > self.pearson_score:
+                    self.unimproved_iters = 0
+                    self.pearson_score = spearman_r
+                    torch.save(self.model, self.snapshot_path)
 
-            else:
-                # stop training with early stopping
-                self.unimproved_iters += 1
-                if self.unimproved_iters >= self.args.patience:
-                    self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
-                    break
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
+                        break
 
 #
