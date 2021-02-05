@@ -137,5 +137,6 @@ class BertClassEvaluator(object):
         #avg_loss = self.dev_loss / self.nb_dev_steps
 
         #return accuracy, precision, recall, f1, avg_loss
+        print(accuracy)
         return accuracy
 #
