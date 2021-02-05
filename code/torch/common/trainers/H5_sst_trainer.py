@@ -93,27 +93,29 @@ class H5_SST_Trainer(object):
                 # forward
                 logits = self.model(embeddings)
 
-            # get loss
-        if self.args.num_labels == 1:
-            loss = criterion(logits.view(-1), labels.view(-1))
-        else:
-            loss = criterion(logits, labels)
+                    # get loss
+                if self.args.num_labels == 1:
+                    loss = criterion(logits.view(-1), labels.view(-1))
+                if self.args.num_labels > 1:
+                    loss = criterion(logits, labels)
 
-        # multi-gpu loss
-        if self.args.n_gpu > 1:
-            raise NotImplementedError
+                    #print(loss)
 
-            # backward
-            self.scaler.scale(loss).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
-            self.scheduler.step()
-            self.optimizer.zero_grad()
+                # multi-gpu loss
+                if self.args.n_gpu > 1:
+                    raise NotImplementedError
 
-            # update metrics
-            self.tr_loss += loss.item()
-            self.nb_tr_steps += 1
-            #print('\n', 'batch loss', loss.item())
+                # backward
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+                self.scheduler.step()
+                self.optimizer.zero_grad()
+
+                # update metrics
+                self.tr_loss += loss.item()
+                self.nb_tr_steps += 1
+
         # print end of trainig results
         print('\n', 'train loss', self.tr_loss / self.nb_tr_steps)
 
