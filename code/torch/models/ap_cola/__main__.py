@@ -1,7 +1,7 @@
 # packages
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
-from data.h5_processors.rte_H5_processor import COLAH5Processor
+from data.h5_processors.cola_H5_processor import COLAH5Processor
 from utils.compress_utils import AdapterPooler, SST_AP
 from common.trainers.H5_sst_trainer import H5_SST_Trainer
 from models.ap_rte.args import get_args
