@@ -53,19 +53,16 @@ if __name__ == '__main__':
     if n_gpu > 0:
         torch.cuda.manual_seed_all(args.seed)
 
+    # set tokenizer
+    tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # set data set processor
     processor = dataset_map[args.dataset]
-    # set tokenizer
-    #tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
     # use it to create the train set
     train_processor = processor(type='train')
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
     args.n_gpu = n_gpu
-
-    # set num labels
-    #args.num_labels = train_processor.num_labels
 
     # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
@@ -105,13 +102,11 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = BertClassTrainer(model, optimizer, processor, scheduler, args, scaler)
+    trainer = BertClassTrainer(model, tokenizer, optimizer, processor, scheduler, args, scaler)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint
     model = torch.load(trainer.snapshot_path)
-
-
 
 
 #
