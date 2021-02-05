@@ -5,7 +5,7 @@ sys.path.append("C:/media/temp/data")
 sys.path.append("C:/media/temp/data/bert_processors")
 
 from data.bert_processors.processors import STSB
-from common.trainers.bert_trainer_cb import BertClassTrainer
+from common.trainers.bert_class_trainer import BertClassTrainer
 from models.stsb.args import get_args
 import numpy as np
 import torch
@@ -72,7 +72,8 @@ if __name__ == '__main__':
 
     # instantiate model and attach it to device
     #dropout rate, bert base uncased hidden_state_size
-    model = STSB_model(0.7, 768).cuda()
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+                                                          num_labels=args.num_labels).to(device)
 
     # print metrics
     print('Device:', str(device).upper())

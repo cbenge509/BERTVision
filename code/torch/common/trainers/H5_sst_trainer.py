@@ -93,8 +93,11 @@ class H5_SST_Trainer(object):
                 # forward
                 logits = self.model(embeddings)
 
-            # get loss for start and ending positions
-            loss = criterion(logits, labels)
+                # get loss
+            if args.num_labels == 1:
+                loss = criterion(logits.view(-1), labels.view(-1))
+            else:
+                loss = criterion(logits, labels)
 
             # multi-gpu loss
             if self.args.n_gpu > 1:

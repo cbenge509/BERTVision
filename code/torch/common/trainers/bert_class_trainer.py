@@ -22,7 +22,7 @@ class BertClassTrainer(object):
         A HuggingFace Classification BERT transformer
 
     tokenizer: object
-        A HuggingFace tokenizer that fits the HuggingFace transformer        
+        A HuggingFace tokenizer that fits the HuggingFace transformer
 
     optimizer: object
         A compatible Torch optimizer
