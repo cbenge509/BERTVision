@@ -72,44 +72,85 @@ class TwoSentenceLoader(torch.utils.data.Dataset):
 
 
 
-class QNLI(TwoSentenceLoader):
-    NAME = 'QNLI'
-    def __init__(self, type, transform = None):
-        '''
-        Example line:
-        index	question	sentence	label
-        0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
-        1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
+class QQPairs(torch.utils.data.Dataset):
+    '''
+    Example line:
+    id	qid1	qid2	question1	question2	is_duplicate
+    133273	213221	213222	How is the life of a math student? Could you describe your own experiences?	Which level of prepration is enough for the exam jlpt5?	0
+    402555	536040	536041	How do I control my horny emotions?	How do you control your horniness?	1
 
-        This prepares the QNLI task
-        '''
+    This prepares the Quora Question Pairs GLUE Task
 
-        self.path = 'C:\w266\data\GLUE\Question NLI\QNLI'
+    Parameters
+    ----------
+    transform : optionable, callable flag
+        Whether or not we need to tokenize transform the data
+
+    Returns
+    -------
+    sample : dict
+        A dictionary containing: (1) text, (2) text2, (3) labels,
+        and index positions
+    '''
+
+    NAME = 'QQPairs'
+
+    def __init__(self, type, transform=None):
+        # set path for data
+        self.path = 'C:\w266\data\GLUE\Quora Question Pairs\QQP'
         self.type = type
         if self.type == 'train':
             # initialize train
             self.train = pd.read_csv(self.path + '\\' + 'train.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
-                                     encoding='latin-1',
-                                     error_bad_lines=False) #SOME BAD LINES IN THIS DATA
-            self.train.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.train.label = np.where(self.train.label == 'entailment', 1, 0)
-
+                                     encoding='latin-1')
         if self.type == 'dev':
             # initialize dev
             self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
                                      #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
-                                     encoding='latin-1',
-                                     error_bad_lines=False)
-            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.dev.columns = ['id', 'sentence1', 'sentence2', 'label']
-            self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
+                                     encoding='latin-1')
 
         # initialize the transform if specified
         if transform:
             self.transform = transform
         else:
             self.transform = Tokenize_Transform()
+
+    # get len
+    def __len__(self):
+        if self.type == 'train':
+            return len(self.train)
+
+        if self.type == 'dev':
+            return len(self.dev)
+
+    # pull a sample of data
+    def __getitem__(self, idx):
+        '''
+        Torch's lazy emission system
+        '''
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        # if train, package this up
+        if self.type == 'train':
+            sample = {'text': self.train.question1[idx],
+                      'text2': self.train.question2[idx],
+                      'label': self.train.is_duplicate[idx],
+                      'idx': self.train.id[idx]}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
+
+        # if dev, package this
+        if self.type == 'dev':
+            sample = {'text': self.dev.question1[idx],
+                      'text2': self.dev.question2[idx],
+                      'label': self.dev.is_duplicate[idx],
+                      'idx': self.dev.id[idx]}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
 
 
 
@@ -152,7 +193,7 @@ class Tokenize_Transform():
                                 sample['text'],  # document to encode.
                                 sample['text2'], #second sentence to encode
                                 add_special_tokens=True,  # add '[CLS]' and '[SEP]'
-                                max_length=512,  # set max length; SST is 64
+                                max_length=55,  # set max length; SST is 64
                                 truncation=True,  # truncate longer messages
                                 padding='max_length',  # add padding
                                 return_attention_mask=True,  # create attn. masks
@@ -221,20 +262,20 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
     batch_num = args.embed_batch_size  # needs to perfectly divide data set
     num_documents = len(train_dataset)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_bert_embeds.h5', 'w') as f:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(len(train_dataset), 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
                                 chunks=(args.embed_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_labels.h5', 'w') as l:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(len(train_dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_idx.h5', 'w') as i:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
         idx_dset = i.create_dataset('idx', shape=(len(train_dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
@@ -274,7 +315,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_bert_embeds.h5', 'a') as f:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_bert_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -286,7 +327,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             x = f['embeds'][start:start+args.embed_batch_size, :, :, :]
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_labels.h5', 'a') as l:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_labels.h5', 'a') as l:
             label_dset = l['labels']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -296,7 +337,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             label_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add idx to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_idx.h5', 'a') as i:
+        with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_idx.h5', 'a') as i:
             idx_dset = i['idx']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -309,12 +350,12 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_bert_embeds.h5', 'r') as f:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_bert_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         print('embed shape', f['embeds'].shape)
         print('last entry:', f['embeds'][-1, :, :, :])
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qnli_labels.h5', 'r') as l:
+    with h5py.File('C:\\w266\\data2\\h5py_embeds\\qqpairs_labels.h5', 'r') as l:
         print('last embed batch entry', l['labels'].attrs['last_index'])
         print('embed shape', l['labels'].shape)
         print('last entry:', l['labels'][len(train_dataset)-10: len(train_dataset)])
@@ -332,7 +373,7 @@ def main():
     parser.add_argument('--model', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
-    parser.add_argument('--batch-size', type=int, default=4, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=8, metavar='N',
                          help='input batch size for training (default: 16)')
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                          help='number of epochs to train (default: 1)')
@@ -346,7 +387,7 @@ def main():
                          help='number of labels to classify (default: 2)')
     parser.add_argument('--l2', type=float, default=0.01, metavar='LR',
                          help='l2 regularization weight (default: 0.01)')
-    parser.add_argument('--max-seq-length', type=int, default=512, metavar='N',
+    parser.add_argument('--max-seq-length', type=int, default=55, metavar='N',
                          help='max sequence length for encoding (default: 512)')
     parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                          help='Warmup proportion (default: 0.1)')
@@ -366,7 +407,7 @@ def main():
     tokenizer = BertTokenizerFast.from_pretrained(args.tokenizer)
 
     # build df
-    train_ds = QNLI(type='train')
+    train_ds = QQPairs(type='train')
 
     # create training dataloader
     train_dataloader = DataLoader(train_ds,
@@ -422,7 +463,7 @@ def main():
         logs = dict(train_log)
         if logs['loss'] < best_loss:
             # torch save
-            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-QNLI' + '_epoch_{}.pt'.format(epoch))
+            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-qqpairs' + '_epoch_{}.pt'.format(epoch))
             best_loss = logs['loss']
         show_info = f'\nEpoch: {epoch} - ' + "-".join([f' {key}: {value:.4f} ' for key, value in logs.items()])
         print(show_info)
@@ -432,7 +473,7 @@ def main():
                                                           num_labels=args.num_labels,
                                                           output_hidden_states=True).to(device)
     # load weights from 1 epoch
-    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-QNLI_epoch_1.pt'))
+    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-qqpairs_epoch_1.pt'))
 
     # export embeddings
     emit_embeddings(embed_dataloader, train_ds, model, device, args)
