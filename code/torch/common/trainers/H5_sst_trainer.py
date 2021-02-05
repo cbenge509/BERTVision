@@ -68,12 +68,18 @@ class H5_SST_Trainer(object):
             len(self.train_examples) / args.batch_size) * args.epochs
 
         # set log info and template
-        self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
-        self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
+        if self.args.num_labels > 1:
+            self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
+
+        if self.args.num_labels == 1:
+            self.log_header = 'Epoch Iteration Progress   RMSE  Pearson.  Spearman'
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f}'.split(','))
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
         self.best_dev_f1, self.unimproved_iters = 0, 0
+        self.pearson_score = 0
         self.early_stop = False
 
     def train_epoch(self, criterion, train_dataloader):
@@ -140,17 +146,40 @@ class H5_SST_Trainer(object):
             # train
             self.train_epoch(self.criterion, train_dataloader)
             # get dev loss
-            dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
+            if self.args.num_labels > 1:
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
+            if self.args.num_labels == 1:
+                rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
             # print validation results
             tqdm.write(self.log_header)
             tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+                                                rmse, pearson_r, spearman_r))
 
             # update validation results
-            if dev_f1 > self.best_dev_f1:
+            if spearman_r > self.pearson_score:
                 self.unimproved_iters = 0
-                self.best_dev_f1 = dev_f1
+                self.pearson_score = spearman_r
                 torch.save(self.model, self.snapshot_path)
 
             else:
@@ -158,7 +187,7 @@ class H5_SST_Trainer(object):
                 self.unimproved_iters += 1
                 if self.unimproved_iters >= self.args.patience:
                     self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                    tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
                     break
 
 #
