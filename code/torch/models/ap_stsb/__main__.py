@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from torch.cuda.amp import GradScaler
 from transformers import AdamW, get_linear_schedule_with_warmup, BertTokenizerFast
-
+from torch.nn import MSELoss
 
 # main fun.
 if __name__ == '__main__':
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # use it to create the train set
     train_processor = processor(type='train')
     # set loss
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
 
     # set some other training objects
     args.batch_size = args.batch_size

@@ -80,7 +80,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 `python -m models.qqpairs --dataset QQPairs --model QQPairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
 
-`python -m models.ap_qqpairs --dataset QNLIH5 --model ap_qqpairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+`python -m models.ap_qqpairs --dataset QQPairs --model ap_qqpairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
 
 |BERT-base RTE | BERTVision RTE |
 |--|--|
