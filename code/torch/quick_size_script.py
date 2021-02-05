@@ -3,7 +3,7 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "deluxe-airfare",
+   "id": "behavioral-bennett",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -13,7 +13,7 @@
   {
    "cell_type": "code",
    "execution_count": 13,
-   "id": "alpine-belle",
+   "id": "furnished-aquatic",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -25,7 +25,7 @@
   {
    "cell_type": "code",
    "execution_count": 9,
-   "id": "personal-tower",
+   "id": "hybrid-recall",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -35,7 +35,7 @@
   {
    "cell_type": "code",
    "execution_count": 19,
-   "id": "charitable-irish",
+   "id": "removable-german",
    "metadata": {},
    "outputs": [
     {
@@ -93,7 +93,7 @@
   {
    "cell_type": "code",
    "execution_count": 20,
-   "id": "solar-press",
+   "id": "split-senate",
    "metadata": {},
    "outputs": [
     {
@@ -114,7 +114,7 @@
   {
    "cell_type": "code",
    "execution_count": 22,
-   "id": "industrial-punch",
+   "id": "serial-celebrity",
    "metadata": {},
    "outputs": [
     {
@@ -152,7 +152,7 @@
   {
    "cell_type": "code",
    "execution_count": 23,
-   "id": "numerical-yukon",
+   "id": "challenging-intent",
    "metadata": {},
    "outputs": [
     {
@@ -173,7 +173,7 @@
   },
   {
    "cell_type": "markdown",
-   "id": "subject-marks",
+   "id": "prepared-execution",
    "metadata": {},
    "source": [
     "### Manually evaluating model and dataset"
@@ -182,7 +182,7 @@
   {
    "cell_type": "code",
    "execution_count": 1,
-   "id": "prescription-nightmare",
+   "id": "sustained-yorkshire",
    "metadata": {},
    "outputs": [],
    "source": [
@@ -197,7 +197,7 @@
   {
    "cell_type": "code",
    "execution_count": 2,
-   "id": "minus-enemy",
+   "id": "phantom-arbor",
    "metadata": {},
    "outputs": [
     {
@@ -219,8 +219,10 @@
   {
    "cell_type": "code",
    "execution_count": 3,
-   "id": "reduced-lucas",
-   "metadata": {},
+   "id": "organizational-problem",
+   "metadata": {
+    "scrolled": true
+   },
    "outputs": [
     {
      "name": "stderr",
@@ -254,21 +256,31 @@
   {
    "cell_type": "code",
    "execution_count": null,
-   "id": "transsexual-neutral",
-   "metadata": {},
+   "id": "concerned-peeing",
+   "metadata": {
+    "scrolled": true
+   },
    "outputs": [
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "b'Skipping line 10344: expected 4 fields, saw 5\\nSkipping line 10897: expected 4 fields, saw 5\\nSkipping line 11356: expected 4 fields, saw 5\\nSkipping line 11367: expected 4 fields, saw 5\\nSkipping line 16599: expected 4 fields, saw 5\\nSkipping line 17114: expected 4 fields, saw 5\\nSkipping line 23153: expected 4 fields, saw 5\\nSkipping line 25672: expected 4 fields, saw 5\\nSkipping line 31107: expected 4 fields, saw 5\\nSkipping line 31359: expected 4 fields, saw 5\\nSkipping line 31402: expected 4 fields, saw 5\\nSkipping line 32555: expected 4 fields, saw 5\\nSkipping line 38524: expected 4 fields, saw 5\\nSkipping line 46338: expected 4 fields, saw 5\\nSkipping line 47889: expected 4 fields, saw 5\\nSkipping line 56759: expected 4 fields, saw 5\\nSkipping line 56850: expected 4 fields, saw 5\\nSkipping line 56919: expected 4 fields, saw 5\\nSkipping line 57514: expected 4 fields, saw 5\\nSkipping line 67155: expected 4 fields, saw 5\\nSkipping line 75061: expected 4 fields, saw 5\\nSkipping line 75721: expected 4 fields, saw 5\\nSkipping line 76275: expected 4 fields, saw 5\\nSkipping line 81073: expected 4 fields, saw 5\\nSkipping line 81535: expected 4 fields, saw 5\\nSkipping line 82386: expected 4 fields, saw 5\\nSkipping line 83818: expected 4 fields, saw 5\\nSkipping line 84674: expected 4 fields, saw 5\\nSkipping line 88965: expected 4 fields, saw 5\\nSkipping line 90380: expected 4 fields, saw 5\\nSkipping line 91441: expected 4 fields, saw 5\\nSkipping line 91640: expected 4 fields, saw 5\\nSkipping line 92513: expected 4 fields, saw 5\\nSkipping line 102152: expected 4 fields, saw 5\\n'\n",
-      "Evaluating:  10%|█████████████▊                                                                                                                        | 1329/12889 [02:23<19:11, 10.04it/s]"
+      "b'Skipping line 660: expected 4 fields, saw 5\\n'\n",
+      "Evaluating:  81%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████▋                         | 537/659 [01:00<00:13,  9.17it/s]"
      ]
     }
    ],
    "source": [
-    "e = BertClassEvaluator(model, QNLI, Args()).get_loss('train')"
+    "e = BertClassEvaluator(model, QNLI, Args()).get_loss('dev')"
    ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "brutal-narrative",
+   "metadata": {},
+   "outputs": [],
+   "source": []
   }
  ],
  "metadata": {
