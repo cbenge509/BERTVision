@@ -173,6 +173,52 @@ class H5_SST_Trainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
                         break
 
+            # get dev loss
+            elif self.args.num_labels > 1 and self.args.model_name == 'ap_mnli':
+                # matched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_mnli(type='dev_matched')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
+                # mismatched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_mnli(type='dev_mismatched')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
             elif self.args.num_labels == 1 and self.args.model_name == 'ap_stsb':
                 rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 

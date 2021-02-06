@@ -480,7 +480,8 @@ class MNLI(TwoSentenceLoader):
                                          encoding='latin-1',
                                          error_bad_lines=False,
                                          quoting = csv.QUOTE_NONE)
-            else:
+                
+            if self.type == 'dev_mismatched':
                 self.dev = pd.read_csv(self.path + '\\' + 'dev_mismatched.tsv', sep='\t',
                                          #names='id	qid1	qid2	question1	question2	is_duplicate'.split('\t'),
                                          encoding='latin-1',
