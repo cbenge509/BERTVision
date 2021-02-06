@@ -329,7 +329,7 @@ def main():
 
     # create embed dataloader
     embed_dataloader = DataLoader(dev_ds,
-                                batch_size=args.batch_size,
+                                batch_size=args.embed_batch_size,
                                 shuffle=True,
                                 num_workers=args.num_workers,
                                 drop_last=False)
