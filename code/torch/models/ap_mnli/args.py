@@ -15,7 +15,7 @@ def get_args():
     parser.add_argument('--dataset', type=str, default='MNLIH5', choices=['MNLIH5'])
     parser.add_argument('--model-name', default='ap_mnli', type=str)
     parser.add_argument('--num-labels', default=3, type=int)
-    parser.add_argument('--max-seq-length', default=426, type=int)
+    parser.add_argument('--max-seq-length', default=100, type=int)
     parser.add_argument('--save-path', type=str, default=os.path.join('model_checkpoints'))
     parser.add_argument('--is-multilabel', default=False, action='store_true')
     parser.add_argument('--is-binary', dest='is-multilabel', action='store_true')
