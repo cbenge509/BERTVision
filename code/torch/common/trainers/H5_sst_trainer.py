@@ -76,9 +76,14 @@ class H5_SST_Trainer(object):
             self.log_header = 'Epoch Iteration Progress   RMSE  Pearson.  Spearman'
             self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f}'.split(','))
 
+        if self.args.model_name == 'ap_cola':
+            self.log_header = 'Epoch Iteration Progress   Dev/Matthews   Dev/Loss'
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f}'.split(','))        
+
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
         self.best_dev_f1, self.unimproved_iters = 0, 0
+        self.best_dev_loss = 9999
         self.pearson_score = 0
         self.early_stop = False
 
@@ -188,6 +193,28 @@ class H5_SST_Trainer(object):
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
+                        break
+
+            if self.args.model_name == 'ap_cola':
+                matthews, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    matthews, dev_loss))
+
+                # update validation results
+                if dev_loss < self.best_dev_loss:
+                    self.unimproved_iters = 0
+                    self.best_dev_loss = dev_loss
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
                         break
 
 #
