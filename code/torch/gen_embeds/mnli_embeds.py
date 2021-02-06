@@ -171,7 +171,7 @@ class Tokenize_Transform():
                                 sample['text'],  # document to encode.
                                 sample['text2'], #second sentence to encode
                                 add_special_tokens=True,  # add '[CLS]' and '[SEP]'
-                                max_length=426,  # set max length; SST is 64
+                                max_length=100,  # set max length; SST is 64
                                 truncation=True,  # truncate longer messages
                                 padding='max_length',  # add padding
                                 return_attention_mask=True,  # create attn. masks
@@ -365,8 +365,8 @@ def main():
                          help='number of labels to classify (default: 3)')
     parser.add_argument('--l2', type=float, default=0.01, metavar='LR',
                          help='l2 regularization weight (default: 0.01)')
-    parser.add_argument('--max-seq-length', type=int, default=426, metavar='N',
-                         help='max sequence length for encoding (default: 426)')
+    parser.add_argument('--max-seq-length', type=int, default=100, metavar='N',
+                         help='max sequence length for encoding (default: 100)')
     parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                          help='Warmup proportion (default: 0.1)')
     parser.add_argument('--embed-batch-size', type=int, default=1, metavar='N',
