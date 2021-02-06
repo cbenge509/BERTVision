@@ -15,10 +15,11 @@ def get_args():
     parser.add_argument('--dataset', type=str, default='SSTH5', choices=['SSTH5'])
     parser.add_argument('--model-name', default='ap_sst', type=str)
     parser.add_argument('--save-path', type=str, default=os.path.join('model_checkpoints'))
+    parser.add_argument('--num-labels', type=int, default=2)
     # runs sst-5 with --is-multilabel
     parser.add_argument('--is-multilabel', default=False, action='store_true')
     parser.add_argument('--is-binary', dest='is-multilabel', action='store_true')
-    
+
     parser.add_argument('--warmup-proportion',
                         default=0.1,
                         type=float,
