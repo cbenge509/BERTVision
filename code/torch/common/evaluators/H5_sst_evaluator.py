@@ -112,7 +112,7 @@ class H5_SST_Evaluator(object):
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
         avg_loss = self.dev_loss / self.nb_dev_steps
 
-        if self.args.num_labels == 1:
+        if (self.args.num_labels == 1) and (self.args.model_name != 'ap_cola'):
             mse = metrics.mean_squared_error(predicted_labels, target_labels)
             rmse = np.sqrt(mse)
             pearson_r = pearsonr(predicted_labels, target_labels)

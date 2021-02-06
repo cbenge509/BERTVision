@@ -78,7 +78,7 @@ class H5_SST_Trainer(object):
 
         if self.args.model_name == 'ap_cola':
             self.log_header = 'Epoch Iteration Progress   Dev/Matthews   Dev/Loss'
-            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f}'.split(','))        
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f}'.split(','))
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
@@ -173,7 +173,7 @@ class H5_SST_Trainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
                         break
 
-            if self.args.num_labels == 1:
+            if (self.args.num_labels == 1) and (self.args.model_name != 'ap_cola'):
                 rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
                 # print validation results
