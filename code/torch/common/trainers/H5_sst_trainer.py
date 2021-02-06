@@ -151,7 +151,7 @@ class H5_SST_Trainer(object):
             # train
             self.train_epoch(self.criterion, train_dataloader)
             # get dev loss
-            if self.args.num_labels > 1 and self.args.model_name != 'ap_cola':
+            if all( [self.args.num_labels > 1, self.args.model_name != 'ap_cola', self.args.model_name != 'ap_mnli'] ):
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
                 # print validation results
@@ -174,7 +174,7 @@ class H5_SST_Trainer(object):
                         break
 
             # get dev loss
-            elif self.args.num_labels > 1 and self.args.model_name == 'ap_mnli':
+            elif all( [self.args.num_labels > 1, self.args.model_name == 'ap_mnli'] ):
                 # matched
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_mnli(type='dev_matched')
 
