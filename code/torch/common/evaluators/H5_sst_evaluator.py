@@ -112,7 +112,7 @@ class H5_SST_Evaluator(object):
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
         avg_loss = self.dev_loss / self.nb_dev_steps
 
-        if (self.args.num_labels == 1) and (self.args.model_name != 'ap_cola'):
+        if self.args.num_labels == 1 and self.args.model_name != 'ap_cola':
             mse = metrics.mean_squared_error(predicted_labels, target_labels)
             rmse = np.sqrt(mse)
             pearson_r = pearsonr(predicted_labels, target_labels)
@@ -120,7 +120,7 @@ class H5_SST_Evaluator(object):
 
             return rmse, pearson_r[0], spearman_r[0]
 
-        if self.args.num_labels > 1:
+        elif self.args.num_labels > 1 and self.args.model_name != 'ap_cola':
             accuracy = metrics.accuracy_score(target_labels, predicted_labels)
             precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
@@ -128,7 +128,7 @@ class H5_SST_Evaluator(object):
 
             return accuracy, precision, recall, f1, avg_loss
 
-        if self.args.model_name == 'ap_cola':
+        elif self.args.model_name == 'ap_cola':
             matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
             return matthew1, avg_loss
 

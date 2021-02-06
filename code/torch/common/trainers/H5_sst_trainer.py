@@ -151,7 +151,7 @@ class H5_SST_Trainer(object):
             # train
             self.train_epoch(self.criterion, train_dataloader)
             # get dev loss
-            if self.args.num_labels > 1:
+            if self.args.num_labels > 1 and self.args.model_name != 'ap_cola':
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
                 # print validation results
@@ -173,7 +173,7 @@ class H5_SST_Trainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
                         break
 
-            if (self.args.num_labels == 1) and (self.args.model_name != 'ap_cola'):
+            elif self.args.num_labels == 1 and self.args.model_name == 'ap_stsb':
                 rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
                 # print validation results
@@ -195,7 +195,7 @@ class H5_SST_Trainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
                         break
 
-            if self.args.model_name == 'ap_cola':
+            elif self.args.model_name == 'ap_cola':
                 matthews, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
                 # print validation results
