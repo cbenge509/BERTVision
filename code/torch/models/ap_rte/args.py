@@ -14,6 +14,7 @@ def get_args():
     parser.add_argument('--device', default=device)
     parser.add_argument('--dataset', type=str, default='RTEH5', choices=['RTEH5'])
     parser.add_argument('--model-name', default='ap_rte', type=str)
+    parser.add_argument('--num-labels', type=int, default=2)
     parser.add_argument('--save-path', type=str, default=os.path.join('model_checkpoints'))
     parser.add_argument('--is-multilabel', default=False, action='store_true')
     parser.add_argument('--is-binary', dest='is-multilabel', action='store_true')
