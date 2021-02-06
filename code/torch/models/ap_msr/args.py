@@ -14,10 +14,11 @@ def get_args():
     parser.add_argument('--device', default=device)
     parser.add_argument('--dataset', type=str, default='MSRH5', choices=['MSRH5'])
     parser.add_argument('--model-name', default='ap_msr', type=str)
+    parser.add_argument('--num-labels', type=int, default=2)
     parser.add_argument('--save-path', type=str, default=os.path.join('model_checkpoints'))
     parser.add_argument('--is-multilabel', default=False, action='store_true')
     parser.add_argument('--is-binary', dest='is-multilabel', action='store_true')
-    
+
     parser.add_argument('--warmup-proportion',
                         default=0.1,
                         type=float,

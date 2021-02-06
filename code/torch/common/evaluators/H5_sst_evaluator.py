@@ -126,7 +126,14 @@ class H5_SST_Evaluator(object):
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
 
+            return accuracy, precision, recall, f1, avg_loss
 
-        return accuracy, precision, recall, f1, avg_loss
+        if self.args.model_name == 'ap_cola':
+            matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
+            return matthew1, avg_loss
+
+
+
+
 
 #
