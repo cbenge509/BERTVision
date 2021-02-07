@@ -2,7 +2,7 @@
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 from data.h5_processors.sst_H5_processor import SSTH5Processor
-from utils.compress_utils import AdapterPooler, SST_AP
+from utils.compress_utils import AdapterPooler, SST_AP, SST_AP2, AdapterPooler2
 from common.trainers.H5_sst_trainer import H5_SST_Trainer
 from models.ap_sst.args import get_args
 import numpy as np
