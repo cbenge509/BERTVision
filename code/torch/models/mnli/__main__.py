@@ -3,8 +3,8 @@ import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 sys.path.append("C:/BERTVision/code/torch/bert_processors")
 from data.bert_processors.processors import MNLI
-from common.trainers.bert_trainer_sj import BertClassTrainer
-from models.sst.args import get_args
+from common.trainers.bert_class_trainer_alt import BertClassTrainer
+from models.mnli.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
@@ -20,11 +20,11 @@ if __name__ == '__main__':
 
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'mnli_matched': MNLI
+        'MNLI': MNLI
     }
 
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'mnli_matched'
+    args.dataset = 'MNLI'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
@@ -69,7 +69,8 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = MNLI_model(0.7, 768).cuda() #dropout rate, bert base uncased hidden_state_size
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+                                                          num_labels=args.num_labels).to(device)
 
     # print metrics
     print('Device:', str(device).upper())
