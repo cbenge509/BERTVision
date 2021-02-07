@@ -2,7 +2,7 @@
 import pathlib, time, datetime, h5py, sys
 sys.path.append("C:/BERTVision/code/torch")
 from argparse import ArgumentParser
-from collate import collate_squad_train, collate_squad_dev, collate_squad_score
+from utils.collate import collate_squad_train, collate_squad_dev, collate_squad_score
 from tools import AverageMeter, ProgressBar, format_time
 from squad_preprocess import prepare_train_features, prepare_validation_features, postprocess_qa_predictions
 import pandas as pd
