@@ -172,7 +172,7 @@ class BertClassTrainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
                         break
 
-            elif self.args.model_name == 'MNLI':
+            elif self.args.model_name == 'MNLI' or self.args.model_name == 'RTE':
                 # train
                 self.train_epoch(train_dataloader)
                 # matched

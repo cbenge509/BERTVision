@@ -8,7 +8,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_args():
     # retreive the general models.args and attach them here
     parser = models.args.get_args()
-    # set some SST specific args
+    # set some RTE specific args
     parser.add_argument('--model', default=None, type=str, required=True)
 
     parser.add_argument('--device', default=device)
@@ -16,6 +16,7 @@ def get_args():
     parser.add_argument('--dataset', type=str, default='RTE')
 
     parser.add_argument('--model-name', default='RTE', type=str)
+    parser.add_argument('--num-labels', default=2, type=int)
 
     # runs sst-5 with --is-multilabel
     parser.add_argument('--is-multilabel', default=False, action='store_true')
