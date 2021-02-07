@@ -138,7 +138,7 @@ class BertClassEvaluator(object):
                                     shuffle=True,
                                     num_workers=self.args.num_workers,
                                     drop_last=False,
-                                    collate_fn=collate_H5_SST)
+                                    collate_fn=collate_SST)
 
         # set the model to evaluation
         self.model.eval()
