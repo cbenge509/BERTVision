@@ -172,7 +172,32 @@ class BertClassTrainer(object):
                         tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
                         break
 
-            elif self.args.model_name == 'MNLI' or self.args.model_name == 'RTE':
+            elif self.args.model_name == 'RTE':
+                # train
+                self.train_epoch(train_dataloader)
+                # matched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss_mnli(type='dev')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
+            elif self.args.model_name == 'MNLI':
                 # train
                 self.train_epoch(train_dataloader)
                 # matched
