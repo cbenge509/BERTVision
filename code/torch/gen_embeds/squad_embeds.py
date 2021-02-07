@@ -344,7 +344,7 @@ def main():
         train_log = train(model, train_dataloader, scaler, optimizer, scheduler, device)
         if train_log['train_loss'] < best_loss:
             # torch save
-            torch.save(model.state_dict(), 'C:\\BERTVision\\model_checkpoints\\BERT-QA' + '_epoch_{}.pt'.format(epoch))
+            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-QA' + '_epoch_{}.pt'.format(epoch))
             best_loss = train_log['train_loss']
         show_info = f'\nEpoch: {epoch} - ' + "-".join([f' {key}: {value:.4f} ' for key, value in train_log.items()])
         print(show_info)
@@ -354,7 +354,7 @@ def main():
                                                      output_hidden_states=True).to(device)
 
     # load weights from 1 epoch
-    model.load_state_dict(torch.load('C:\\BERTVision\\model_checkpoints\\BERT-QA_epoch_1.pt'))
+    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-QA_epoch_1.pt'))
 
     # export embeddings
     emit_embeddings(embed_dataloader, train_ds, model, device, args)
