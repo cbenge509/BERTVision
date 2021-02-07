@@ -94,26 +94,26 @@ def emit_embeddings(dataloader, dataset, model, device, args):
     batch_num = args.embed_batch_size
     num_documents = len(dataset)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_embeds.h5', 'w') as f:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(len(dataset), 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
                                 chunks=(args.embed_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_start_labels.h5', 'w') as s:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_start_labels.h5', 'w') as s:
         # create empty data set; [batch_sz]
         start_dset = s.create_dataset('start_ids', shape=(len(dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_end_labels.h5', 'w') as e:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_end_labels.h5', 'w') as e:
         # create empty data set; [batch_sz]
         end_dset = e.create_dataset('end_ids', shape=(len(dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_indices.h5', 'w') as i:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_indices.h5', 'w') as i:
         # create empty data set; [batch_sz]
         indices_dset = i.create_dataset('indices', shape=(len(dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
@@ -156,7 +156,7 @@ def emit_embeddings(dataloader, dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_embeds.h5', 'a') as f:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -166,7 +166,7 @@ def emit_embeddings(dataloader, dataset, model, device, args):
             dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_start_labels.h5', 'a') as s:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_start_labels.h5', 'a') as s:
             start_dset = s['start_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -176,7 +176,7 @@ def emit_embeddings(dataloader, dataset, model, device, args):
             start_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_end_labels.h5', 'a') as e:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_end_labels.h5', 'a') as e:
             end_dset = e['end_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -186,7 +186,7 @@ def emit_embeddings(dataloader, dataset, model, device, args):
             end_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add indices to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_indices.h5', 'a') as i:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_indices.h5', 'a') as i:
             indices_dset = i['indices']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -199,7 +199,7 @@ def emit_embeddings(dataloader, dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_dev_embeds.h5', 'r') as f:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_dev_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         # check the integrity of the embeddings
         x = f['embeds'][start:start+args.embed_batch_size, :, :, :]
