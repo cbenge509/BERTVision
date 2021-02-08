@@ -72,7 +72,7 @@ class BertClassTrainer(object):
             self.log_header = 'Epoch Iteration Progress   Dev/Matthews  Dev/Loss'
             self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:10.4f}'.split(','))
 
-        elif self.args.model_name == 'MNLI':
+        else:
             # set log info and template
             self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
             self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
