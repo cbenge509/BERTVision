@@ -173,7 +173,12 @@ class SST_AP(torch.nn.Module):
         x = self.linear1(x)  # [batch_sz, num_labels]
         return x
 
+class Swish(nn.Module):
+    def __init__(self):
+        super().__init__()
 
+    def forward(self, x):
+        return x * x.sigmoid()
 
 class DetectParts(nn.Module):
     """
@@ -195,12 +200,14 @@ class DetectParts(nn.Module):
         # outputs [bs, tokens, features]
         return x.squeeze(2)
 
+
+
 class DP_Model(torch.nn.Module):
     '''
     Detect Parts Demo
     '''
     def __init__(self, layers, batch_sz, tokens, features, labels):
-        super(AdapterPooler, self).__init__()
+        super(DP_Model, self).__init__()
         self.GELU = torch.nn.GELU()
         self.n_layers = layers
         self.n_batch_sz = batch_sz
@@ -211,7 +218,7 @@ class DP_Model(torch.nn.Module):
         self.d_depth = 13
         self.d_emb = 768
         self.d_inp = 128
-        self.DP = DetectParts(d_depth=self.d_depth, d_emb=self.d_emb, d_inp=self.d_inp).to(device)
+        self.DP = DetectParts(d_depth=self.d_depth, d_emb=self.d_emb, d_inp=self.d_inp)
         self.out_layer = torch.nn.Linear(self.d_inp*self.n_tokens*self.d_depth, self.n_labels)
 
     def forward(self, x):
