@@ -67,8 +67,16 @@ class BertClassTrainer(object):
             len(self.train_examples) / args.batch_size) * args.epochs
 
         # set log info and template
-        self.log_header = 'Epoch Iteration Progress   Dev/Matthews  Dev/Loss'
-        self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:10.4f}'.split(','))
+        if self.args.model_name == 'COLA':
+
+            self.log_header = 'Epoch Iteration Progress   Dev/Matthews  Dev/Loss'
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:10.4f}'.split(','))
+
+        else:
+            # set log info and template
+            self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
+            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
+
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
@@ -138,28 +146,101 @@ class BertClassTrainer(object):
                                       collate_fn=collate_SST)
         # for each epoch
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
-            # train
-            self.train_epoch(train_dataloader)
-            # get dev loss
-            matthews, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss()
 
-            # print validation results
-            tqdm.write(self.log_header)
-            tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                matthews, dev_loss))
+            if self.args.model_name == 'COLA':
+                # train
+                self.train_epoch(train_dataloader)
+                # get dev loss
+                matthews, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss()
 
-            # update validation results
-            if dev_loss < self.best_dev_loss:
-                self.unimproved_iters = 0
-                self.best_dev_loss = dev_loss
-                torch.save(self.model, self.snapshot_path)
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    matthews, dev_loss))
 
-            else:
-                # stop training with early stopping
-                self.unimproved_iters += 1
-                if self.unimproved_iters >= self.args.patience:
-                    self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
-                    break
+                # update validation results
+                if dev_loss < self.best_dev_loss:
+                    self.unimproved_iters = 0
+                    self.best_dev_loss = dev_loss
+                    torch.save(self.model, self.snapshot_path)
 
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
+                        break
+
+            elif self.args.model_name == 'RTE':
+                # train
+                self.train_epoch(train_dataloader)
+                # matched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss_mnli(type='dev')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
+            elif self.args.model_name == 'MNLI':
+                # train
+                self.train_epoch(train_dataloader)
+                # matched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss_mnli(type='dev_matched')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
+
+                # matched
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertClassEvaluator(self.model, self.processor, self.args).get_loss_mnli(type='dev_mismatched')
+
+                # print validation results
+                tqdm.write(self.log_header)
+                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
+                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+
+                # update validation results
+                if dev_f1 > self.best_dev_f1:
+                    self.unimproved_iters = 0
+                    self.best_dev_f1 = dev_f1
+                    torch.save(self.model, self.snapshot_path)
+
+                else:
+                    # stop training with early stopping
+                    self.unimproved_iters += 1
+                    if self.unimproved_iters >= self.args.patience:
+                        self.early_stop = True
+                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        break
 #

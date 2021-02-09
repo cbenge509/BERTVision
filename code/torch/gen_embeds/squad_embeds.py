@@ -2,14 +2,14 @@
 import pathlib, time, datetime, h5py, sys
 sys.path.append("C:/BERTVision/code/torch")
 from argparse import ArgumentParser
-from collate import collate_squad_train, collate_squad_dev, collate_squad_score
-from tools import AverageMeter, ProgressBar, format_time
-from squad_preprocess import prepare_train_features, prepare_validation_features, postprocess_qa_predictions
+from utils.collate import collate_squad_train, collate_squad_dev, collate_squad_score
+from utils.tools import AverageMeter, ProgressBar, format_time
+from utils.squad_preprocess import prepare_train_features, prepare_validation_features, postprocess_qa_predictions
 import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForQuestionAnswering, AdamW
+from transformers import BertTokenizerFast, BertForQuestionAnswering, AdamW, get_linear_schedule_with_warmup
 from torch.utils.data import DataLoader
 from torch.cuda.amp import autocast, GradScaler
 from datasets import load_dataset, load_metric
@@ -128,26 +128,26 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
     batch_num = args.embed_batch_size
     num_documents = len(train_dataset)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_embeds.h5', 'w') as f:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(len(train_dataset), 13, args.max_seq_length, 768),
                                 maxshape=(None, 13, args.max_seq_length, 768),
                                 chunks=(args.embed_batch_size, 13, args.max_seq_length, 768),
                                 dtype=np.float32)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_start_labels.h5', 'w') as s:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_start_labels.h5', 'w') as s:
         # create empty data set; [batch_sz]
         start_dset = s.create_dataset('start_ids', shape=(len(train_dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_end_labels.h5', 'w') as e:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_end_labels.h5', 'w') as e:
         # create empty data set; [batch_sz]
         end_dset = e.create_dataset('end_ids', shape=(len(train_dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_indices.h5', 'w') as i:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_indices.h5', 'w') as i:
         # create empty data set; [batch_sz]
         indices_dset = i.create_dataset('indices', shape=(len(train_dataset),),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
@@ -190,7 +190,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_embeds.h5', 'a') as f:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -200,7 +200,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_start_labels.h5', 'a') as s:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_start_labels.h5', 'a') as s:
             start_dset = s['start_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -210,7 +210,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             start_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_end_labels.h5', 'a') as e:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_end_labels.h5', 'a') as e:
             end_dset = e['end_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -220,7 +220,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             end_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add indices to ds
-        with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_indices.h5', 'a') as i:
+        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_indices.h5', 'a') as i:
             indices_dset = i['indices']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -233,7 +233,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File('C:\\w266\\data2\\h5py_embeds\\squad_train_embeds.h5', 'r') as f:
+    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         # check the integrity of the embeddings
         x = f['embeds'][start:start+14, :, :, :]
@@ -253,12 +253,12 @@ def main():
     parser.add_argument('--model', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
-    parser.add_argument('--batch-size', type=int, default=14, metavar='N',
-                         help='input batch size for training (default: 14)')
+    parser.add_argument('--batch-size', type=int, default=16, metavar='N',
+                         help='input batch size for training (default: 16)')
     parser.add_argument('--epochs', type=int, default=1, metavar='N',
                          help='number of epochs to train (default: 1)')
-    parser.add_argument('--lr', type=float, default=3e-5, metavar='LR',
-                         help='learning rate (default: 3e-5)')
+    parser.add_argument('--lr', type=float, default=2e-5, metavar='LR',
+                         help='learning rate default from HuggingFace (default: 2e-5)')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                          help='random seed (default: 1)')
     parser.add_argument('--num-workers', type=int, default=4, metavar='N',
@@ -269,8 +269,8 @@ def main():
                          help='max sequence length for encoding (default: 384)')
     parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                          help='Warmup proportion (default: 0.1)')
-    parser.add_argument('--embed-batch-size', type=int, default=14, metavar='N',
-                         help='Embedding batch size emission (default: 14)')
+    parser.add_argument('--embed-batch-size', type=int, default=1, metavar='N',
+                         help='Embedding batch size emission (default: 1)')
     args = parser.parse_args()
 
     # set device
@@ -344,7 +344,7 @@ def main():
         train_log = train(model, train_dataloader, scaler, optimizer, scheduler, device)
         if train_log['train_loss'] < best_loss:
             # torch save
-            torch.save(model.state_dict(), 'C:\\BERTVision\\model_checkpoints\\BERT-QA' + '_epoch_{}.pt'.format(epoch))
+            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-QA' + '_epoch_{}.pt'.format(epoch))
             best_loss = train_log['train_loss']
         show_info = f'\nEpoch: {epoch} - ' + "-".join([f' {key}: {value:.4f} ' for key, value in train_log.items()])
         print(show_info)
@@ -354,7 +354,7 @@ def main():
                                                      output_hidden_states=True).to(device)
 
     # load weights from 1 epoch
-    model.load_state_dict(torch.load('C:\\BERTVision\\model_checkpoints\\BERT-QA_epoch_1.pt'))
+    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-QA_epoch_1.pt'))
 
     # export embeddings
     emit_embeddings(embed_dataloader, train_ds, model, device, args)
