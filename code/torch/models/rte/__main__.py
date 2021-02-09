@@ -3,8 +3,8 @@ import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 sys.path.append("C:/BERTVision/code/torch/bert_processors")
 from data.bert_processors.processors import RTE
-from common.trainers.bert_trainer_sj import BertClassTrainer
-from models.sst.args import get_args
+from common.trainers.bert_class_trainer_alt import BertClassTrainer
+from models.rte.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
@@ -53,8 +53,7 @@ if __name__ == '__main__':
 
     # set data set processor
     processor = dataset_map[args.dataset]
-    # set tokenizer
-    #tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
+
     # use it to create the train set
     train_processor = processor(type='train')
     # set some other training objects
@@ -69,7 +68,8 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = RTE_model(0.7, 768).cuda() #dropout rate, bert base uncased hidden_state_size
+    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+                                                          num_labels=args.num_labels).to(device)
 
     # print metrics
     print('Device:', str(device).upper())
