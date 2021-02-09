@@ -175,4 +175,53 @@ class SST_AP(torch.nn.Module):
 
 
 
+class DetectParts(nn.Module):
+    """
+    d_depth = n  # number of layers (embeddings per token)
+    d_emb = n  # dimension of token embeddings (features)
+    d_inp = n  # number of features computed per embedding
+    """
+    def __init__(self, d_depth, d_emb, d_inp):
+        super().__init__()
+        self.depth_emb = nn.Parameter(torch.zeros(d_depth, d_emb))
+        self.detect_parts = nn.Sequential(nn.Linear(d_emb, d_inp), Swish(), nn.LayerNorm(d_inp))
+        nn.init.kaiming_normal_(self.detect_parts[0].weight)
+        nn.init.zeros_(self.detect_parts[0].bias)
+        # bert emits ([13, 16, 512, 768])
+    def forward(self, x):
+        x = x.permute(1, 2, 0, 3)                          # [bs, tokens, layers=1, features]
+        x = self.detect_parts(x + self.depth_emb)          # [bs, n, d_depth, d_inp]
+        x = x.view(x.shape[0], -1, 1, x.shape[-1])         # [bs, (n * d_depth), 1, d_inp]
+        # outputs [bs, tokens, features]
+        return x.squeeze(2)
+
+class DP_Model(torch.nn.Module):
+    '''
+    Detect Parts Demo
+    '''
+    def __init__(self, layers, batch_sz, tokens, features, labels):
+        super(AdapterPooler, self).__init__()
+        self.GELU = torch.nn.GELU()
+        self.n_layers = layers
+        self.n_batch_sz = batch_sz
+        self.n_tokens = tokens
+        self.n_features = features
+        self.dropout = torch.nn.Dropout(0.3)
+        self.n_labels = labels
+        self.d_depth = 13
+        self.d_emb = 768
+        self.d_inp = 128
+        self.DP = DetectParts(d_depth=self.d_depth, d_emb=self.d_emb, d_inp=self.d_inp).to(device)
+        self.out_layer = torch.nn.Linear(self.d_inp*self.n_tokens*self.d_depth, self.n_labels)
+
+    def forward(self, x):
+        # BERT/H5 emits: # [layers, batch_sz, tokens, features]]
+        x = self.DP(x)
+        x = x.view(self.n_batch_sz, -1)
+        x = self.GELU(x)
+        x = self.dropout(x)
+        x = self.out_layer(x)
+        return x
+
+
 #
