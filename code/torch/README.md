@@ -11,6 +11,8 @@ pip install pytreebank
 # Our Results
 BERT-base and AP Models
 
+<img align="center" src="../../images/bert_base_vs_bertvision.png>"/>
+
 ## SQuAD 2.0
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
