@@ -224,7 +224,7 @@ class DP_Model(torch.nn.Module):
     def forward(self, x):
         # BERT/H5 emits: # [layers, batch_sz, tokens, features]]
         x = self.DP(x)
-        x = x.view(self.n_batch_sz, -1)
+        x = x.view(-1, self.n_layers*self.n_tokens*self.d_inp)
         x = self.GELU(x)
         x = self.dropout(x)
         x = self.out_layer(x)
