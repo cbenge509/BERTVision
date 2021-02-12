@@ -8,6 +8,59 @@ conda install -c install tokenizers
 pip install pytreebank
 ```
 
+
+# New Model Code:
+
+Will clean this up soon
+
+## bert-base
+```
+python -m models.rte --model RTE --checkpoint bert-base-uncased
+python -m models.ap_rte --model AP_RTE --checkpoint bert-base-uncased
+
+python -m models.wnli --model WNLI --checkpoint bert-base-uncased
+
+python -m models.sst --model SST --checkpoint bert-base-uncased
+
+python -m models.msr --model MSR --checkpoint bert-base-uncased
+
+python -m models.mnli --model MNLI --checkpoint bert-base-uncased
+
+python -m models.qqpairs --model QQPairs --checkpoint bert-base-uncased
+
+python -m models.qnli --model QNLI --checkpoint bert-base-uncased
+
+python -m models.cola --model COLA --checkpoint bert-base-uncased
+
+python -m models.stsb --model STSB --checkpoint bert-base-uncased
+
+python -m models.squad --model SQuAD --checkpoint bert-base-uncased
+```
+## bert-large
+```
+python -m models.rte --model RTE --checkpoint bert-large-uncased
+python -m models.ap_rte --model AP_RTE --checkpoint bert-large-uncased
+
+python -m models.wnli --model WNLI --checkpoint bert-large-uncased
+
+python -m models.sst --model SST --checkpoint bert-large-uncased
+
+python -m models.msr --model MSR --checkpoint bert-large-uncased
+
+python -m models.mnli --model MNLI --checkpoint bert-large-uncased
+
+python -m models.qqpairs --model QQPairs --checkpoint bert-large-uncased
+
+python -m models.qnli --model QNLI --checkpoint bert-large-uncased
+
+python -m models.cola --model COLA --checkpoint bert-large-uncased
+
+python -m models.stsb --model STSB --checkpoint bert-large-uncased
+
+python -m models.squad --model SQuAD --checkpoint bert-large-uncased
+```
+
+
 # Our Results
 BERT-base and AP Models
 
