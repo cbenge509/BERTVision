@@ -1,17 +1,16 @@
 # packages
 import os, sys, datetime
 sys.path.append("C:/BERTVision/code/torch")
-from common.evaluators.H5_sst_evaluator import H5_SST_Evaluator
-from utils.collate import collate_H5_SST
+from common.evaluators.H5_glue_evaluator import H5_GLUE_Evaluator
+from utils.collate import collate_H5_GLUE
 from torch.cuda.amp import autocast
 import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
+import numpy as np
 
-
-
-class H5_SST_Trainer(object):
+class H5_GLUE_Trainer(object):
     '''
     This class handles the training of 1-epoch tuned QA embeddings from BERT
 
@@ -48,7 +47,7 @@ class H5_SST_Trainer(object):
 
 
     '''
-    def __init__(self, model, criterion, optimizer, processor, scheduler, args, scaler):
+    def __init__(self, model, criterion, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
@@ -57,33 +56,26 @@ class H5_SST_Trainer(object):
         self.processor = processor
         self.scheduler = scheduler
         self.scaler = scaler
+        self.logger = logger
+
         # specify training data set
-        self.train_examples = processor(type='train')
+        self.train_examples = processor(type='train', args=self.args)
+
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
         # create a location to save the files
-        self.snapshot_path = os.path.join(self.args.save_path, self.processor.NAME, self.args.model_name, '%s.pt' % timestamp)
+        self.snapshot_path = os.path.join(args.save_path, args.checkpoint, args.model, '%s.pt' % timestamp)
+        self.make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
+        os.makedirs(self.make_path, exist_ok=True)
+
         # determine the number of optimization steps
         self.num_train_optimization_steps = int(
             len(self.train_examples) / args.batch_size) * args.epochs
 
-        # set log info and template
-        if self.args.num_labels > 1:
-            self.log_header = 'Epoch Iteration Progress   Dev/Acc.  Dev/Pr.  Dev/Re.   Dev/F1   Dev/Loss'
-            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f},{:8.4f},{:10.4f}'.split(','))
-
-        if self.args.num_labels == 1:
-            self.log_header = 'Epoch Iteration Progress   RMSE  Pearson.  Spearman'
-            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f}'.split(','))
-
-        if self.args.model_name == 'ap_cola':
-            self.log_header = 'Epoch Iteration Progress   Dev/Matthews   Dev/Loss'
-            self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f}'.split(','))
-
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
-        self.best_dev_f1, self.unimproved_iters = 0, 0
-        self.best_dev_loss = 9999
+        self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
         self.pearson_score = 0
         self.early_stop = False
 
@@ -107,10 +99,8 @@ class H5_SST_Trainer(object):
                     # get loss
                 if self.args.num_labels == 1:
                     loss = criterion(logits.view(-1), labels.view(-1))
-                if self.args.num_labels > 1:
+                else:
                     loss = criterion(logits, labels)
-
-                    #print(loss)
 
                 # multi-gpu loss
                 if self.args.n_gpu > 1:
@@ -127,42 +117,52 @@ class H5_SST_Trainer(object):
                 self.tr_loss += loss.item()
                 self.nb_tr_steps += 1
 
+        # gen. loss
+        avg_loss = self.tr_loss / self.nb_tr_steps
+
         # print end of trainig results
-        print('\n', 'train loss', self.tr_loss / self.nb_tr_steps)
+        self.logger.info(f"Training complete! Loss: {avg_loss}")
 
     def train(self):
         '''
         This function handles the entirety of the training, dev, and scoring.
         '''
         # tell the user general metrics
-        print("Number of examples: ", len(self.train_examples))
-        print("Batch size:", self.args.batch_size)
-        print("Number of optimization steps:", self.num_train_optimization_steps)
+        self.logger.info(f"Number of examples: {len(self.train_examples)}")
+        self.logger.info(f"Batch size: {len(self.train_examples)}")
+        self.logger.info(f"Number of optimization steps: {self.num_train_optimization_steps}")
 
         # instantiate dataloader
         train_dataloader = DataLoader(self.train_examples,
                                       batch_size=self.args.batch_size,
                                       shuffle=True,
                                       num_workers=self.args.num_workers,
-                                      drop_last=False,  # need to swap to False; find error
-                                      collate_fn=collate_H5_SST)
+                                      drop_last=False,
+                                      collate_fn=collate_H5_GLUE)
         # for each epoch
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
-            # train
-            self.train_epoch(self.criterion, train_dataloader)
-            # get dev loss
-            if all( [self.args.num_labels > 1, self.args.model_name != 'ap_cola', self.args.model_name != 'ap_mnli'] ):
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
 
+            # check model
+            if any([self.args.model == 'AP_SST',
+                    self.args.model == 'AP_MSR',
+                    self.args.model == 'AP_RTE',
+                    self.args.model == 'AP_QNLI',
+                    self.args.model == 'AP_QQPairs',
+                    self.args.model == 'AP_WNLI'
+                    ]):
+
+                # train
+                self.train_epoch(self.criterion, train_dataloader)
+                # get metrics
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
-                tqdm.write(self.log_header)
-                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+                self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
+                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
                 # update validation results
-                if dev_f1 > self.best_dev_f1:
+                if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
-                    self.best_dev_f1 = dev_f1
+                    self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -170,23 +170,24 @@ class H5_SST_Trainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
             # get dev loss
-            elif all( [self.args.num_labels > 1, self.args.model_name == 'ap_mnli'] ):
-                # matched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_mnli(type='dev_matched')
+            elif all([self.args.num_labels > 1, self.args.model == 'AP_MNLI']):
 
+                # train
+                self.train_epoch(self.criterion, train_dataloader)
+                # get metrics
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_matched')
                 # print validation results
-                tqdm.write(self.log_header)
-                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+                self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
+                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
                 # update validation results
-                if dev_f1 > self.best_dev_f1:
+                if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
-                    self.best_dev_f1 = dev_f1
+                    self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -194,21 +195,19 @@ class H5_SST_Trainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-                # mismatched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_mnli(type='dev_mismatched')
-
+                # get metrics
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
                 # print validation results
-                tqdm.write(self.log_header)
-                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                    dev_acc, dev_precision, dev_recall, dev_f1, dev_loss))
+                self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
+                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
                 # update validation results
-                if dev_f1 > self.best_dev_f1:
+                if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
-                    self.best_dev_f1 = dev_f1
+                    self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -216,21 +215,22 @@ class H5_SST_Trainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-            elif self.args.num_labels == 1 and self.args.model_name == 'ap_stsb':
-                rmse, pearson_r, spearman_r = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
+            elif all([self.args.num_labels == 1 and self.args.model == 'AP_STSB']):
+
+                # get metrics
+                pearson, spearman, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
 
                 # print validation results
-                tqdm.write(self.log_header)
-                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                    rmse, pearson_r, spearman_r))
+                self.logger.info("Epoch {0: d}, Dev/Pearson {1: 0.3f}, Dev/Spearman {2: 0.3f}, Dev/Loss {3: 0.3f}",
+                                 epoch+1, pearson, spearman, dev_loss)
 
                 # update validation results
-                if spearman_r > self.pearson_score:
+                if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
-                    self.pearson_score = spearman_r
+                    self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -238,21 +238,21 @@ class H5_SST_Trainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        tqdm.write("Early Stopping. Epoch: {}, Best Dev Pearson: {}".format(epoch, self.pearson_score))
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-            elif self.args.model_name == 'ap_cola':
-                matthews, dev_loss = H5_SST_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss()
+            elif self.args.model == 'AP_COLA':
 
+                # get metrics
+                matthews, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
-                tqdm.write(self.log_header)
-                tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                    matthews, dev_loss))
+                self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
+                                 epoch+1, matthews, dev_loss)
 
                 # update validation results
-                if dev_loss < self.best_dev_loss:
+                if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
-                    self.best_dev_loss = dev_loss
+                    self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -260,7 +260,7 @@ class H5_SST_Trainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        tqdm.write("Early Stopping. Epoch: {}, Best Dev Loss: {}".format(epoch, self.best_dev_loss))
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
 #
