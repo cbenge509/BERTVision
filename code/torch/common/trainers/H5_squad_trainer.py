@@ -5,6 +5,7 @@ from utils.collate import collate_H5
 from common.evaluators.H5_evaluator import H5Evaluator
 from torch.cuda.amp import autocast
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
@@ -68,7 +69,7 @@ class H5_SQUAD_Trainer(object):
         # create a location to save the files
         self.snapshot_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model, '%s.pt' % timestamp)
         self.make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
-        os.makedirs(self.make_path, exist_ok=True)        
+        os.makedirs(self.make_path, exist_ok=True)
 
         # determine the number of optimization steps
         self.num_train_optimization_steps = int(
