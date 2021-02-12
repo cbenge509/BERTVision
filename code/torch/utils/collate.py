@@ -142,8 +142,8 @@ def collate_squad_score(batch):
     return sample
 
 
-# collate fn for SST
-def collate_SST(batch):
+# collate fn for BERT
+def collate_BERT(batch):
     ''' This function packages the tokens and squeezes out the extra
     dimension.
     '''
@@ -167,7 +167,7 @@ def collate_SST(batch):
 
 
 # collate fn for H5
-def collate_H5(batch):
+def collate_H5_squad(batch):
     ''' This function alters the emitted dimensions from the dataloader
     from: [batch_sz, layers, tokens, features]
     to: [layers, batch_sz, tokens, features] for the embeddings
@@ -191,7 +191,7 @@ def collate_H5(batch):
 
 
 # collate fn for H5
-def collate_H5_SST(batch):
+def collate_H5_GLUE(batch):
     ''' This collects the data from the H5 data set and emits them as:
      [batch_sz, layers, tokens, features]
     '''

@@ -43,7 +43,7 @@ class BertQATrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler):
+    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
@@ -51,23 +51,26 @@ class BertQATrainer(object):
         self.processor = processor
         self.scheduler = scheduler
         self.scaler = scaler
+        self.logger = logger
+
         # specify training data set
-        self.train_examples = processor(type='train')
+        self.train_examples = processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
+
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
         # create a location to save the files
-        self.snapshot_path = os.path.join(self.args.save_path, self.processor.NAME, self.args.model_name, '%s.pt' % timestamp)
+        self.snapshot_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model, '%s.pt' % timestamp)
+        self.make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
+        os.makedirs(self.make_path, exist_ok=True)
+
         # determine the number of optimization steps
         self.num_train_optimization_steps = int(
             len(self.train_examples) / args.batch_size) * args.epochs
 
-        # set log info and template
-        self.log_header = 'Epoch Iteration Progress   Dev/Exact  Dev/F1   Dev/Loss'
-        self.log_template = ' '.join('{:>5.0f},{:>9.0f},{:>6.0f}/{:<5.0f} {:>6.4f},{:>8.4f},{:8.4f}'.split(','))
-
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
-        self.best_dev_f1, self.unimproved_iters = 0, 0
+        self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
         self.early_stop = False
 
     def train_epoch(self, train_dataloader):
@@ -98,6 +101,7 @@ class BertQATrainer(object):
                 loss = out.loss.mean()
             else:
                 loss = out.loss
+
             # backward
             self.scaler.scale(out.loss).backward()
             self.scaler.step(self.optimizer)
@@ -109,17 +113,20 @@ class BertQATrainer(object):
             self.tr_loss += loss.item()
             self.nb_tr_steps += 1
 
+        # gen. loss
+        avg_loss = self.tr_loss / self.nb_tr_steps
+
         # print end of trainig results
-        print('\n', 'train loss', self.tr_loss / self.nb_tr_steps)
+        self.logger.info(f"Training complete! Loss: {avg_loss}")
 
     def train(self):
         '''
         This function handles the entirety of the training, dev, and scoring.
         '''
         # tell the user general metrics
-        print("Number of examples: ", len(self.train_examples))
-        print("Batch size:", self.args.batch_size)
-        print("Number of optimization steps:", self.num_train_optimization_steps)
+        self.logger.info(f"Number of examples: {len(self.train_examples)}")
+        self.logger.info(f"Batch size: {len(self.train_examples)}")
+        self.logger.info(f"Number of optimization steps: {self.num_train_optimization_steps}")
 
         # instantiate dataloader
         train_dataloader = DataLoader(self.train_examples,
@@ -138,11 +145,9 @@ class BertQATrainer(object):
             logits, indices = BertQAEvaluator(self.model, self.processor, self.args).get_scores()
             # compute scores
             metrics = BertQAEvaluator(self.model, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
-
             # print validation results
-            tqdm.write(self.log_header)
-            tqdm.write(self.log_template.format(epoch + 1, self.iterations, epoch + 1, self.args.epochs,
-                                                metrics['exact'], metrics['f1'], dev_loss))
+            self.logger.info("Epoch {0: d}, Dev/Exact {1: 0.3f}, Dev/F1. {2: 0.3f}",
+                             epoch+1, metrics['exact'], metrics['f1'])
 
             # update validation results
             if metrics['f1'] > self.best_dev_f1:
@@ -155,7 +160,7 @@ class BertQATrainer(object):
                 self.unimproved_iters += 1
                 if self.unimproved_iters >= self.args.patience:
                     self.early_stop = True
-                    tqdm.write("Early Stopping. Epoch: {}, Best Dev F1: {}".format(epoch, self.best_dev_f1))
+                    self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev F1: {self.best_dev_f1}")
                     break
 
 #

@@ -19,7 +19,6 @@ import csv
 
 
 # prepare torch data set
-
 class COLA(torch.utils.data.Dataset):
     '''
     Example line:

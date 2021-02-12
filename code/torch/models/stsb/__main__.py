@@ -1,38 +1,41 @@
 # packages
 import sys, os, random
-sys.path.append("C:/media/temp")
-sys.path.append("C:/media/temp/data")
-sys.path.append("C:/media/temp/data/bert_processors")
-
-from data.bert_processors.processors import STSB
-from common.trainers.bert_trainer_cb import BertClassTrainer
+sys.path.append("C:/BERTVision/code/torch")
+from data.bert_processors.processors import STSB, Tokenize_Transform
+from common.trainers.bert_glue_trainer import BertGLUETrainer
 from models.stsb.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup, BertConfig
+from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from torch.cuda.amp import GradScaler
-from utils.bert_models import STSB_model
+from loguru import logger
 
 
 # main fun.
 if __name__ == '__main__':
     # set default configuration in args.py
     args = get_args()
-
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
         'STSB': STSB
     }
-
     # tell the CLI user that they mistyped the data set
     args.dataset = 'STSB'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
     # set the location for saving the model
-    save_path = os.path.join(args.save_path, dataset_map[args.dataset].NAME, args.model_name)
+    save_path = os.path.join(args.save_path, args.checkpoint, args.model)
     os.makedirs(save_path, exist_ok=True)
+
+    # set the location for saving the log
+    log_path = os.path.join(args.log_path, args.checkpoint, args.model)
+    os.makedirs(log_path, exist_ok=True)
+
+    # initialize logging
+    logger.add(log_path + '\\' + args.model + '.log', rotation="10 MB")
+    logger.info(f"Training model {args.model} on this checkpoint: {args.checkpoint}")
 
     # set device to gpu/cpu
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -55,8 +58,10 @@ if __name__ == '__main__':
 
     # set data set processor
     processor = dataset_map[args.dataset]
+
     # use it to create the train set
-    train_processor = processor(type='train')
+    train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
+
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
@@ -66,12 +71,12 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = BertForSequenceClassification.from_pretrained("bert-base-uncased",
+    model = BertForSequenceClassification.from_pretrained(args.checkpoint,
                                                           num_labels=args.num_labels).to(device)
 
     # print metrics
-    print('Device:', str(device).upper())
-    print('Number of GPUs:', n_gpu)
+    logger.info(f"Device: {str(device).upper()}")
+    logger.info(f"Number of GPUs: {n_gpu}")
 
     # for multi-GPU
     if n_gpu > 1:
@@ -99,11 +104,13 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = BertClassTrainer(model, optimizer, processor, scheduler, args, scaler)
+    trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint
     model = torch.load(trainer.snapshot_path)
+
+
 
 
 #
