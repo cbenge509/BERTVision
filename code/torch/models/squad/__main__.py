@@ -18,7 +18,7 @@ if __name__ == '__main__':
     args = get_args()
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'SQuAD': SQuAD
+        'SQuAD': SQuADProcessor
     }
     # tell the CLI user that they mistyped the data set
     args.dataset = 'SQuAD'
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     processor = dataset_map[args.dataset]
 
     # use it to create the train set
-    train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
+    train_processor = processor(type='train')
 
     # set some other training objects
     args.batch_size = args.batch_size
