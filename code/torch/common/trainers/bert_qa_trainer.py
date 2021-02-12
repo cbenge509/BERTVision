@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
-
+import numpy as np
 
 class BertQATrainer(object):
     '''
@@ -54,7 +54,7 @@ class BertQATrainer(object):
         self.logger = logger
 
         # specify training data set
-        self.train_examples = processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
+        self.train_examples = processor(type='train')
 
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
