@@ -21,7 +21,7 @@ def get_args():
                         default=3,
                         type=int)
     parser.add_argument('--max-seq-length',
-                        default=80,
+                        default=114,
                         type=int,
                         help='Tokenization max length')
     parser.add_argument('--save-path',

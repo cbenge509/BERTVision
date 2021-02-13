@@ -7,7 +7,7 @@ def get_args():
 
     parser.add_argument('--batch-size', type=int, default=16, help='input batch size for training (default: 16)')
 
-    parser.add_argument('--lr', type=float, default=3e-5, help='learning rate (default: 1e-5)')
+    parser.add_argument('--lr', type=float, default=1e-5, help='learning rate (default: 1e-5)')
 
     parser.add_argument('--num-workers', type=int, default=0, help='Number of CPU cores (default: 0) H5PY cannot pickle')
 
