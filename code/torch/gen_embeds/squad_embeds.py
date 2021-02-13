@@ -1,6 +1,7 @@
 # packages
-import pathlib, time, datetime, h5py, sys
+import pathlib, time, datetime, h5py, sys, os
 sys.path.append("C:/BERTVision/code/torch")
+from data.bert_processors.processors import SQuADProcessor
 from argparse import ArgumentParser
 from utils.collate import collate_squad_train, collate_squad_dev, collate_squad_score
 from utils.tools import AverageMeter, ProgressBar, format_time
@@ -13,79 +14,6 @@ from transformers import BertTokenizerFast, BertForQuestionAnswering, AdamW, get
 from torch.utils.data import DataLoader
 from torch.cuda.amp import autocast, GradScaler
 from datasets import load_dataset, load_metric
-
-
-class SQuADProcessor(torch.utils.data.Dataset):
-    '''
-    This class uses HuggingFace's official data processing functions and
-    emits them through a torch data set.
-
-    Parameters
-    ----------
-    type : string
-        A string used to flag conditional statements in order to use/retrieve
-        the right data set.
-
-    Returns
-    -------
-    sample : tensor
-        A single sample of data indexed by the torch data set.
-    '''
-
-    NAME = 'SQuAD'
-
-    def __init__(self, type):
-        # flag to initialize data of choice
-        self.type = type
-
-        # if train, initialize the tokenized train data
-        if self.type == 'train':
-            self.train = load_dataset("squad_v2")['train'].shuffle(seed=1).map(
-                prepare_train_features,
-                batched=True,
-                remove_columns=['answers', 'context', 'id', 'question', 'title']
-                )
-
-        # if train, initialize the tokenized dev data for training (e.g., for loss)
-        if self.type == 'dev':
-            self.dev = load_dataset("squad_v2")['validation'].shuffle(seed=1).map(
-                prepare_train_features,
-                batched=True,
-                remove_columns=['answers', 'context', 'id', 'question', 'title']
-                )
-
-        # if score, initialize the tokenized dev data for validation (e.g., for metrics)
-        if self.type == 'score':
-            self.score = load_dataset("squad_v2")['validation'].shuffle(seed=1).map(
-                prepare_validation_features,
-                batched=True,
-                remove_columns=['answers', 'context', 'id', 'question', 'title']
-                )
-
-        return None
-
-    def __len__(self):
-        if self.type == 'train':
-            return len(self.train)
-        if self.type == 'dev':
-            return len(self.dev)
-        if self.type == 'score':
-            return len(self.score)
-
-    def __getitem__(self, idx):
-        '''
-        Torch's lazy emission system
-        '''
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-
-        if self.type == 'train':
-            return (self.train[idx], idx)
-        if self.type == 'dev':
-            return (self.dev[idx], idx)
-        if self.type == 'score':
-            return (self.score[idx], idx)
-
 
 
 # train function
@@ -115,45 +43,57 @@ def train(model, dataloader, scaler, optimizer, scheduler, device):
         scaler.step(optimizer)
         scaler.update()
         scheduler.step()
-        pbar(step=batch_idx, info={'loss': out[0].item()})
+        pbar(step=batch_idx, info={'loss': train_loss.avg})
         train_loss.update(out[0].item(), n=1)
     train_log = {'train_loss': train_loss.avg}
     return train_log
 
 
 # prepare embedding extraction
-def emit_embeddings(dataloader, train_dataset, model, device, args):
+def emit_train_embeddings(dataloader, train_dataset, model, device, args):
     # timing metrics
     t0 = time.time()
     batch_num = args.embed_batch_size
     num_documents = len(train_dataset)
 
-    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'w') as f:
+    # set file location and layer / feature information
+    if args.checkpoint == 'bert-base-uncased':
+        save_location = 'C:\\w266\\data\\h5py_embeds\\'
+        args.n_layers = 13
+        args.n_features = 768
+    else:
+        save_location = 'C:\\w266\\data\\h5py_embeds\\bert_large\\'
+        args.n_layers = 25
+        args.n_features = 1024
+    # create the dirs
+    os.makedirs(save_location, exist_ok=True)
+
+    with h5py.File(save_location + 'squad_train_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
-        dset = f.create_dataset('embeds', shape=(len(train_dataset), 13, args.max_seq_length, 768),
-                                maxshape=(None, 13, args.max_seq_length, 768),
-                                chunks=(args.embed_batch_size, 13, args.max_seq_length, 768),
+        dset = f.create_dataset('embeds', shape=(num_documents, args.n_layers, args.max_seq_length, args.n_features),
+                                maxshape=(None, args.n_layers, args.max_seq_length, args.n_features),
+                                chunks=(args.embed_batch_size, args.n_layers, args.max_seq_length, args.n_features),
                                 dtype=np.float32)
 
-    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_start_labels.h5', 'w') as s:
+    with h5py.File(save_location + 'squad_train_start_labels.h5', 'w') as s:
         # create empty data set; [batch_sz]
-        start_dset = s.create_dataset('start_ids', shape=(len(train_dataset),),
+        start_dset = s.create_dataset('start_ids', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_end_labels.h5', 'w') as e:
+    with h5py.File(save_location + 'squad_train_end_labels.h5', 'w') as e:
         # create empty data set; [batch_sz]
-        end_dset = e.create_dataset('end_ids', shape=(len(train_dataset),),
+        end_dset = e.create_dataset('end_ids', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_indices.h5', 'w') as i:
+    with h5py.File(save_location + 'squad_train_indices.h5', 'w') as i:
         # create empty data set; [batch_sz]
-        indices_dset = i.create_dataset('indices', shape=(len(train_dataset),),
+        indices_dset = i.create_dataset('indices', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    print('Generating embeddings for all {:,} documents...'.format(len(train_dataset)))
+    print('Generating embeddings for all {:,} documents...'.format(num_documents))
     for step, batch in enumerate(dataloader):
         # send necessary items to GPU
         input_ids, attn_mask, start_pos, end_pos, token_type_ids, indices = (batch['input_ids'].to(device),
@@ -190,7 +130,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'a') as f:
+        with h5py.File(save_location + 'squad_train_embeds.h5', 'a') as f:
             dset = f['embeds']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -200,7 +140,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_start_labels.h5', 'a') as s:
+        with h5py.File(save_location + 'squad_train_start_labels.h5', 'a') as s:
             start_dset = s['start_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -210,7 +150,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             start_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_end_labels.h5', 'a') as e:
+        with h5py.File(save_location + 'squad_train_end_labels.h5', 'a') as e:
             end_dset = e['end_ids']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -220,7 +160,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
             end_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add indices to ds
-        with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_indices.h5', 'a') as i:
+        with h5py.File(save_location + 'squad_train_indices.h5', 'a') as i:
             indices_dset = i['indices']
             # add chunk of rows
             start = step*args.embed_batch_size
@@ -233,7 +173,7 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File('C:\\w266\\data\\h5py_embeds\\squad_train_embeds.h5', 'r') as f:
+    with h5py.File(save_location + 'squad_train_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         # check the integrity of the embeddings
         x = f['embeds'][start:start+14, :, :, :]
@@ -244,9 +184,150 @@ def emit_embeddings(dataloader, train_dataset, model, device, args):
     return None
 
 
+
+# prepare embedding extraction
+def emit_dev_embeddings(dataloader, dataset, model, device, args):
+    # timing metrics
+    t0 = time.time()
+    batch_num = args.embed_batch_size
+    num_documents = len(dataset)
+
+    # set file location and layer / feature information
+    if args.checkpoint == 'bert-base-uncased':
+        save_location = 'C:\\w266\\data\\h5py_embeds\\'
+        args.n_layers = 13
+        args.n_features = 768
+    else:
+        save_location = 'C:\\w266\\data\\h5py_embeds\\bert_large\\'
+        args.n_layers = 25
+        args.n_features = 1024
+    # create the dirs
+    os.makedirs(save_location, exist_ok=True)
+
+    with h5py.File(save_location + 'squad_dev_embeds.h5', 'w') as f:
+        # create empty data set; [batch_sz, layers, tokens, features]
+        dset =f.create_dataset('embeds', shape=(num_documents, args.n_layers, args.max_seq_length, args.n_features),
+                                maxshape=(None, args.n_layers, args.max_seq_length, args.n_features),
+                                chunks=(args.embed_batch_size, args.n_layers, args.max_seq_length, args.n_features),
+                                dtype=np.float32)
+
+    with h5py.File(save_location + 'squad_dev_start_labels.h5', 'w') as s:
+        # create empty data set; [batch_sz]
+        start_dset = s.create_dataset('start_ids', shape=(num_documents,),
+                                      maxshape=(None,), chunks=(args.embed_batch_size,),
+                                      dtype=np.int64)
+
+    with h5py.File(save_location + 'squad_dev_end_labels.h5', 'w') as e:
+        # create empty data set; [batch_sz]
+        end_dset = e.create_dataset('end_ids', shape=(num_documents,),
+                                      maxshape=(None,), chunks=(args.embed_batch_size,),
+                                      dtype=np.int64)
+
+    with h5py.File(save_location + 'squad_dev_indices.h5', 'w') as i:
+        # create empty data set; [batch_sz]
+        indices_dset = i.create_dataset('indices', shape=(num_documents,),
+                                      maxshape=(None,), chunks=(args.embed_batch_size,),
+                                      dtype=np.int64)
+
+    print('Generating embeddings for all {:,} documents...'.format(num_documents))
+    for step, batch in enumerate(dataloader):
+        # send necessary items to GPU
+        input_ids, attn_mask, start_pos, end_pos, token_type_ids, indices = (batch['input_ids'].to(device),
+                                       batch['attention_mask'].to(device),
+                                       batch['start_positions'].to(device),
+                                       batch['end_positions'].to(device),
+                                       batch['token_type_ids'].to(device),
+                                       batch['idx'].to(device))
+
+        if step % 20 == 0 and not batch_num == 0:
+            # calc elapsed time
+            elapsed = format_time(time.time() - t0)
+            # calc time remaining
+            rows_per_sec = (time.time() - t0) / batch_num
+            remaining_sec = rows_per_sec * (num_documents - batch_num)
+            remaining = format_time(remaining_sec)
+            # report progress
+            print('Documents {:>7,} of {:>7,}. Elapsed: {:}. Remaining: {:}'.format(batch_num, num_documents, elapsed, remaining))
+
+        # get embeddings with no gradient calcs
+        with torch.no_grad():
+            # ['hidden_states'] is embeddings for all layers
+            out = model(input_ids=input_ids,
+                        attention_mask=attn_mask,
+                        start_positions=start_pos,
+                        end_positions=end_pos,
+                        token_type_ids=token_type_ids)
+
+        # stack embeddings [layers, batch_sz, tokens, features]
+        embeddings = torch.stack(out['hidden_states']).float()  # float32
+
+        # swap the order to: [batch_sz, layers, tokens, features]
+        # we need to do this to emit batches from h5 dataset later
+        embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
+
+        # add embeds to ds
+        with h5py.File(save_location + 'squad_dev_embeds.h5', 'a') as f:
+            dset = f['embeds']
+            # add chunk of rows
+            start = step*args.embed_batch_size
+            # [batch_sz, layer, tokens, features]
+            dset[start:start+args.embed_batch_size, :, :, :] = embeddings[:, :, :, :]
+            # Create attribute with last_index value
+            dset.attrs['last_index'] = (step+1)*args.embed_batch_size
+
+        # add labels to ds
+        with h5py.File(save_location + 'squad_dev_start_labels.h5', 'a') as s:
+            start_dset = s['start_ids']
+            # add chunk of rows
+            start = step*args.embed_batch_size
+            # [batch_sz, layer, tokens, features]
+            start_dset[start:start+args.embed_batch_size] = start_pos.cpu().numpy()
+            # Create attribute with last_index value
+            start_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
+
+        # add labels to ds
+        with h5py.File(save_location + 'squad_dev_end_labels.h5', 'a') as e:
+            end_dset = e['end_ids']
+            # add chunk of rows
+            start = step*args.embed_batch_size
+            # [batch_sz, layer, tokens, features]
+            end_dset[start:start+args.embed_batch_size] = end_pos.cpu().numpy()
+            # Create attribute with last_index value
+            end_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
+
+        # add indices to ds
+        with h5py.File(save_location + 'squad_dev_indices.h5', 'a') as i:
+            indices_dset = i['indices']
+            # add chunk of rows
+            start = step*args.embed_batch_size
+            # [batch_sz, layer, tokens, features]
+            indices_dset[start:start+args.embed_batch_size] = indices.cpu().numpy()
+            # Create attribute with last_index value
+            indices_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
+
+        batch_num += args.embed_batch_size
+        torch.cuda.empty_cache()
+
+    # check data
+    with h5py.File(save_location + 'squad_dev_embeds.h5', 'r') as f:
+        print('last embed batch entry', f['embeds'].attrs['last_index'])
+        # check the integrity of the embeddings
+        x = f['embeds'][start:start+args.embed_batch_size, :, :, :]
+        assert np.array_equal(x, embeddings), 'not a match'
+        print('embed shape', f['embeds'].shape)
+        print('last entry:', f['embeds'][-1, :, :, :])
+
+    return None
+
 def main():
     # training settings
     parser = ArgumentParser(description='SQuAD 2.0')
+    parser.add_argument('--name', type=str,
+                        default='SQuAD', metavar='S',
+                        help="SQuAD")
+    parser.add_argument('--checkpoint', type=str,
+                        default='bert-base-uncased', metavar='S',
+                        help="e.g., bert-base-uncased, etc")
     parser.add_argument('--tokenizer', type=str,
                         default='bert-base-uncased', metavar='S',
                         help="e.g., bert-base-uncased, etc")
@@ -289,6 +370,7 @@ def main():
 
     # tokenize / load train
     train_ds = SQuADProcessor(type='train')
+    dev_ds = SQuADProcessor(type='dev')
 
     # create train dataloader
     train_dataloader = DataLoader(train_ds,
@@ -300,10 +382,18 @@ def main():
 
 
     # create embed dataloader
-    embed_dataloader = DataLoader(train_ds,
+    embed_train_dataloader = DataLoader(train_ds,
                                 batch_size=args.embed_batch_size,
                                 shuffle=True,
                                 collate_fn=collate_squad_train,
+                                num_workers=args.num_workers,
+                                drop_last=False)
+
+    # create embed dataloader
+    embed_dev_dataloader = DataLoader(dev_ds,
+                                batch_size=args.embed_batch_size,
+                                shuffle=True,
+                                collate_fn=collate_squad_dev,
                                 num_workers=args.num_workers,
                                 drop_last=False)
 
@@ -338,13 +428,20 @@ def main():
     # set epochs
     epochs = args.epochs
 
+    # set location and make if necessary
+    if args.checkpoint == 'bert-base-uncased':
+        checkpoint_location = 'C:\\w266\\data\\embed_checkpoints\\'
+    elif args.checkpoint == 'bert-large-uncased':
+        checkpoint_location = 'C:\\w266\\data\\embed_checkpoints\\bert_large\\'
+    os.makedirs(checkpoint_location, exist_ok=True)
+
     # execute the model
     best_loss = np.inf
     for epoch in range(1, args.epochs + 1):
         train_log = train(model, train_dataloader, scaler, optimizer, scheduler, device)
         if train_log['train_loss'] < best_loss:
             # torch save
-            torch.save(model.state_dict(), 'C:\\w266\\data2\\checkpoints\\BERT-QA' + '_epoch_{}.pt'.format(epoch))
+            torch.save(model.state_dict(), checkpoint_location + args.name + '_epoch_{}.pt'.format(epoch))
             best_loss = train_log['train_loss']
         show_info = f'\nEpoch: {epoch} - ' + "-".join([f' {key}: {value:.4f} ' for key, value in train_log.items()])
         print(show_info)
@@ -354,10 +451,11 @@ def main():
                                                      output_hidden_states=True).to(device)
 
     # load weights from 1 epoch
-    model.load_state_dict(torch.load('C:\\w266\\data2\\checkpoints\\BERT-QA_epoch_1.pt'))
+    model.load_state_dict(torch.load(checkpoint_location + args.name + '_epoch_1.pt'))
 
     # export embeddings
-    emit_embeddings(embed_dataloader, train_ds, model, device, args)
+    emit_train_embeddings(embed_train_dataloader, train_ds, model, device, args)
+    emit_dev_embeddings(embed_dev_dataloader, dev_ds, model, device, args)
 
 if __name__ == '__main__':
     main()
