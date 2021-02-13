@@ -18,7 +18,7 @@ if __name__ == '__main__':
     args = get_args()
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'QNLI': RTE
+        'QNLI': QNLI
     }
     # tell the CLI user that they mistyped the data set
     args.dataset = 'QNLI'
