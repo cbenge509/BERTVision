@@ -64,6 +64,9 @@ class BertGLUEEvaluator(object):
         # instantiate dev set processor
         self.dev_examples = self.processor(type=self.type, transform=Tokenize_Transform(self.args, self.logger))
 
+        # declare progress
+        self.logger.info(f"Initializing {self.args.model}-dev with {self.args.max_seq_length} token length")
+
         # craete dev set data loader
         dev_dataloader = DataLoader(self.dev_examples,
                                     batch_size=self.args.batch_size,
@@ -80,6 +83,7 @@ class BertGLUEEvaluator(object):
 
         # for each batch of data,
         self.logger.info(f"Generating metrics")
+
         for step, batch in enumerate(tqdm(dev_dataloader, desc="Evaluating")):
             # send it to the GPU
             input_ids, attn_mask, token_type_ids, labels = (
@@ -98,7 +102,10 @@ class BertGLUEEvaluator(object):
                                  labels=labels
                                  )
 
-                # preds
+            # if regression:
+            if self.args.num_labels == 1:
+                pred = out.logits
+            else:
                 pred = out.logits.max(1)[1]  # get the index of the max log-probability
 
             # loss
@@ -119,6 +126,9 @@ class BertGLUEEvaluator(object):
         # get loss
         avg_loss = self.dev_loss / self.nb_dev_steps
 
+        # prepare labels and predictions
+        predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
+
         # metrics
         if any([self.args.model == 'SST',
                 self.args.model == 'MSR',
@@ -129,22 +139,20 @@ class BertGLUEEvaluator(object):
                 self.args.model == 'WNLI',
                 ]):
 
-            predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
             accuracy = metrics.accuracy_score(target_labels, predicted_labels)
             precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
             return accuracy, precision, recall, f1, avg_loss
 
-        elif any([self.args.model == 'COLA']):
-
+        elif any([self.args.model == 'CoLA']):
             matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
             return matthew1, avg_loss
 
         elif any([self.args.model == 'STSB']):
 
-            pearson1 = pearsonr(predicted_labels, target_labels)
-            spearman1 = spearmanr(predicted_labels, target_labels)
+            pearson1 = pearsonr(predicted_labels, target_labels)[0]
+            spearman1 = spearmanr(predicted_labels, target_labels)[0]
             return pearson1, spearman1, avg_loss
 
 #
