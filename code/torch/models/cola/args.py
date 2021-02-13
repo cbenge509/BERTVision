@@ -10,7 +10,7 @@ def get_args():
     # set some COLA specific args
     parser.add_argument('--model',
                         type=str,
-                        default='COLA',
+                        default='CoLA',
                         required=True)
     parser.add_argument('--checkpoint',
                         type=str,

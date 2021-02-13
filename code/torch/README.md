@@ -30,7 +30,7 @@ python -m models.qqpairs --model QQPairs --checkpoint bert-base-uncased
 
 python -m models.qnli --model QNLI --checkpoint bert-base-uncased
 
-python -m models.cola --model COLA --checkpoint bert-base-uncased
+python -m models.cola --model CoLA --checkpoint bert-base-uncased
 
 python -m models.stsb --model STSB --checkpoint bert-base-uncased
 
@@ -53,7 +53,7 @@ python -m models.qqpairs --model QQPairs --checkpoint bert-large-uncased
 
 python -m models.qnli --model QNLI --checkpoint bert-large-uncased
 
-python -m models.cola --model COLA --checkpoint bert-large-uncased
+python -m models.cola --model CoLA --checkpoint bert-large-uncased
 
 python -m models.stsb --model STSB --checkpoint bert-large-uncased
 

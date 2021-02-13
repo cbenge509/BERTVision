@@ -1,7 +1,7 @@
 # packages
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.processors import COLA, Tokenize_Transform
+from data.bert_processors.processors import CoLA, Tokenize_Transform
 from common.trainers.bert_glue_trainer import BertGLUETrainer
 from models.cola.args import get_args
 import numpy as np
@@ -18,10 +18,10 @@ if __name__ == '__main__':
     args = get_args()
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
-        'COLA': COLA
+        'CoLA': CoLA
     }
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'COLA'
+    args.dataset = 'CoLA'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 

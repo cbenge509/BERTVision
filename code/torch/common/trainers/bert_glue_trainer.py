@@ -69,9 +69,9 @@ class BertGLUETrainer(object):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         # create a location to save the files
+        make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
+        os.makedirs(make_path, exist_ok=True)
         self.snapshot_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model, '%s.pt' % timestamp)
-        self.make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
-        os.makedirs(self.make_path, exist_ok=True)
 
         # determine the number of optimization steps
         self.num_train_optimization_steps = int(
@@ -178,7 +178,7 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-            elif any([self.args.model == 'COLA']):
+            elif any([self.args.model == 'CoLA']):
 
                 # train
                 self.train_epoch(train_dataloader)
