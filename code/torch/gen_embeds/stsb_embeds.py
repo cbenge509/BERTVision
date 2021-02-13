@@ -331,8 +331,8 @@ def main():
                              help='number of labels to classify (default: 1)')
         parser.add_argument('--l2', type=float, default=0.01, metavar='LR',
                              help='l2 regularization weight (default: 0.01)')
-        parser.add_argument('--max-seq-length', type=int, default=37, metavar='N',
-                             help='max sequence length for encoding (default: 37)')
+        parser.add_argument('--max-seq-length', type=int, default=77, metavar='N',
+                             help='max sequence length for encoding (default: 77)')
         parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                              help='Warmup proportion (default: 0.1)')
         parser.add_argument('--embed-batch-size', type=int, default=1, metavar='N',
