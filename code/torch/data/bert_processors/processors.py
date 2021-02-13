@@ -60,20 +60,39 @@ class Tokenize_Transform(torch.utils.data.Dataset):
                            )
 
         # package up encodings
-        return {'input_ids': torch.as_tensor(encodings['input_ids'],
-                                         dtype=torch.long),
+        if self.args.model == 'STSB':
+            # need to set label to float
+            return {'input_ids': torch.as_tensor(encodings['input_ids'],
+                                             dtype=torch.long),
 
-                'attention_mask': torch.as_tensor(encodings['attention_mask'],
-                                          dtype=torch.long),
+                    'attention_mask': torch.as_tensor(encodings['attention_mask'],
+                                              dtype=torch.long),
 
-                 'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
-                                                   dtype=torch.long),
+                     'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
+                                                       dtype=torch.long),
 
-                'labels': torch.as_tensor(sample['label'],
-                                          dtype=torch.long),
+                    'labels': torch.as_tensor(sample['label'],
+                                              dtype=torch.float),
 
-                'idx': torch.as_tensor(sample['idx'],
-                                       dtype=torch.long)}
+                    'idx': torch.as_tensor(sample['idx'],
+                                           dtype=torch.long)}
+        else:
+            return {'input_ids': torch.as_tensor(encodings['input_ids'],
+                                             dtype=torch.long),
+
+                    'attention_mask': torch.as_tensor(encodings['attention_mask'],
+                                              dtype=torch.long),
+
+                     'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
+                                                       dtype=torch.long),
+
+                    'labels': torch.as_tensor(sample['label'],
+                                              dtype=torch.long),
+
+                    'idx': torch.as_tensor(sample['idx'],
+                                           dtype=torch.long)}
+
+
 
 
 class OneSentenceLoader(torch.utils.data.Dataset):
@@ -392,12 +411,45 @@ class QQPairs(torch.utils.data.Dataset):
                                    encoding='latin-1',
                                    error_bad_lines=False)
 
-        return None
+    # get len
+    def __len__(self):
+        if self.type == 'train':
+            return len(self.train)
+
+        if self.type == 'dev':
+            return len(self.dev)
+
+    # pull a sample of data
+    def __getitem__(self, idx):
+        '''
+        Torch's lazy emission system
+        '''
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        # if train, package this up
+        if self.type == 'train':
+            sample = {'text': self.train.question1[idx],
+                      'text2': self.train.question2[idx],
+                      'label': self.train.is_duplicate[idx],
+                      'idx': self.train.id[idx]}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
+
+        # if dev, package this
+        if self.type == 'dev':
+            sample = {'text': self.dev.question1[idx],
+                      'text2': self.dev.question2[idx],
+                      'label': self.dev.is_duplicate[idx],
+                      'idx': self.dev.id[idx]}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
 
 
-
-class COLA(torch.utils.data.Dataset):
-    NAME = 'COLA'
+class CoLA(torch.utils.data.Dataset):
+    NAME = 'CoLA'
     def __init__(self, type, transform=None):
         '''
         https://nyu-mll.github.io/CoLA/
@@ -446,7 +498,39 @@ class COLA(torch.utils.data.Dataset):
             # specify dev cols
             self.dev.columns = ['source', 'label', 'original_judgement', 'sentence']
 
-        return None
+    # get len
+    def __len__(self):
+        if self.type == 'train':
+            return len(self.train)
+
+        if self.type == 'dev':
+            return len(self.dev)
+
+    # pull a sample of data
+    def __getitem__(self, idx):
+        '''
+        Torch's lazy emission system
+        '''
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        # if train, package this up
+        if self.type == 'train':
+            sample = {'text': self.train.sentence[idx],
+                      'label': self.train.label[idx],
+                      'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
+
+        # if dev, package this
+        if self.type == 'dev':
+            sample = {'text': self.dev.sentence[idx],
+                      'label': self.dev.label[idx],
+                      'idx': idx}
+            if self.transform:
+                sample = self.transform(sample)
+            return sample
 
 
 
