@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 import sys, os
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.processors import QNLI, Tokenize_Transform
+from data.bert_processors.processors import WNLI, Tokenize_Transform
 from utils.tools import AverageMeter, ProgressBar, format_time
 from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import get_linear_schedule_with_warmup, AdamW
@@ -79,20 +79,20 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
     # create the dirs
     os.makedirs(save_location, exist_ok=True)
 
-    with h5py.File(save_location + 'qnli_bert_embeds.h5', 'w') as f:
+    with h5py.File(save_location + 'wnli_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(num_documents, args.n_layers, args.max_seq_length, args.n_features),
                                 maxshape=(None, args.n_layers, args.max_seq_length, args.n_features),
                                 chunks=(args.embed_batch_size, args.n_layers, args.max_seq_length, args.n_features),
                                 dtype=np.float32)
 
-    with h5py.File(save_location + 'qnli_labels.h5', 'w') as l:
+    with h5py.File(save_location + 'wnli_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File(save_location + 'qnli_idx.h5', 'w') as i:
+    with h5py.File(save_location + 'wnli_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
         idx_dset = i.create_dataset('idx', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
@@ -133,7 +133,7 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File(save_location + 'qnli_bert_embeds.h5', 'a') as f:
+        with h5py.File(save_location + 'wnli_bert_embeds.h5', 'a') as f:
             # initialize dset
             dset = f['embeds']
             # counter to add chunk of rows
@@ -144,7 +144,7 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
             dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File(save_location + 'qnli_labels.h5', 'a') as l:
+        with h5py.File(save_location + 'wnli_labels.h5', 'a') as l:
             # initialize dset
             label_dset = l['labels']
             # counter to add chunk of rows
@@ -155,7 +155,7 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
             label_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add idx to ds
-        with h5py.File(save_location + 'qnli_idx.h5', 'a') as i:
+        with h5py.File(save_location + 'wnli_idx.h5', 'a') as i:
             # initialize dset
             idx_dset = i['idx']
             # counter to add chunk of rows
@@ -169,12 +169,12 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File(save_location + 'qnli_bert_embeds.h5', 'r') as f:
+    with h5py.File(save_location + 'wnli_bert_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         print('embed shape', f['embeds'].shape)
         print('last entry:', f['embeds'][-1, :, :, :])
 
-    with h5py.File(save_location + 'qnli_labels.h5', 'r') as l:
+    with h5py.File(save_location + 'wnli_labels.h5', 'r') as l:
         print('last embed batch entry', l['labels'].attrs['last_index'])
         print('embed shape', l['labels'].shape)
         print('last entry:', l['labels'][len(train_dataset)-10: len(train_dataset)])
@@ -201,20 +201,20 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
     # create the dirs
     os.makedirs(save_location, exist_ok=True)
 
-    with h5py.File(save_location + 'qnli_dev_bert_embeds.h5', 'w') as f:
+    with h5py.File(save_location + 'wnli_dev_bert_embeds.h5', 'w') as f:
         # create empty data set; [batch_sz, layers, tokens, features]
         dset = f.create_dataset('embeds', shape=(num_documents, args.n_layers, args.max_seq_length, args.n_features),
                                 maxshape=(None, args.n_layers, args.max_seq_length, args.n_features),
                                 chunks=(args.embed_batch_size, args.n_layers, args.max_seq_length, args.n_features),
                                 dtype=np.float32)
 
-    with h5py.File(save_location + 'qnli_dev_labels.h5', 'w') as l:
+    with h5py.File(save_location + 'wnli_dev_labels.h5', 'w') as l:
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
                                       dtype=np.int64)
 
-    with h5py.File(save_location + 'qnli_dev_idx.h5', 'w') as i:
+    with h5py.File(save_location + 'wnli_dev_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
         idx_dset = i.create_dataset('idx', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
@@ -255,7 +255,7 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
         embeddings = embeddings.permute(1, 0, 2, 3).cpu().numpy()
 
         # add embeds to ds
-        with h5py.File(save_location + 'qnli_dev_bert_embeds.h5', 'a') as f:
+        with h5py.File(save_location + 'wnli_dev_bert_embeds.h5', 'a') as f:
             # initialize dset
             dset = f['embeds']
             # counter to add chunk of rows
@@ -266,7 +266,7 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
             dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add labels to ds
-        with h5py.File(save_location + 'qnli_dev_labels.h5', 'a') as l:
+        with h5py.File(save_location + 'wnli_dev_labels.h5', 'a') as l:
             # initialize dset
             label_dset = l['labels']
             # counter to add chunk of rows
@@ -277,7 +277,7 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
             label_dset.attrs['last_index'] = (step+1)*args.embed_batch_size
 
         # add idx to ds
-        with h5py.File(save_location + 'qnli_dev_idx.h5', 'a') as i:
+        with h5py.File(save_location + 'wnli_dev_idx.h5', 'a') as i:
             # initialize dset
             idx_dset = i['idx']
             # counter to add chunk of rows
@@ -291,12 +291,12 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
         torch.cuda.empty_cache()
 
     # check data
-    with h5py.File(save_location + 'qnli_dev_bert_embeds.h5', 'r') as f:
+    with h5py.File(save_location + 'wnli_dev_bert_embeds.h5', 'r') as f:
         print('last embed batch entry', f['embeds'].attrs['last_index'])
         print('embed shape', f['embeds'].shape)
         print('last entry:', f['embeds'][-1, :, :, :])
 
-    with h5py.File(save_location + 'qnli_dev_labels.h5', 'r') as l:
+    with h5py.File(save_location + 'wnli_dev_labels.h5', 'r') as l:
         print('last embed batch entry', l['labels'].attrs['last_index'])
         print('embed shape', l['labels'].shape)
         print('last entry:', l['labels'][len(train_dataset)-10: len(train_dataset)])
@@ -307,9 +307,9 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
 def main():
     # training settings
     def get_args():
-        parser = ArgumentParser(description='RTE - Recognizing Textual Entailment')
+        parser = ArgumentParser(description='WNLI')
         parser.add_argument('--name', type=str,
-                            default='RTE', metavar='S',
+                            default='WNLI', metavar='S',
                             help="Model name")
         parser.add_argument('--checkpoint', type=str,
                             default='bert-base-uncased', metavar='S',
@@ -331,8 +331,8 @@ def main():
                              help='number of labels to classify (default: 2)')
         parser.add_argument('--l2', type=float, default=0.01, metavar='LR',
                              help='l2 regularization weight (default: 0.01)')
-        parser.add_argument('--max-seq-length', type=int, default=92, metavar='N',
-                             help='max sequence length for encoding (default: 92)')
+        parser.add_argument('--max-seq-length', type=int, default=65, metavar='N',
+                             help='max sequence length for encoding (default: 65)')
         parser.add_argument('--warmup-proportion', type=int, default=0.1, metavar='N',
                              help='Warmup proportion (default: 0.1)')
         parser.add_argument('--embed-batch-size', type=int, default=1, metavar='N',
@@ -351,10 +351,10 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # build ds
-    train_ds = QNLI(type='train', transform=Tokenize_Transform(args, logger))
+    train_ds = WNLI(type='train', transform=Tokenize_Transform(args, logger))
 
     # build ds
-    dev_ds = QNLI(type='dev', transform=Tokenize_Transform(args, logger))
+    dev_ds = WNLI(type='dev', transform=Tokenize_Transform(args, logger))
 
     # create training dataloader
     train_dataloader = DataLoader(train_ds,
