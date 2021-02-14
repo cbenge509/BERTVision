@@ -62,12 +62,19 @@ python -m models.squad --model SQuAD --checkpoint bert-large-uncased
 
 # Hyperparameters
 
-We use the following hyperparameters, drawing on Facebook's extensive testing with their RoBERTa architecture:
+We use the following hyperparameters drawing from our own `hyperopt` hyperparameter searches and academic testing. We
+find that smaller data sets are much more sensitive to the learning rate than larger ones.
 
-Model | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
+BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
-`--num-classes` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 2e-5
+`--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 1.749e-05
+`--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
+
+BERT-Base | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
+---|---|---|---|---|---|---|---|---
+`--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 3.014e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 
 # Our Results
