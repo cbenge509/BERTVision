@@ -437,12 +437,12 @@ def main():
         parser.add_argument('--model', type=str,
                             default='bert-base-uncased', metavar='S',
                             help="e.g., bert-base-uncased, etc")
-        parser.add_argument('--batch-size', type=int, default=16, metavar='N',
-                             help='input batch size for training (default: 16)')
+        parser.add_argument('--batch-size', type=int, default=32, metavar='N',
+                             help='input batch size for training (default: 32)')
         parser.add_argument('--epochs', type=int, default=1, metavar='N',
                              help='number of epochs to train (default: 1)')
         parser.add_argument('--lr', type=float, default=1e-5, metavar='LR',
-                             help='learning rate (default: 3e-5)')
+                             help='learning rate (default: 1e-5)')
         parser.add_argument('--seed', type=int, default=1, metavar='S',
                              help='random seed (default: 1)')
         parser.add_argument('--num-workers', type=int, default=0, metavar='N',
