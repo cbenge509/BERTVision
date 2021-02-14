@@ -60,6 +60,15 @@ python -m models.stsb --model STSB --checkpoint bert-large-uncased
 python -m models.squad --model SQuAD --checkpoint bert-large-uncased
 ```
 
+# Hyperparameters
+
+We use the following hyperparameters, drawing on Facebook's extensive testing with their RoBERTa architecture:
+
+Model | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
+---|---|---|---|---|---|---|---|---
+`--num-classes` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 2e-5
+`--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 
 # Our Results
 BERT-base and AP Models
