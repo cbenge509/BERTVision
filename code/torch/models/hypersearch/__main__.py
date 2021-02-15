@@ -127,7 +127,7 @@ if __name__ == '__main__':
         return {'loss': dev_loss, 'status': STATUS_OK}
 
     # search space
-    search_space = hp.uniform('lr', low=1e-5, high=2e-5)
+    search_space = hp.uniform('lr', low=1e-5, high=3e-5)
 
     # intialize hyperopt
     trials = Trials()
@@ -136,7 +136,7 @@ if __name__ == '__main__':
       fn=train_fn,
       space=search_space,
       algo=tpe.suggest,
-      max_evals=25,
+      max_evals=100,
       trials=trials)
 
     # output argmin results
