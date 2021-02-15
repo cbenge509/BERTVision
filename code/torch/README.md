@@ -68,13 +68,13 @@ find that smaller data sets are much more sensitive to the learning rate than la
 BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 1.749e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 2.072e-05 | 1.749e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 
 BERT-Base | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1e-5 | 3.014e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1e-5 | 1.289e-05 | 3.014e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 
 # Our Results
