@@ -178,9 +178,7 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-                return dev_acc, dev_precision, dev_recall, dev_f1, dev_loss
-
-
+    
             elif any([self.args.model == 'CoLA']):
 
                 # train
@@ -205,7 +203,6 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-                return matthews, dev_loss
 
             elif any([self.args.model == 'STSB']):
 
@@ -231,7 +228,6 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-                return pearson, spearman, dev_loss
 
             elif any([self.args.model == 'MNLI']):
 
@@ -276,5 +272,4 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-                return dev_acc, dev_precision, dev_recall, dev_f1, dev_loss
 #
