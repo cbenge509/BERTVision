@@ -570,6 +570,9 @@ class MNLI(TwoSentenceLoader):
             # recode
             self.train['label'] = [label_map[i] for i in self.train.gold_label]
 
+            # change nan to empty string
+            self.train['sentence2'] = self.train['sentence2'].fillna('')
+
         else:
             # if type is dev_matched:
             if self.type == 'dev_matched':
@@ -600,6 +603,8 @@ class MNLI(TwoSentenceLoader):
             # recode
             self.dev['label'] = [label_map[i] for i in self.dev.gold_label]
 
+            # change nan to empty string
+            self.dev['sentence2'] = self.dev['sentence2'].fillna('')
         return None
 
 
