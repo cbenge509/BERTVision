@@ -57,7 +57,7 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(args.seed)
 
     # set data set processor
-    processor = dataset_map[args.dataset]
+    processor = dataset_map[args.model]
 
     # use it to create the train set
     train_processor = processor(type='train')

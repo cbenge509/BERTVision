@@ -79,7 +79,7 @@ if __name__ == '__main__':
     # instantiate model and attach it to device
     model = AP_GLUE(n_layers=args.n_layers, n_batch_sz=args.batch_size, n_tokens=args.max_seq_length, n_features=args.n_features, n_labels=args.num_labels).to(device)
     # set data set processor
-    processor = dataset_map[args.dataset]
+    processor = dataset_map[args.model]
     # use it to create the train set
     train_processor = processor(type='train', args=args)
     # set loss
