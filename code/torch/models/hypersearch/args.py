@@ -42,6 +42,10 @@ def get_args():
                         type=float,
                         default=1e-5,
                         help='learning rate (default: 1e-5)')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='Number of CPU cores (default: 0)')    
     args = parser.parse_args()
 
     return args

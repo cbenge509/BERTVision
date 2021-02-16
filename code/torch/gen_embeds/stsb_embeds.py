@@ -90,7 +90,7 @@ def emit_train_embeddings(dataloader, train_dataset, model, device, args):
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
-                                      dtype=np.int64)
+                                      dtype=np.float32)
 
     with h5py.File(save_location + 'stsb_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
@@ -212,7 +212,7 @@ def emit_dev_embeddings(dataloader, train_dataset, model, device, args):
         # create empty data set; [batch_sz]
         label_dset = l.create_dataset('labels', shape=(num_documents,),
                                       maxshape=(None,), chunks=(args.embed_batch_size,),
-                                      dtype=np.int64)
+                                      dtype=np.float32)
 
     with h5py.File(save_location + 'stsb_dev_idx.h5', 'w') as i:
         # create empty data set; [batch_sz]
