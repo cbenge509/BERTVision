@@ -23,7 +23,7 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.1798e-5 | 1.73352e-5 | 1.0552e-5 | 1.3829e-5 | 1.18555e-5
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.1798e-5 | 1.73352e-5 | 1.09347e-5 | 1.49047e-5 | 1.18555e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
@@ -133,15 +133,15 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
-python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.09347e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
 
 python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
-python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.09347e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
 ```
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.739</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.784</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### CoLA
 
