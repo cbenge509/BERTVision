@@ -9,19 +9,6 @@ pip install loguru hyperopt
 ```
 
 
-# New Model Code:
-
-```
-python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num-labels 2 --max-seq-length 86
-python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num-labels 2 --max-seq-length 86
-
-python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num-labels 2 --max-seq-length 86
-python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num-labels 2 --max-seq-length 86
-
-```
-
-
-
 # Hyperparameters
 
 We use the following hyperparameters drawing from our own `hyperopt` hyperparameter searches and academic testing.
@@ -103,7 +90,7 @@ python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
