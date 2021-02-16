@@ -11,6 +11,7 @@ from tqdm.auto import tqdm
 from tqdm.notebook import trange
 import numpy as np
 
+import pickle
 
 class BertGLUETrainer(object):
     '''
@@ -145,6 +146,7 @@ class BertGLUETrainer(object):
                                       num_workers=self.args.num_workers,
                                       drop_last=False,
                                       collate_fn=collate_BERT)
+
         # for each epoch
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
 
