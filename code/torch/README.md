@@ -23,7 +23,7 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.37018e-5 | 1.73352e-5 | 1.0552e-5 | 1.3829e-5 | 1.18555e-5
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.1798e-5 | 1.73352e-5 | 1.0552e-5 | 1.3829e-5 | 1.18555e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
@@ -74,7 +74,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.904</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.915</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.904</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.915</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.911</td></tr></table>|
 
 ### MNLI
 
@@ -90,7 +90,7 @@ python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.857</td><td>0.853</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
@@ -100,15 +100,15 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 1.37018e-05 --num-labels 2 --max-seq-length 219 --batch-size 16
+python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 1.1798e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
 
 python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.37018e-05 --num-labels 2 --max-seq-length 219 --batch-size 16
+python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.1798e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
 ```
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.603</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.588</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 
 ### SST
@@ -125,7 +125,7 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 1.7
 
 |BERT-base SST | BERT-large SST | BERTVision-base SST |  BERTVision-large SST |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.924</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.929</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### MSR
 
@@ -141,7 +141,7 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.739</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### CoLA
 
@@ -149,15 +149,15 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
-python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 1.3829e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
 
 python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
-python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 1.3829e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
 ```
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.510</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.583</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|
 
 ### STSB
 
@@ -165,7 +165,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
-python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 7 --batch-size 16
+python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
 
 python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
 python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
@@ -173,7 +173,7 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.863</td><td>0.861</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.890</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
