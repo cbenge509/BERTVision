@@ -133,7 +133,7 @@ class H5_SQUAD_Trainer(object):
         '''
         # tell the user general metrics
         self.logger.info(f"Number of examples: {len(self.train_examples)}")
-        self.logger.info(f"Batch size: {len(self.args.batch_size)}")
+        self.logger.info(f"Batch size: {self.args.batch_size}")
         self.logger.info(f"Number of optimization steps: {self.num_train_optimization_steps}")
 
         # instantiate dataloader
