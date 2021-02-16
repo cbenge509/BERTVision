@@ -5,7 +5,7 @@ conda create -n my_ml python=3.7 pytorch torchvision torchaudio cudatoolkit=10.1
 conda activate my_ml
 conda install -c conda-forge jupyter numpy pandas matplotlib scikit-learn pip python-language-server[all] tensorflow-gpu transformers datasets elasticsearch tqdm
 conda install -c install tokenizers
-pip install pytreebank
+pip install loguru hyperopt
 ```
 
 
@@ -74,7 +74,7 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1.0552e-05 | 1.3829e-05 | 1.749e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 1.0552e-05 | 1.3829e-05 | 1.18555e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
