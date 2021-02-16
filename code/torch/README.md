@@ -81,7 +81,7 @@ BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 BERT-Base | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 1e-5 | 2.0178e-05 | 2.3571e-05 | 2.1123e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2.87889e-05| 2.0178e-05 | 2.3571e-05 | 2.1123e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
