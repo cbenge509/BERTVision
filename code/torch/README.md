@@ -12,11 +12,11 @@ pip install loguru hyperopt
 # New Model Code:
 
 ```
-python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num_labels 2 --max-seq-length 86
-python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num_labels 2 --max-seq-length 86
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num-labels 2 --max-seq-length 86
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num-labels 2 --max-seq-length 86
 
-python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num_labels 2 --max-seq-length 86
-python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num_labels 2 --max-seq-length 86
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num-labels 2 --max-seq-length 86
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num-labels 2 --max-seq-length 86
 
 ```
 
