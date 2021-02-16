@@ -256,7 +256,7 @@ class WNLI(TwoSentenceLoader):
         0	I stuck a pin through a carrot. When I pulled the pin out, it had a hole.	The carrot had a hole.	1
         1	John couldn't see the stage with Billy in front of him because he is so short.	John is so short.	1
 
-        This prepares the RTE task from GLUE
+        This prepares the WNLI task from GLUE
         '''
         # set path for WNLI
         self.path = 'C:\w266\data\GLUE\Winograd NLI\WNLI'
@@ -294,7 +294,7 @@ class QNLI(TwoSentenceLoader):
         0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
         1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
 
-        This prepares the RTE task from GLUE
+        This prepares the QNLI task from GLUE
         '''
         # set path for QNLI
         self.path = 'C:\w266\data\GLUE\Question NLI\QNLI'
@@ -336,7 +336,7 @@ class MSR(TwoSentenceLoader):
         0	When did the third Digimon series begin?	Unlike the two seasons before it and most of the seasons that followed, Digimon Tamers takes a darker and more realistic approach to its story featuring Digimon who do not reincarnate after their deaths and more complex character development in the original Japanese.	not_entailment
         1	Which missile batteries often have individual launchers several kilometres from one another?	When MANPADS is operated by specialists, batteries may have several dozen teams deploying separately in small sections; self-propelled air defence guns may deploy in pairs.	not_entailment
 
-        This prepares the RTE task from GLUE
+        This prepares the MSR task from GLUE
         '''
         # set path for MSR
         self.path = 'C:\w266\data\GLUE\Microsoft Research Paraphrase Corpus'
@@ -368,8 +368,8 @@ class MSR(TwoSentenceLoader):
         return None
 
 
-class QQPairs(torch.utils.data.Dataset):
-    NAME = 'QQPairs'
+class QQP(torch.utils.data.Dataset):
+    NAME = 'QQP'
     def __init__(self, type, transform=None):
         '''
         Example line:
@@ -541,7 +541,7 @@ class MNLI(TwoSentenceLoader):
         Line header:
         index	promptID	pairID	genre	sentence1_binary_parse	sentence2_binary_parse	sentence1_parse	sentence2_parse	sentence1	sentence2	label1	gold_label
 
-        This prepares the RTE task from GLUE
+        This prepares the MNLI task from GLUE
         '''
         # set path for MNLI
         self.path = 'C:\w266\data\GLUE\MultiNLI (Matched and Mismatched)\MNLI'
