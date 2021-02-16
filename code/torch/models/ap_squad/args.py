@@ -34,6 +34,18 @@ def get_args():
                         default=0.1,
                         type=float,
                         help='Proportion of training to perform linear learning rate warmup for')
+    parser.add_argument('--batch-size',
+                        type=int,
+                        default=16,
+                        help='Input batch size for training (default: 16)')
+    parser.add_argument('--lr',
+                        type=float,
+                        default=2e-5,
+                        help='Learning rate (default: 2e-5)')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='H5 cannot be pickled')
     args = parser.parse_args()
 
     return args

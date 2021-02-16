@@ -374,8 +374,8 @@ class QNLIH5Processor(torch.utils.data.Dataset):
 
 
 # prepare torch data set
-class QQPairsH5Processor(torch.utils.data.Dataset):
-    NAME = 'QQPairsH5'
+class QQPH5Processor(torch.utils.data.Dataset):
+    NAME = 'QQPH5'
     '''
     This class lazily emits batches from H5 files for deep learning.
 

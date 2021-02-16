@@ -22,7 +22,7 @@ def train_and_evaluate(lr):
         'CoLA': CoLA,
         'MNLI': MNLI,
         'QNLI': QNLI,
-        'QQPairs': QQPairs,
+        'QQP': QQP,
         'RTE': RTE,
         'SST': SST,
         'STSB': STSB,
