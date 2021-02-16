@@ -1,27 +1,29 @@
-import os, sys
-sys.path.append("C:\\BERTVision\\code\\torch")
+import os
+import sys
+sys.path.append("C:\\BERTVision")
 import torch
 import models.args
+
 
 def get_args():
     # retreive the general models.args and attach them here
     parser = models.args.get_args()
 
-    # set some SST specific args
+    # set some AdapterPooler specific args
     parser.add_argument('--model',
                         type=str,
-                        default='SST',
+                        default='AP_RTE',
                         required=True)
     parser.add_argument('--checkpoint',
                         type=str,
                         default='bert-base-uncased',
                         required=True,
-                        help='A HuggingFace checkpoint e.g., bert-base-uncased')
+                        help='Needed to specify the number of layers and features')
     parser.add_argument('--num-labels',
                         default=2,
                         type=int)
     parser.add_argument('--max-seq-length',
-                        default=66,
+                        default=219,
                         type=int,
                         help='Tokenization max length')
     parser.add_argument('--save-path',
@@ -36,14 +38,17 @@ def get_args():
                         help='Proportion of training to perform linear learning rate warmup for')
     parser.add_argument('--batch-size',
                         type=int,
-                        default=32,
+                        default=16,
                         help='input batch size for training (default: 16)')
     parser.add_argument('--lr',
                         type=float,
-                        default=1e-5,
-                        help='learning rate (default: 1e-5)')    
+                        default=2e-5,
+                        help='learning rate (default: 2e-5)')
+    parser.add_argument('--num-workers',
+                        type=int,
+                        default=0,
+                        help='H5 cannot be pickled')
     args = parser.parse_args()
 
     return args
-
 #

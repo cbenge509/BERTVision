@@ -1,9 +1,9 @@
 # packages
 import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.processors import CoLA, Tokenize_Transform
+from data.bert_processors.processors import *
 from common.trainers.bert_glue_trainer import BertGLUETrainer
-from models.cola.args import get_args
+from models.bert_glue.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
@@ -16,12 +16,19 @@ from loguru import logger
 if __name__ == '__main__':
     # set default configuration in args.py
     args = get_args()
-    # instantiate data set map; pulles the right processor / data for the task
+    # instantiate data set map; pulls the right processor / data for the task
     dataset_map = {
-        'CoLA': CoLA
+        'MSR': MSR,
+        'CoLA': CoLA,
+        'MNLI': MNLI,
+        'QNLI': QNLI,
+        'QQP': QQP,
+        'RTE': RTE,
+        'SST': SST,
+        'STSB': STSB,
+        'WNLI': WNLI
     }
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'CoLA'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
@@ -41,6 +48,8 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # detect number of gpus
     n_gpu = torch.cuda.device_count()
+    args.device = device
+    args.n_gpu = n_gpu
     # turn on autocast for fp16
     torch.cuda.amp.autocast(enabled=True)
     # set grad scaler
@@ -61,11 +70,6 @@ if __name__ == '__main__':
 
     # use it to create the train set
     train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
-
-    # set some other training objects
-    args.batch_size = args.batch_size
-    args.device = device
-    args.n_gpu = n_gpu
 
     # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
@@ -101,7 +105,7 @@ if __name__ == '__main__':
 
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
-                                                num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
+                                                num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
 
     # initialize the trainer
     trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
