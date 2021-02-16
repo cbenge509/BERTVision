@@ -33,17 +33,17 @@ Our hyperparameter search can be run with the following command:
 
 Ensure that you specify the GLUE task `model` as well as the appropriate values for `batch-size`, `num-labels` and `max-seq-length`.
 
-BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
+BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.37018e-05 | 1.73352e-05 | 1.0552e-05 | 1.3829e-05 | 1.18555e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.37018e-5 | 1.73352e-5 | 1.0552e-5 | 1.3829e-5 | 1.18555e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
-BERT-Base | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
+BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.21668e-05 | 2.87889e-05| 2.0178e-05 | 2.3571e-05 | 2.1123e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.21668e-5 | 2.87889e-5| 2.0178e-5 | 2.3571e-5 | 2.1123e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
@@ -51,6 +51,147 @@ BERT-Base | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 BERT-base and AP Models
 
 <img align="center" src="../../images/bert_base_vs_bertvision.png" />
+
+
+# Latest Results
+
+## GLUE
+
+### QQP
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+python -m models.bert_glue --model QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+
+python -m models.ap_glue --model AP_QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+```
+
+|BERT-base QQP | BERT-large QQP | BERTVision QQP |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>0.887</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>0.897</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>0.896</td></tr> </table>|
+
+### QNLI
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+python -m models.bert_glue --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+
+python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+```
+
+|BERT-base QNLI | BERT-large QNLI | BERTVision QNLI |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>0.904</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>0.915</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+
+### MNLI
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+```
+
+|BERT-base QNLI | BERT-large QNLI | BERTVision QNLI |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+
+
+### RTE
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
+python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 1.37018e-05 --num-labels 2 --max-seq-length 219 --batch-size 16
+
+python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
+python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.37018e-05 --num-labels 2 --max-seq-length 219 --batch-size 16
+```
+
+|BERT-base RTE | BERT-large RTE | BERTVision RTE |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+
+### SST
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model SST --checkpoint bert-base-uncased --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+python -m models.bert_glue --model SST --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+
+python -m models.ap_glue --model AP_SST --checkpoint bert-large-base --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+```
+
+|BERT-base SST | BERT-large SST | BERTVision SST |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+### MSR
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+```
+
+|BERT-base MSR | BERT-large MSR | BERTVision MSR |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+### CoLA
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 1.3829e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 1.3829e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+```
+
+|BERT-base CoLA | BERT-large CoLA | BERTVision CoLA |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+### STSB
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 7 --batch-size 16
+
+python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+```
+
+|BERT-base STSB | BERT-large STSB | BERTVision STSB |
+|--|--|--|
+|<table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>| <table> <tr><th>Batch Size</th><th>LR</th><th>Dev. Acc.</th></tr><tr><td>1</td><td>1e-5</td><td>TODO</td></tr> </table>|
+
+
+
+# OLD: TO BE REPLACED
 
 ## SQuAD 2.0
 
