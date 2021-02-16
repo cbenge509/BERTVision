@@ -147,7 +147,7 @@ class H5_GLUE_Trainer(object):
                     self.args.model == 'AP_MSR',
                     self.args.model == 'AP_RTE',
                     self.args.model == 'AP_QNLI',
-                    self.args.model == 'AP_QQPairs',
+                    self.args.model == 'AP_QQP',
                     self.args.model == 'AP_WNLI'
                     ]):
 
