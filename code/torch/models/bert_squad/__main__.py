@@ -21,8 +21,8 @@ if __name__ == '__main__':
         'SQuAD': SQuADProcessor
     }
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'SQuAD'
-    if args.dataset not in dataset_map:
+    args.model = 'SQuAD'
+    if args.model not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
     # set the location for saving the model
