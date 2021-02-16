@@ -127,7 +127,7 @@ if __name__ == '__main__':
         return {'loss': dev_loss, 'status': STATUS_OK}
 
     # search space
-    search_space = hp.uniform('lr', low=1e-5, high=3e-5)
+    search_space = hp.uniform('lr', low=0e-5, high=3e-5)
 
     # intialize hyperopt
     trials = Trials()
