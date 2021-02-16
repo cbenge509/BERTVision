@@ -32,7 +32,6 @@ if __name__ == '__main__':
     }
 
     # tell the CLI user that they mistyped the data set
-    args.dataset = 'AP_SQuAD'
     if args.dataset not in dataset_map:
         raise ValueError('Unrecognized dataset')
 

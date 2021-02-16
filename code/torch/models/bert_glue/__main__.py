@@ -29,7 +29,7 @@ if __name__ == '__main__':
         'WNLI': WNLI
     }
     # tell the CLI user that they mistyped the data set
-    if args.dataset not in dataset_map:
+    if args.model not in dataset_map:
         raise ValueError('Unrecognized dataset')
 
     # set the location for saving the model
