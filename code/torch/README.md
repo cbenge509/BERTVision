@@ -11,54 +11,16 @@ pip install loguru hyperopt
 
 # New Model Code:
 
-Will clean this up soon
-
-## bert-base
 ```
-python -m models.rte --model RTE --checkpoint bert-base-uncased
-python -m models.ap_rte --model AP_RTE --checkpoint bert-base-uncased
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num_labels 2 --max-seq-length 86
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-05 --num_labels 2 --max-seq-length 86
 
-python -m models.wnli --model WNLI --checkpoint bert-base-uncased
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num_labels 2 --max-seq-length 86
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.0552e-05 --num_labels 2 --max-seq-length 86
 
-python -m models.sst --model SST --checkpoint bert-base-uncased
-
-python -m models.msr --model MSR --checkpoint bert-base-uncased
-
-python -m models.mnli --model MNLI --checkpoint bert-base-uncased
-
-python -m models.qqpairs --model QQPairs --checkpoint bert-base-uncased
-
-python -m models.qnli --model QNLI --checkpoint bert-base-uncased
-
-python -m models.cola --model CoLA --checkpoint bert-base-uncased
-
-python -m models.stsb --model STSB --checkpoint bert-base-uncased
-
-python -m models.squad --model SQuAD --checkpoint bert-base-uncased
 ```
-## bert-large
-```
-python -m models.rte --model RTE --checkpoint bert-large-uncased
-python -m models.ap_rte --model AP_RTE --checkpoint bert-large-uncased
 
-python -m models.wnli --model WNLI --checkpoint bert-large-uncased
 
-python -m models.sst --model SST --checkpoint bert-large-uncased
-
-python -m models.msr --model MSR --checkpoint bert-large-uncased
-
-python -m models.mnli --model MNLI --checkpoint bert-large-uncased
-
-python -m models.qqpairs --model QQPairs --checkpoint bert-large-uncased
-
-python -m models.qnli --model QNLI --checkpoint bert-large-uncased
-
-python -m models.cola --model CoLA --checkpoint bert-large-uncased
-
-python -m models.stsb --model STSB --checkpoint bert-large-uncased
-
-python -m models.squad --model SQuAD --checkpoint bert-large-uncased
-```
 
 # Hyperparameters
 
@@ -74,7 +36,7 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST-2 | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.37018e-05 | 1e-5 | 1.0552e-05 | 1.3829e-05 | 1.18555e-05
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.37018e-05 | 1.73352e-05 | 1.0552e-05 | 1.3829e-05 | 1.18555e-05
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
