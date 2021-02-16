@@ -134,7 +134,7 @@ class BertGLUEEvaluator(object):
                 self.args.model == 'MSR',
                 self.args.model == 'RTE',
                 self.args.model == 'QNLI',
-                self.args.model == 'QQPairs',
+                self.args.model == 'QQP',
                 self.args.model == 'MNLI',
                 self.args.model == 'WNLI',
                 ]):
