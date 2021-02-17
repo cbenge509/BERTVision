@@ -133,8 +133,8 @@ class H5_GLUE_Evaluator(object):
 
         elif any([self.args.model == 'AP_STSB']):
 
-            pearson = pearsonr(predicted_labels, target_labels)
-            spearman = spearmanr(predicted_labels, target_labels)
+            pearson = pearsonr(predicted_labels, target_labels)[0]
+            spearman = spearmanr(predicted_labels, target_labels)[0]
             return pearson, spearman, avg_loss
 
 
