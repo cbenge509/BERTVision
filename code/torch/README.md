@@ -77,7 +77,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.904</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.915</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.911</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.904</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.915</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.888</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.911</td></tr></table>|
 
 ### MNLI
 
@@ -186,6 +186,27 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.
 To replicate our AdapterPooler models, you must first output 1-epoch fine-tuned
 BERT embeddings. The commands below will fine tune BERT, generate the embeddings,
 and should be run from the following directory `BERTVision\code\torch\gen_embeds`:
+
+### QQP
+
+```
+python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+```
+
+### QNLI
+
+```
+python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+```
+
+### MNLI
+
+```
+python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+```
 
 ### STSB
 
