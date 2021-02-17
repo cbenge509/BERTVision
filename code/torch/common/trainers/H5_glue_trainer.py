@@ -244,7 +244,7 @@ class H5_GLUE_Trainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-            elif self.args.model == 'AP_COLA':
+            elif self.args.model == 'AP_CoLA':
 
                 # train
                 self.train_epoch(self.criterion, train_dataloader)
