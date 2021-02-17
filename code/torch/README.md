@@ -141,7 +141,7 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.9
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.801</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.790</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.801</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.790</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.769</td></tr></table>|
 
 ### CoLA
 
