@@ -11,6 +11,7 @@ import torch.nn as nn
 from torch.cuda.amp import GradScaler
 from transformers import AdamW, get_linear_schedule_with_warmup, BertTokenizerFast
 from loguru import logger
+from torch.nn import MSELoss
 
 # main fun.
 if __name__ == '__main__':
@@ -83,7 +84,10 @@ if __name__ == '__main__':
     # use it to create the train set
     train_processor = processor(type='train', args=args)
     # set loss
-    criterion = nn.CrossEntropyLoss()
+    if args.num_labels == 1:
+        criterion = nn.MSELoss()
+    else:
+        criterion = nn.CrossEntropyLoss()
 
     # find number of optim. steps
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
