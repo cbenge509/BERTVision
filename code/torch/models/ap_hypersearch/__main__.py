@@ -18,6 +18,16 @@ from torch.nn import MSELoss
 def train_and_evaluate(lr):
     # set default configuration in args.py
     args = get_args()
+
+    # add some configs depending on checkpoint chosen
+    if args.checkpoint == 'bert-base-uncased':
+        args.n_layers = 13
+        args.n_features = 768
+
+    elif args.checkpoint == 'bert-large-uncased':
+        args.n_layers = 25
+        args.n_features = 1024
+
     # instantiate data set map; pulles the right processor / data for the task
     dataset_map = {
         'AP_MSR': MSRH5Processor,
@@ -122,6 +132,7 @@ def train_and_evaluate(lr):
     trainer = H5SearchTrainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
     dev_loss = trainer.train()
+    
     return dev_loss
 
 # main fun.
