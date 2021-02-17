@@ -1,8 +1,7 @@
 # packages
 import os, sys, datetime
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.processors import Tokenize_Transform
-from common.evaluators.bert_glue_evaluator import BertGLUEEvaluator
+from common.evaluators.H5_glue_evaluator import H5_GLUE_Evaluator
 from utils.collate import collate_H5_GLUE
 from torch.cuda.amp import autocast
 import torch
