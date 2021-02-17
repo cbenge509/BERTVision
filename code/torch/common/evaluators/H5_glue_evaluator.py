@@ -126,7 +126,7 @@ class H5_GLUE_Evaluator(object):
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
             return accuracy, precision, recall, f1, avg_loss
 
-        elif any([self.args.model == 'AP_COLA']):
+        elif any([self.args.model == 'AP_CoLA']):
 
             matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
             return matthew1, avg_loss
