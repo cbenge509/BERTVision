@@ -180,10 +180,9 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.
 
 ## GLUE
 
-To replicate our AdapterPooler models, you must first output the embeddings from
-BERT that has been fined tuned on the data set for 1 epoch. These commands
-will generate the embeddings and should be run from the following directory
-`BERTVision\code\torch\gen_embeds`:
+To replicate our AdapterPooler models, you must first output 1-epoch fine-tuned
+BERT embeddings. The commands below will fine tune BERT, generate the embeddings,
+and should be run from the following directory `BERTVision\code\torch\gen_embeds`:
 
 ### STSB
 
