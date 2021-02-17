@@ -173,7 +173,7 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.863</td><td>0.861</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.890</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.863</td><td>0.861</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.890</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.851</td><td>0.851</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.858</td><td>0.858</td></tr></table>|
 
 
 # Embeddings Replication
