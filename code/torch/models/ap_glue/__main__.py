@@ -101,7 +101,18 @@ if __name__ == '__main__':
         model = torch.nn.DataParallel(model)
 
     # set optimizer
-    optimizer = AdamW(model.parameters(),
+    param_optimizer = list(model.named_parameters())
+
+    # exclude these from regularization
+    no_decay = ['bias']
+    # give l2 regularization to any parameter that is not named after no_decay list
+    # give no l2 regulariation to any bias parameter or layernorm bias/weight
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
+        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+
+    # set optimizer
+    optimizer = AdamW(optimizer_grouped_parameters,
                               lr=args.lr,
                               correct_bias=False,
                               weight_decay=args.l2)
