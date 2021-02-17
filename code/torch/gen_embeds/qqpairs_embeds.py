@@ -2,7 +2,7 @@
 from argparse import ArgumentParser
 import sys, os
 sys.path.append("C:/BERTVision/code/torch")
-from data.bert_processors.processors import QQPairs, Tokenize_Transform
+from data.bert_processors.processors import QQP, Tokenize_Transform
 from utils.tools import AverageMeter, ProgressBar, format_time
 from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import get_linear_schedule_with_warmup, AdamW
@@ -351,10 +351,10 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # build ds
-    train_ds = QQPairs(type='train', transform=Tokenize_Transform(args, logger))
+    train_ds = QQP(type='train', transform=Tokenize_Transform(args, logger))
 
     # build ds
-    dev_ds = QQPairs(type='dev', transform=Tokenize_Transform(args, logger))
+    dev_ds = QQP(type='dev', transform=Tokenize_Transform(args, logger))
 
     # create training dataloader
     train_dataloader = DataLoader(train_ds,
