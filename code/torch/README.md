@@ -157,7 +157,7 @@ python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 1.
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.510</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.583</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.510</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.583</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.591</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.0</td></tr></table>|
 
 ### STSB
 
