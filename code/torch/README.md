@@ -16,7 +16,10 @@ We find that smaller data sets are much more sensitive to the learning rate than
 
 Our hyperparameter search can be run with the following command:
 
-`python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 16 --num-labels 2 --max-seq-length 86`
+```
+python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 16 --num-labels 2 --max-seq-length 86
+python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 77
+```
 
 Ensure that you specify the GLUE task `model` as well as the appropriate values for `batch-size`, `num-labels` and `max-seq-length`.
 
