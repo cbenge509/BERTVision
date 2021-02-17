@@ -220,6 +220,9 @@ class H5_GLUE_Trainer(object):
 
             elif all([self.args.num_labels == 1 and self.args.model == 'AP_STSB']):
 
+                # train
+                self.train_epoch(self.criterion, train_dataloader)
+
                 # get metrics
                 pearson, spearman, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
 
@@ -242,6 +245,9 @@ class H5_GLUE_Trainer(object):
                         break
 
             elif self.args.model == 'AP_COLA':
+
+                # train
+                self.train_epoch(self.criterion, train_dataloader)
 
                 # get metrics
                 matthews, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
