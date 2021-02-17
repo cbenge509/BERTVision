@@ -49,7 +49,7 @@ class H5SearchTrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, criterion, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
@@ -81,16 +81,14 @@ class H5SearchTrainer(object):
         self.pearson_score = 0
         self.early_stop = False
 
-    def train_epoch(self, train_dataloader):
+    def train_epoch(self, criterion, train_dataloader):
         # set the model to train
         self.model.train()
         # pull data from data loader
         for step, batch in enumerate(tqdm(train_dataloader, desc="Training")):
             # and sent it to the GPU
-            input_ids, attn_mask, token_type_ids, labels, idxs = (
-                batch['input_ids'].to(self.args.device),
-                batch['attention_mask'].to(self.args.device),
-                batch['token_type_ids'].to(self.args.device),
+            embeddings, labels, indices = (
+                batch['embeddings'].to(self.args.device),
                 batch['labels'].to(self.args.device),
                 batch['idx'].to(self.args.device)
             )
@@ -98,29 +96,28 @@ class H5SearchTrainer(object):
             # FP16
             with autocast():
                 # forward
-                out = self.model(
-                                 input_ids=input_ids,
-                                 attention_mask=attn_mask,
-                                 token_type_ids=token_type_ids,
-                                 labels=labels
-                                 )
+                logits = self.model(embeddings)
 
-            # loss
-            if self.args.n_gpu > 1:
-                loss = out.loss.mean()
-            else:
-                loss = out.loss
+                    # get loss
+                if self.args.num_labels == 1:
+                    loss = criterion(logits.view(-1), labels.view(-1))
+                else:
+                    loss = criterion(logits, labels)
 
-            # backward
-            self.scaler.scale(out.loss).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
-            self.scheduler.step()
-            self.optimizer.zero_grad()
+                # multi-gpu loss
+                if self.args.n_gpu > 1:
+                    raise NotImplementedError
 
-            # update metrics
-            self.tr_loss += loss.item()
-            self.nb_tr_steps += 1
+                # backward
+                self.scaler.scale(loss).backward()
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+                self.scheduler.step()
+                self.optimizer.zero_grad()
+
+                # update metrics
+                self.tr_loss += loss.item()
+                self.nb_tr_steps += 1
 
         # gen. loss
         avg_loss = self.tr_loss / self.nb_tr_steps
@@ -134,7 +131,7 @@ class H5SearchTrainer(object):
         '''
         # tell the user general metrics
         self.logger.info(f"Number of examples: {len(self.train_examples)}")
-        self.logger.info(f"Batch size: {len(self.train_examples)}")
+        self.logger.info(f"Batch size: {self.args.batch_size}")
         self.logger.info(f"Number of optimization steps: {self.num_train_optimization_steps}")
 
         # instantiate dataloader
@@ -157,9 +154,9 @@ class H5SearchTrainer(object):
 
 
                 # train
-                self.train_epoch(train_dataloader)
+                self.train_epoch(self.criterion, train_dataloader)
                 # get dev loss
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
@@ -172,7 +169,7 @@ class H5SearchTrainer(object):
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
-                matthews, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                matthews, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
@@ -185,7 +182,7 @@ class H5SearchTrainer(object):
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
-                pearson, spearman, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                pearson, spearman, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Pearson {1: 0.3f}, Dev/Spearman {2: 0.3f}, Dev/Loss {3: 0.3f}",
                                  epoch+1, pearson, spearman, dev_loss)
@@ -198,14 +195,14 @@ class H5SearchTrainer(object):
                 # train
                 self.train_epoch(train_dataloader)
                 # matched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_matched')
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1 = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_matched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
 
                 # matched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2 = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
