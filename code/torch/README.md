@@ -23,7 +23,7 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.1798e-5 | 1.73352e-5 | 1.09347e-5 | 1.49047e-5 | 1.18555e-5
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2.434992e-6 | 1.73352e-5 | 1.900e-5 | 1.49047e-5 | 1.18555e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
 `--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
 
@@ -108,7 +108,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.1
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.603</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.588</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.661</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.625</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 
 ### SST
@@ -132,16 +132,16 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 1.7
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
-python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.09347e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
 
-python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
-python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.09347e-5 --num-labels 2 --max-seq-length 86 --batch-size 16
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
 ```
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.784</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.801</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### CoLA
 
@@ -175,6 +175,50 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.
 |--|--|--|--|
 |<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.863</td><td>0.861</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.890</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
+
+# Embeddings Replication
+
+## GLUE
+
+To replicate our AdapterPooler models, you must first output the embeddings from
+BERT that has been fined tuned on the data set for 1 epoch. These commands
+will generate the embeddings and should be run from the following directory
+`BERTVision\code\torch\gen_embeds`:
+
+### STSB
+
+```
+python stsb_embeds.py --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python stsb_embeds.py --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+```
+
+### CoLA
+
+```
+python cola_embeds.py --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python cola_embeds.py --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+```
+
+### MSR
+
+```
+python msr_embeds.py --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+python msr_embeds.py --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+```
+
+### SST
+
+```
+python sst_embeds.py --checkpoint bert-base-uncased --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+python sst_embeds.py --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+```
+
+### RTE
+
+```
+python rte_embeds.py --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
+python rte_embeds.py --checkpoint bert-large-uncased --lr 2.434992e-6 --num-labels 2 --max-seq-length 219 --batch-size 16
+```
 
 
 # OLD: TO BE REPLACED
