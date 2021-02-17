@@ -167,7 +167,7 @@ class H5SearchTrainer(object):
             elif any([self.args.model == 'AP_CoLA']):
 
                 # train
-                self.train_epoch(train_dataloader)
+                self.train_epoch(self.criterion, train_dataloader)
                 # get dev loss
                 matthews, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
@@ -180,7 +180,7 @@ class H5SearchTrainer(object):
             elif any([self.args.model == 'AP_STSB']):
 
                 # train
-                self.train_epoch(train_dataloader)
+                self.train_epoch(self.criterion, train_dataloader)
                 # get dev loss
                 pearson, spearman, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
@@ -193,7 +193,7 @@ class H5SearchTrainer(object):
             elif any([self.args.model == 'AP_MNLI']):
 
                 # train
-                self.train_epoch(train_dataloader)
+                self.train_epoch(self.criterion, train_dataloader)
                 # matched
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1 = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_matched')
                 # print validation results
