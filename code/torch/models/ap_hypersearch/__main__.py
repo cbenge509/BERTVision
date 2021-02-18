@@ -15,7 +15,7 @@ from loguru import logger
 from torch.nn import MSELoss
 
 
-def train_and_evaluate(lr):
+def train_and_evaluate(lr, seed):
     # set default configuration in args.py
     args = get_args()
 
@@ -68,13 +68,13 @@ def train_and_evaluate(lr):
 
     # set seed for reproducibility
     torch.backends.cudnn.deterministic = True
-    random.seed(args.seed)
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
     # set seed for multi-gpu
     if n_gpu > 0:
-        torch.cuda.manual_seed_all(args.seed)
+        torch.cuda.manual_seed_all(seed)
 
     # set data set processor
     processor = dataset_map[args.model]
@@ -132,20 +132,24 @@ def train_and_evaluate(lr):
     trainer = H5SearchTrainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
     dev_loss = trainer.train()
-    
+
     return dev_loss
 
 # main fun.
 if __name__ == '__main__':
 
     # training function
-    def train_fn(lr):
-        logger.info(f"Testing this learning rate: {lr}")
-        dev_loss = train_and_evaluate(lr)
+    def train_fn(params):
+        seed = int(params['seed'])
+        lr = params['lr']
+
+        logger.info(f"Testing this learning rate: {lr} and this seed: {seed}")
+        dev_loss = train_and_evaluate(lr, seed)
         return {'loss': dev_loss, 'status': STATUS_OK}
 
     # search space
-    search_space = hp.uniform('lr', low=0e-5, high=3e-5)
+    search_space = {'seed': hp.randint('seed', 1000),
+                    'lr': hp.uniform('lr', low=0e-5, high=3e-5)}
 
     # intialize hyperopt
     trials = Trials()
