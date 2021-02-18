@@ -287,7 +287,7 @@ class WNLI(TwoSentenceLoader):
 
 class QNLI(TwoSentenceLoader):
     NAME = 'QNLI'
-    def __init__(self, type, transform=None):
+    def __init__(self, type, transform=None, shard=False, **args):
         '''
         Example line:
         index	question	sentence	label
@@ -302,6 +302,10 @@ class QNLI(TwoSentenceLoader):
         self.type = type
         # init transform if specified
         self.transform = transform
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # set seed if given
+        self.seed = args
 
         # if type is train:
         if self.type == 'train':
@@ -314,6 +318,10 @@ class QNLI(TwoSentenceLoader):
             # relabel
             self.train.label = np.where(self.train.label == 'entailment', 1, 0)
 
+            # if true, reduce train size
+            if self.shard:
+                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+
         if self.type == 'dev':
             # initialize dev
             self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv', sep='\t',
@@ -325,6 +333,7 @@ class QNLI(TwoSentenceLoader):
             self.dev.label = np.where(self.dev.label == 'entailment', 1, 0)
 
         return None
+
 
 
 class MSR(TwoSentenceLoader):
@@ -370,7 +379,7 @@ class MSR(TwoSentenceLoader):
 
 class QQP(torch.utils.data.Dataset):
     NAME = 'QQP'
-    def __init__(self, type, transform=None):
+    def __init__(self, type, transform=None, shard=False, **args):
         '''
         Example line:
         id	qid1	qid2	question1	question2	is_duplicate
@@ -396,6 +405,10 @@ class QQP(torch.utils.data.Dataset):
         self.type = type
         # init transform if specified
         self.transform = transform
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # set seed if given
+        self.seed = args
 
         # if type is train:
         if self.type == 'train':
@@ -404,6 +417,11 @@ class QQP(torch.utils.data.Dataset):
                                      sep='\t',
                                      encoding='latin-1',
                                      error_bad_lines=False)
+
+            # if true, reduce train size
+            if self.shard:
+                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+
         if self.type == 'dev':
             # initialize dev
             self.dev = pd.read_csv(self.path + '\\' + 'dev.tsv',
@@ -533,10 +551,9 @@ class CoLA(torch.utils.data.Dataset):
             return sample
 
 
-
 class MNLI(TwoSentenceLoader):
     NAME = 'MNLI'
-    def __init__(self, type, transform=None):
+    def __init__(self, type, transform=None, shard=False, **args):
         '''
         Line header:
         index	promptID	pairID	genre	sentence1_binary_parse	sentence2_binary_parse	sentence1_parse	sentence2_parse	sentence1	sentence2	label1	gold_label
@@ -549,6 +566,10 @@ class MNLI(TwoSentenceLoader):
         self.type = type
         # init transform if specified
         self.transform = transform
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # set seed if given
+        self.seed = args        
 
         # if type is train:
         if self.type == 'train':
@@ -572,6 +593,10 @@ class MNLI(TwoSentenceLoader):
 
             # change nan to empty string
             self.train['sentence2'] = self.train['sentence2'].fillna('')
+
+            # if true, reduce train size
+            if self.shard:
+                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
 
         else:
             # if type is dev_matched:
