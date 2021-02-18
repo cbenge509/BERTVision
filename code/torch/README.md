@@ -115,12 +115,16 @@ TODO
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-TODO
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.834</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.801</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.790</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.769</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.810</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.793</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.665</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.829</td></tr></table>|
 
 ### CoLA
 
