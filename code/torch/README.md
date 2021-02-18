@@ -28,14 +28,14 @@ BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 444 | 512 | 330 | 250 | 128 | 128 | 128 | 128
+`--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
 BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5| 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 444 | 512 | 330 | 250 | 128 | 128 | 128 | 128
+`--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
 # Our Results
 BERT-base and AP Models
@@ -178,22 +178,22 @@ and should be run from the following directory `BERTVision\code\torch\gen_embeds
 ### QQP
 
 ```
-python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 330 --batch-size 32
-python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 330 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
 ### QNLI
 
 ```
-python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 512 --batch-size 32
-python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 512 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
 ### MNLI
 
 ```
-python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 444 --batch-size 32
-python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 444 --batch-size 32
+python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
 ```
 
 ### STSB
