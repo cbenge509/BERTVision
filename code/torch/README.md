@@ -26,16 +26,16 @@ Ensure that you specify the GLUE task `model` as well as the appropriate values 
 BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2.434992e-6 | 1.73352e-5 | 1.900e-5 | 1.49047e-5 | 1.18555e-5
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
+`--max-seq-length` | 444 | 512 | 330 | 289 | 128 | 128 | 128 | 128
 
 BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 1.21668e-5 | 2.87889e-5| 2.0178e-5 | 2.3571e-5 | 2.1123e-5
+`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5| 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 114 | 121 | 84 | 219 | 66 | 86 | 64 | 77
+`--max-seq-length` | 444 | 512 | 330 | 289 | 128 | 128 | 128 | 128
 
 # Our Results
 BERT-base and AP Models
@@ -52,27 +52,19 @@ BERT-base and AP Models
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
-python -m models.bert_glue --model QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
-
-python -m models.ap_glue --model AP_QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
-python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+TODO
 ```
 
 |BERT-base QQP | BERT-large QQP | BERTVision-base QQP |  BERTVision-large QQP |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.887</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.897</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.896</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.887</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.897</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.885</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.896</td></tr></table>|
 
 ### QNLI
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
-python -m models.bert_glue --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
-
-python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
-python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+TODO
 ```
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
@@ -84,16 +76,12 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
-python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
-
-python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
-python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+TODO
 ```
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.857</td><td>0.853</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.850</td><td>0.847</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.857</td><td>0.853</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.824</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.850</td><td>0.847</td></tr></table>|
 
 
 
@@ -102,11 +90,7 @@ python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 1.1798e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-
-python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.1798e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
+TODO
 ```
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
@@ -119,11 +103,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.1
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model SST --checkpoint bert-base-uncased --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
-python -m models.bert_glue --model SST --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
-
-python -m models.ap_glue --model AP_SST --checkpoint bert-large-base --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
-python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+TODO
 ```
 
 |BERT-base SST | BERT-large SST | BERTVision-base SST |  BERTVision-large SST |
@@ -135,11 +115,7 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 1.7
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
-python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
-
-python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
-python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+TODO
 ```
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
@@ -151,32 +127,32 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.9
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
-python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
 
-python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
-python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
 ```
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.510</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.583</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.591</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.0</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.567</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.409</td></tr></table>|
 
 ### STSB
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
-python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
 
-python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
-python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
 ```
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.863</td><td>0.861</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.890</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.851</td><td>0.851</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.858</td><td>0.858</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.859</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.877</td><td>0.875</td></tr></table>|
 
 
 # Embeddings Replication
@@ -190,57 +166,57 @@ and should be run from the following directory `BERTVision\code\torch\gen_embeds
 ### QQP
 
 ```
-python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
-python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 84 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 330 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 330 --batch-size 32
 ```
 
 ### QNLI
 
 ```
-python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
-python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 121 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 512 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 512 --batch-size 32
 ```
 
 ### MNLI
 
 ```
-python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
-python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 114 --batch-size 32
+python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 444 --batch-size 32
+python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 444 --batch-size 32
 ```
 
 ### STSB
 
 ```
-python stsb_embeds.py --checkpoint bert-base-uncased --lr 2.1123e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
-python stsb_embeds.py --checkpoint bert-large-uncased --lr 1.18555e-5 --num-labels 1 --max-seq-length 77 --batch-size 16
+python stsb_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python stsb_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
 ```
 
 ### CoLA
 
 ```
-python cola_embeds.py --checkpoint bert-base-uncased --lr 2.3571e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
-python cola_embeds.py --checkpoint bert-large-uncased --lr 1.49047e-5 --num-labels 2 --max-seq-length 64 --batch-size 16
+python cola_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python cola_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
 ```
 
 ### MSR
 
 ```
-python msr_embeds.py --checkpoint bert-base-uncased --lr 2.0178e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
-python msr_embeds.py --checkpoint bert-large-uncased --lr 1.900e-5 --num-labels 2 --max-seq-length 86 --batch-size 32
+python msr_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python msr_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
 ### SST
 
 ```
-python sst_embeds.py --checkpoint bert-base-uncased --lr 2.87889e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
-python sst_embeds.py --checkpoint bert-large-uncased --lr 1.73352e-5 --num-labels 2 --max-seq-length 66 --batch-size 32
+python sst_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python sst_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
 ### RTE
 
 ```
-python rte_embeds.py --checkpoint bert-base-uncased --lr 1.21668e-5 --num-labels 2 --max-seq-length 219 --batch-size 16
-python rte_embeds.py --checkpoint bert-large-uncased --lr 2.434992e-6 --num-labels 2 --max-seq-length 219 --batch-size 16
+python rte_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 289 --batch-size 16
+python rte_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 289 --batch-size 16
 ```
 
 
