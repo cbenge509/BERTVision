@@ -61,7 +61,7 @@ class BertGLUETrainer(object):
         self.logger = logger
 
         # specify training data set
-        self.train_examples = processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
+        self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
 
         # declare progress
         self.logger.info(f"Initializing {self.args.model}-train with {self.args.max_seq_length} token length")
