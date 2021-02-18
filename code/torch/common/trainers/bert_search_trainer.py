@@ -59,8 +59,17 @@ class BertSearchTrainer(object):
         self.scaler = scaler
         self.logger = logger
 
-        # specify training data set
-        self.train_examples = processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
+        # shard the large datasets:
+        if any([self.args.model == 'QQP',
+                self.args.model == 'QNLI',
+                self.args.model == 'MNLI'
+                ]):
+            # turn on sharding
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
+            print(args.seed)
+        else:
+            # create the usual processor
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
 
         # declare progress
         self.logger.info(f"Initializing {self.args.model}-train with {self.args.max_seq_length} token length")
@@ -152,7 +161,7 @@ class BertSearchTrainer(object):
                     self.args.model == 'MSR',
                     self.args.model == 'RTE',
                     self.args.model == 'QNLI',
-                    self.args.model == 'QQPairs',
+                    self.args.model == 'QQP',
                     self.args.model == 'WNLI'
                     ]):
 
