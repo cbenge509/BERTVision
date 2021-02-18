@@ -9,7 +9,7 @@ pip install loguru hyperopt
 ```
 
 
-# Hyperparameters
+# Hyperparameter Searching
 
 We use the following hyperparameters drawing from our own `hyperopt` hyperparameter searches and academic testing.
 We find that smaller data sets are much more sensitive to the learning rate than larger ones.
@@ -20,6 +20,9 @@ Our hyperparameter search can be run with the following command:
 python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 16 --num-labels 2 --max-seq-length 86
 python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 77
 ```
+
+For large data sets, e.g., MNLI, QNLI, and QQP, data set sharding is enabled automatically, which
+randomly samples 15% of the data set to train on to speed up the search.
 
 Ensure that you specify the GLUE task `model` as well as the appropriate values for `batch-size`, `num-labels` and `max-seq-length`.
 
@@ -57,7 +60,7 @@ TODO
 
 |BERT-base QQP | BERT-large QQP | BERTVision-base QQP |  BERTVision-large QQP |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.887</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.897</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.885</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.896</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### QNLI
 
@@ -69,7 +72,7 @@ TODO
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.904</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.915</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.888</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.911</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
 
 ### MNLI
 
@@ -81,7 +84,7 @@ TODO
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.826</td><td>0.831</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.857</td><td>0.853</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.824</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.850</td><td>0.847</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
