@@ -11,8 +11,6 @@ from tqdm.auto import tqdm
 from tqdm.notebook import trange
 import numpy as np
 
-import pickle
-
 class BertGLUETrainer(object):
     '''
     This class handles the training of classification models with BERT
