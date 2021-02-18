@@ -58,16 +58,26 @@ def train_and_evaluate(lr, seed):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    args.seed = seed
 
     # set seed for multi-gpu
-    if n_gpu > 0:eeeeeee
+    if n_gpu > 0:
         torch.cuda.manual_seed_all(seed)
 
     # set data set processor
     processor = dataset_map[args.model]
 
-    # use it to create the train set
-    train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
+    # shard the large datasets:
+    if any([args.model == 'QQP',
+            args.model == 'QNLI',
+            args.model == 'MNLI'
+            ]):
+        # turn on sharding
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, seed=seed)
+
+    else:
+        # create the usual processor
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
 
     # set some other training objects
     args.batch_size = args.batch_size
