@@ -28,14 +28,14 @@ BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 444 | 512 | 330 | 289 | 128 | 128 | 128 | 128
+`--max-seq-length` | 444 | 512 | 330 | 250 | 128 | 128 | 128 | 128
 
 BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5| 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
-`--max-seq-length` | 444 | 512 | 330 | 289 | 128 | 128 | 128 | 128
+`--max-seq-length` | 444 | 512 | 330 | 250 | 128 | 128 | 128 | 128
 
 # Our Results
 BERT-base and AP Models
@@ -90,12 +90,16 @@ TODO
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-TODO
+python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+
+python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
 ```
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.661</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.625</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.632</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.473</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.581</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.549</td></tr></table>|
 
 
 ### SST
@@ -112,7 +116,7 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 2e-
 
 |BERT-base SST | BERT-large SST | BERTVision-base SST |  BERTVision-large SST |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.920</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.933</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.922</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.929</td></tr></table>|
 
 ### MSR
 
@@ -128,7 +132,7 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 2e-
 
 |BERT-base MSR | BERT-large MSR | BERTVision-base MSR |  BERTVision-large MSR |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.810</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.793</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.665</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.829</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.810</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.665</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.793</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.829</td></tr></table>|
 
 ### CoLA
 
@@ -144,7 +148,7 @@ python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2e
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.567</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.409</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.567</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.409</td></tr></table>|
 
 ### STSB
 
@@ -160,7 +164,7 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2e
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.859</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.877</td><td>0.875</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.859</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.877</td><td>0.875</td></tr></table>|
 
 
 # Embeddings Replication
@@ -223,8 +227,8 @@ python sst_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --
 ### RTE
 
 ```
-python rte_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 289 --batch-size 16
-python rte_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 289 --batch-size 16
+python rte_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+python rte_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
 ```
 
 
