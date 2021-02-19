@@ -143,7 +143,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
-python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 1.22896e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 143
 
 python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
 python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
@@ -151,7 +151,7 @@ python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2e
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.567</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.409</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.593</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.409</td></tr></table>|
 
 ### STSB
 
@@ -159,7 +159,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
-python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.7762e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 260
 
 python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
 python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
@@ -167,7 +167,7 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2e
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.859</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.877</td><td>0.875</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.859</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.877</td><td>0.875</td></tr></table>|
 
 
 # Embeddings Replication
