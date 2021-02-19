@@ -131,9 +131,8 @@ def train_and_evaluate(lr, seed):
     # initialize the trainer
     trainer = H5SearchTrainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
-    dev_loss = trainer.train()
-
-    return dev_loss
+    metric = trainer.train()
+    return metric
 
 # main fun.
 if __name__ == '__main__':
@@ -144,8 +143,8 @@ if __name__ == '__main__':
         lr = params['lr']
 
         logger.info(f"Testing this learning rate: {lr} and this seed: {seed}")
-        dev_loss = train_and_evaluate(lr, seed)
-        return {'loss': dev_loss, 'status': STATUS_OK}
+        metric = train_and_evaluate(lr, seed)
+        return {'loss': 1-metric, 'status': STATUS_OK}  # minimizing the fn, so 1-metric
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),

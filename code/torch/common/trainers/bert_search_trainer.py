@@ -173,7 +173,7 @@ class BertSearchTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
-                return dev_loss
+                return dev_acc
 
 
             elif any([self.args.model == 'CoLA']):
@@ -186,7 +186,7 @@ class BertSearchTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
 
-                return dev_loss
+                return matthews
 
 
             elif any([self.args.model == 'STSB']):
@@ -199,7 +199,7 @@ class BertSearchTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Pearson {1: 0.3f}, Dev/Spearman {2: 0.3f}, Dev/Loss {3: 0.3f}",
                                  epoch+1, pearson, spearman, dev_loss)
 
-                return dev_loss
+                return pearson
 
 
             elif any([self.args.model == 'MNLI']):
@@ -222,6 +222,6 @@ class BertSearchTrainer(object):
                 # compute average
                 dev_loss = (dev_loss1 + dev_loss2) / 2
 
-                return dev_loss
+                return dev_acc
 
 #
