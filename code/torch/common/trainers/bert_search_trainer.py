@@ -66,7 +66,7 @@ class BertSearchTrainer(object):
                 ]):
             # turn on sharding
             self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
-            print(args.seed)
+
         else:
             # create the usual processor
             self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger))

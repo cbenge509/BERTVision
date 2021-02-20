@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
 import numpy as np
-
+from transformers import AdamW, get_linear_schedule_with_warmup
 
 class H5SearchTrainer(object):
     '''
@@ -48,19 +48,51 @@ class H5SearchTrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, criterion, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, processor, criterion, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
-        self.criterion = criterion
-        self.optimizer = optimizer
         self.processor = processor
-        self.scheduler = scheduler
+        self.criterion = criterion
         self.scaler = scaler
         self.logger = logger
 
-        # specify training data set
-        self.train_examples = processor(type='train', args=self.args)
+        # shard the large datasets:
+        if any([self.args.model == 'AP_QQP',
+                self.args.model == 'AP_QNLI',
+                self.args.model == 'AP_MNLI',
+                ]):
+            # turn on sharding
+            self.train_examples = self.processor(type='train', args=self.args, shard=True, seed=args.seed)
+
+        else:
+            # create the usual processor
+            self.train_examples = self.processor(type='train', args=self.args)
+
+        # determine the number of optimization steps
+        self.num_train_optimization_steps = int(
+            len(self.train_examples) / args.batch_size) * args.epochs
+
+        # set optimizer
+        param_optimizer = list(model.named_parameters())
+
+        # exclude these from regularization
+        no_decay = ['bias']
+        # give l2 regularization to any parameter that is not named after no_decay list
+        # give no l2 regulariation to any bias parameter or layernorm bias/weight
+        optimizer_grouped_parameters = [
+            {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
+            {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+
+        # set optimizer
+        self.optimizer = AdamW(optimizer_grouped_parameters,
+                                  lr=args.lr,
+                                  correct_bias=False,
+                                  weight_decay=args.l2)
+
+        # set linear scheduler
+        self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_training_steps=self.num_train_optimization_steps,
+                                                    num_warmup_steps=args.warmup_proportion * self.num_train_optimization_steps)
 
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -69,10 +101,6 @@ class H5SearchTrainer(object):
         self.snapshot_path = os.path.join(args.save_path, args.checkpoint, args.model, '%s.pt' % timestamp)
         self.make_path = os.path.join(self.args.save_path, self.args.checkpoint, self.args.model)
         os.makedirs(self.make_path, exist_ok=True)
-
-        # determine the number of optimization steps
-        self.num_train_optimization_steps = int(
-            len(self.train_examples) / args.batch_size) * args.epochs
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
