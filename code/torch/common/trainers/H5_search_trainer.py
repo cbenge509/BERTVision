@@ -62,6 +62,7 @@ class H5SearchTrainer(object):
                 self.args.model == 'AP_QNLI',
                 self.args.model == 'AP_MNLI',
                 self.args.model == 'AP_SST',
+                self.args.model == 'AP_MSR'
                 ]):
             # turn on sharding
             self.train_examples = self.processor(type='train', args=self.args, shard=True, seed=args.seed)
