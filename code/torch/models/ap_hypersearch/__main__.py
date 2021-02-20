@@ -78,17 +78,12 @@ def train_and_evaluate(lr, seed):
 
     # set data set processor
     processor = dataset_map[args.model]
-    # use it to create the train set
-    train_processor = processor(type='train', args=args)
 
     # set some other training objects
     args.batch_size = args.batch_size
     args.device = device
     args.n_gpu = n_gpu
     args.lr = lr
-
-    # set training length
-    num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
     model = AP_GLUE(n_layers=args.n_layers, n_batch_sz=args.batch_size, n_tokens=args.max_seq_length, n_features=args.n_features, n_labels=args.num_labels).to(device)
@@ -107,31 +102,11 @@ def train_and_evaluate(lr, seed):
     if n_gpu > 1:
         model = torch.nn.DataParallel(model)
 
-    # set optimizer
-    param_optimizer = list(model.named_parameters())
-
-    # exclude these from regularization
-    no_decay = ['bias']
-    # give l2 regularization to any parameter that is not named after no_decay list
-    # give no l2 regulariation to any bias parameter or layernorm bias/weight
-    optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-
-    # set optimizer
-    optimizer = AdamW(optimizer_grouped_parameters,
-                              lr=args.lr,
-                              correct_bias=False,
-                              weight_decay=args.l2)
-
-    # set linear scheduler
-    scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
-                                                num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
-
     # initialize the trainer
-    trainer = H5SearchTrainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
+    trainer = H5SearchTrainer(model, processor, criterion, args, scaler, logger)
     # begin training / shift to trainer class
     metric = trainer.train()
+    
     return metric
 
 # main fun.
