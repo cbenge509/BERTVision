@@ -820,18 +820,18 @@ class SSTH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.15*self.dataset_len)
             # select randomly from indices, without replacement
-            random_indices = np.random.choice(np.arange(self.dataset_len), size=random_indices_len, replace=False)
+            self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now
-            random_indices = np.sort(random_indices)
+            self.random_indices = np.sort(self.random_indices)
 
             # embeds are shaped: [batch_sz, layers, tokens, features]
-            self.embeddings = h5py.File(self.train_embed_path, 'r')["embeds"][random_indices]
+            self.embeddings = h5py.File(self.train_embed_path, 'r')["embeds"]
             # labels are shaped: [batch_sz, ]
-            self.labels = h5py.File(self.train_label_path, 'r')["labels"][random_indices]
+            self.labels = h5py.File(self.train_label_path, 'r')["labels"]
             # idx ids are shaped: [batch_sz, ]
-            self.idx = h5py.File(self.train_idx_path, 'r')['idx'][random_indices]
+            self.idx = h5py.File(self.train_idx_path, 'r')['idx']
 
         elif self.type == 'train' and self.shard == False:
             # initialize ds length
@@ -857,29 +857,36 @@ class SSTH5Processor(torch.utils.data.Dataset):
             with h5py.File(self.val_embed_path, 'r') as file:
                 self.dataset_len = len(file["embeds"])
 
-    def __len__(self):
-        return self.dataset_len
+            self.random_indices = np.arange(self.dataset_len)
 
-    def __getitem__(self, idx):
+    def __len__(self):
+        if self.type == 'train' and self.shard == True:
+            return len(self.random_indices)
+        else:
+            return self.dataset_len
+
+    def __getitem__(self, random_indices):
         '''
         Torch's lazy emission system
         '''
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+        if torch.is_tensor(random_indices):
+            random_indices = random_indices.tolist()
+
 
         if self.type == 'train':
             # emits [layers, tokens, features]
-            sample = {'embeddings': self.embeddings[idx],
-                    'labels': self.labels[idx],
-                    'idx': self.idx[idx]}
+            sample = {'embeddings': self.embeddings[random_indices],
+                    'labels': self.labels[random_indices],
+                    'idx': self.idx[random_indices]}
             return sample
 
         if self.type == 'dev':
             # emits [layers, tokens, features]
-            sample = {'embeddings': self.embeddings[idx],
-                    'labels': self.labels[idx],
-                    'idx': self.idx[idx]}
+            sample = {'embeddings': self.embeddings[random_indices],
+                    'labels': self.labels[random_indices],
+                    'idx': self.idx[random_indices]}
             return sample
+
 
 
 # prepare torch data set

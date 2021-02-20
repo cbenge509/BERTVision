@@ -79,12 +79,12 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 1e-
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-TODO
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
 ```
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.822</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
@@ -158,7 +158,7 @@ python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2.
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 1.86524e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 637
 python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.7762e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 260
 
 python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
@@ -167,7 +167,7 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.
 
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
-|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.856</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.859</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.880</td><td>0.879</td></tr></table>|
+|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.888</td><td>0.886</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.864</td><td>0.865</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.859</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.880</td><td>0.879</td></tr></table>|
 
 
 # Embeddings Replication
