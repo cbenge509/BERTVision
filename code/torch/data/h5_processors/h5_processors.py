@@ -774,16 +774,22 @@ class SSTH5Processor(torch.utils.data.Dataset):
     sample : tensor [layers, tokens, features]
         A single sample of data indexed by the torch data set.
     '''
-    def __init__(self, type, args):
+    def __init__(self, type, args, shard=False, **kwargs):
+        # init configurable string
         self.type = type
+        # receive arg parser
         self.args = args
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # set seed if given
+        self.seed = kwargs
 
         if self.args.checkpoint == 'bert-base-uncased':
             self.file_path = 'C:\\w266\\data\\h5py_embeds\\'
         elif self.args.checkpoint == 'bert-large-uncased':
             self.file_path = 'C:\\w266\\data\\h5py_embeds\\bert_large\\'
 
-        # todo: generalize locations
+        # h5 locs
         self.train_embed_path = self.file_path + 'sst_bert_embeds.h5'
         self.train_label_path = self.file_path + 'sst_labels.h5'
         self.train_idx_path = self.file_path + 'sst_idx.h5'
@@ -793,16 +799,38 @@ class SSTH5Processor(torch.utils.data.Dataset):
         self.val_idx_path = self.file_path + 'sst_idx.h5'
 
         # if train, initialize the train data
-        if self.type == 'train':
+        if self.type == 'train' and self.shard == True:
+            # initialize ds length
+            with h5py.File(self.train_embed_path, 'r') as file:
+                self.dataset_len = len(file["embeds"])
+
+            # np seed
+            np.random.seed(self.seed['seed'])
+            # 15% of data set
+            random_indices_len = int(0.15*self.dataset_len)
+            # select randomly from indices, without replacement
+            random_indices = np.random.choice(np.arange(self.dataset_len), size=random_indices_len, replace=False)
+            # sort for now
+            random_indices = np.sort(random_indices)
+
+            # embeds are shaped: [batch_sz, layers, tokens, features]
+            self.embeddings = h5py.File(self.train_embed_path, 'r')["embeds"][random_indices]
+            # labels are shaped: [batch_sz, ]
+            self.labels = h5py.File(self.train_label_path, 'r')["labels"][random_indices]
+            # idx ids are shaped: [batch_sz, ]
+            self.idx = h5py.File(self.train_idx_path, 'r')['idx'][random_indices]
+
+        elif self.type == 'train' and self.shard == False:
+            # initialize ds length
+            with h5py.File(self.train_embed_path, 'r') as file:
+                self.dataset_len = len(file["embeds"])
+
             # embeds are shaped: [batch_sz, layers, tokens, features]
             self.embeddings = h5py.File(self.train_embed_path, 'r')["embeds"]
             # labels are shaped: [batch_sz, ]
             self.labels = h5py.File(self.train_label_path, 'r')["labels"]
             # idx ids are shaped: [batch_sz, ]
             self.idx = h5py.File(self.train_idx_path, 'r')['idx']
-
-            with h5py.File(self.train_embed_path, 'r') as file:
-                self.dataset_len = len(file["embeds"])
 
         # if train, initialize the dev data
         if self.type == 'dev':
