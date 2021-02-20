@@ -144,7 +144,7 @@ class MNLIH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            self.random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.30*self.dataset_len)
             # select randomly from indices, without replacement
             self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now
@@ -284,7 +284,7 @@ class MSRH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            self.random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.30*self.dataset_len)
             # select randomly from indices, without replacement
             self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now
@@ -405,7 +405,7 @@ class QNLIH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            self.random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.30*self.dataset_len)
             # select randomly from indices, without replacement
             self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now
@@ -526,7 +526,7 @@ class QQPH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            self.random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.30*self.dataset_len)
             # select randomly from indices, without replacement
             self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now
@@ -820,7 +820,7 @@ class SSTH5Processor(torch.utils.data.Dataset):
             # np seed
             np.random.seed(self.seed['seed'])
             # 15% of data set
-            self.random_indices_len = int(0.15*self.dataset_len)
+            self.random_indices_len = int(0.30*self.dataset_len)
             # select randomly from indices, without replacement
             self.random_indices = np.random.choice(np.arange(self.dataset_len), size=self.random_indices_len, replace=False)
             # sort for now

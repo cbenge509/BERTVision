@@ -320,7 +320,7 @@ class QNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -420,7 +420,7 @@ class QQP(torch.utils.data.Dataset):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -569,7 +569,7 @@ class MNLI(TwoSentenceLoader):
         # init shard for sampling large ds if specified
         self.shard = shard
         # set seed if given
-        self.seed = args        
+        self.seed = args
 
         # if type is train:
         if self.type == 'train':
@@ -596,7 +596,7 @@ class MNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.15, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
 
         else:
             # if type is dev_matched:
