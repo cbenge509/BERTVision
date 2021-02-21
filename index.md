@@ -1,6 +1,6 @@
 <img src="./images/bertvision.png" />
 
-## Welcome to BERTVision
+# Introduction to BERTVision
 
 We present a highly parameter-efficient approach for a wide range of NLP tasks that significantly reduces the need for extended BERT fine-tuning. Our method uses information from the hidden state activations of each BERT transformer layer, which is discarded during typical BERT inference. Our best model achieves maximal BERT performance at a fraction of the training time and GPU/TPU expense. Performance is further improved by ensembling our model with BERT’s predictions. Furthermore, we find that near optimal performance can be achieved for some NLP tasks using less training data. 
 
@@ -22,6 +22,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 <img src="./images/BERTVision_QA_Model.png" width=500/>
 <br>
+
+---
+
+### How it Works: Model Development & Training
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+<img src="./images/BERTVision_development_pipeline.png" />
 
 ---
 
@@ -172,11 +180,11 @@ python -m models.ap_mnli --dataset MNLIH5 --model ap_mnli --num-workers 0
 
 ---
 
-## Read the BERTVIsion Paper
+## Read the BERTVision Paper
 
 The BERTVision paper has been published, and is yadda yadda yadda... :
 
-[BERTVision: A Parameter-Efficient Approach for BERT-based NLP Tasks](./paper/BERTVision_2020.pdf)
+**[BERTVision: A Parameter-Efficient Approach for BERT-based NLP Tasks](./paper/BERTVision_2020.pdf)**
 
 
 
