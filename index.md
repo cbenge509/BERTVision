@@ -83,9 +83,17 @@ python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0
     --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0`
 ```
 
-<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>70.3950</td><td>73.5724</td></tr> </table>
-
-<table> <tr><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th></tr><tr><td>1</td><td>16</td><td>1.0</td><td>70.0581</td><td>73.3558</td></tr> </table>
+<table>
+    <tr>
+        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
+    </tr>
+    <tr>
+        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>70.3950</td><td>73.5724</td>
+    </tr> 
+    <tr>
+        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>70.0581</td><td>73.3558</td>
+    </tr>
+</table>
 
 ### Results (GLUE) : SST-2
 
