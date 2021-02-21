@@ -87,12 +87,15 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
+python -m models.bert_glue --model MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
 python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+
+python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
 ```
 
 |BERT-base MNLI | BERT-large MNLI | BERTVision-base MNLI |  BERTVision-large MNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.822</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.824</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.853</td><td>0.851</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>0.822</td><td>0.829</td></tr></table>|<table><tr><th>Dev. Matched Acc.</th><th>Dev. Mismatched Acc.</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
 
 
 
