@@ -1,8 +1,12 @@
 <img src="./images/bertvision.png">
 
-You can use the [editor on GitHub](https://github.com/cbenge509/BERTVision/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Welcome to BERTVision
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+We present a highly parameter-efficient approach for a wide range of NLP tasks that significantly reduces the need for extended BERT fine-tuning. Our method uses information from the hidden state activations of each BERT transformer layer, which is discarded during typical BERT inference. Our best model achieves maximal BERT performance at a fraction of the training time and GPU/TPU expense. Performance is further improved by ensembling our model with BERT’s predictions. Furthermore, we find that near optimal performance can be achieved for some NLP tasks using less training data. 
+
+This repository contains the code, models, and documentation for the evaluation of leveraging parameter-efficient models for their potential utility in performing the NLP tasks of span annotation, document classification, grammatical validation, sentiment, paraphrase detection, sentence similarity, and more.
+
+All models were trained on the hidden embedding activation states of BERT-base and BERT-large uncased and evaluated on the [Stanford Question Answering Dataset 2.0](https://rajpurkar.github.io/SQuAD-explorer/) (aka [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/)) and the [General Language Understanding Evaluation](https://gluebenchmark.com/) ([GLUE](https://gluebenchmark.com/)) benchmark data.
 
 ### Markdown
 
