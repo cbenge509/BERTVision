@@ -17,8 +17,8 @@ We find that smaller data sets are much more sensitive to the learning rate than
 Our hyperparameter search can be run with the following command:
 
 ```
-python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 16 --num-labels 2 --max-seq-length 86
-python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 77
+python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 32 --num-labels 2 --max-seq-length 128
+python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 128
 ```
 
 For large data sets, e.g., MNLI, QNLI, and QQP, data set sharding is enabled automatically, which
@@ -30,14 +30,14 @@ BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5
-`--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
+`--batch-size` | 32 | 32 | 32 | 16 | 32 | 32 | 16 | 16
 `--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
 BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5| 2e-5 | 2e-5 | 2e-5
-`--batch-size` | 32 | 32 | 32 | 16 | 32 | 16 | 16 | 16
+`--batch-size` | 32 | 32 | 32 | 16 | 32 | 32 | 16 | 16
 `--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
 # Our Results
@@ -93,7 +93,7 @@ python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.2220e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 600
 python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 1.64116e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 41
 
 python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
@@ -102,7 +102,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.632</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.473</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.661</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.592</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.657</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.473</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.661</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.592</td></tr></table>|
 
 
 ### SST
