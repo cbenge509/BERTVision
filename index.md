@@ -54,8 +54,10 @@ python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.sst --dataset SST --model SST --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5`
+python -m models.sst --dataset SST --model SST --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5`
 ```
 
 |BERT-base SST-2 | BERTVision SST-2 |
@@ -66,8 +68,10 @@ python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 --batch-s
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.msr --dataset MSR --model msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
-python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
+python -m models.msr --dataset MSR --model msr --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
+python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
 ```
 
 |BERT-base MSR | BERTVision MSR |
@@ -79,8 +83,10 @@ python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 --batch-s
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.rte --dataset RTE --model RTE --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_rte --dataset RTEH5 --model ap_rte --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.rte --dataset RTE --model RTE --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_rte --dataset RTEH5 --model ap_rte --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
 ```
 
 |BERT-base RTE | BERTVision RTE |
@@ -93,8 +99,10 @@ python -m models.ap_rte --dataset RTEH5 --model ap_rte --num-workers 0 --batch-s
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.qnli --dataset qnli --model qnli --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_qnli --dataset QNLIH5 --model ap_qnli --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.qnli --dataset qnli --model qnli --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_qnli --dataset QNLIH5 --model ap_qnli --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
 ```
 
 |BERT-base RTE | BERTVision RTE |
@@ -106,8 +114,10 @@ python -m models.ap_qnli --dataset QNLIH5 --model ap_qnli --num-workers 0 --batc
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.qqpairs --dataset QQPairs --model QQPairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_qqpairs --dataset QQPairs --model ap_qqpairs --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.qqpairs --dataset QQPairs --model QQPairs --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_qqpairs --dataset QQPairs --model ap_qqpairs --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
 ```
 
 |BERT-base RTE | BERTVision RTE |
@@ -119,8 +129,10 @@ python -m models.ap_qqpairs --dataset QQPairs --model ap_qqpairs --num-workers 0
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.stsb --dataset STSB --model STSB --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_stsb --dataset STSBH5 --model ap_stsb --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.stsb --dataset STSB --model STSB --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_stsb --dataset STSBH5 --model ap_stsb --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
 ```
 
 |BERT-base STSB | BERTVision STSB |
@@ -132,8 +144,10 @@ python -m models.ap_stsb --dataset STSBH5 --model ap_stsb --num-workers 0 --batc
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.cola --dataset COLA --model COLA --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_cola --dataset COLAH5 --model ap_cola --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.cola --dataset COLA --model COLA --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.ap_cola --dataset COLAH5 --model ap_cola --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5
 ```
 
 |BERT-base COLA | BERTVision COLA |
@@ -146,8 +160,10 @@ python -m models.ap_cola --dataset COLAH5 --model ap_cola --num-workers 0 --batc
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.mnli --dataset MNLI --model MNLI --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
-python -m models.ap_mnli --dataset MNLIH5 --model ap_mnli --num-workers 0 --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
+python -m models.mnli --dataset MNLI --model MNLI --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
+python -m models.ap_mnli --dataset MNLIH5 --model ap_mnli --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
 ```
 
 |BERT-base MNLI | BERTVision MNLI |
