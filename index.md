@@ -39,8 +39,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0
-python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0`
+python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 
+    --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0
+python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 
+    --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0`
 ```
 
 |BERT-base SQuAD 2.0 | BERTVision SQuAD 2.0 |
