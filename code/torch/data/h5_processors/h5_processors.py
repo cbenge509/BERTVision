@@ -172,13 +172,13 @@ class MNLIH5Processor(torch.utils.data.Dataset):
         # if matched, initialize the dev data
         if self.type == 'dev_matched':
             # embeds are shaped: [batch_sz, layers, tokens, features]
-            self.embeddings = h5py.File(self.val_embed_path, 'r')["embeds"]
+            self.embeddings = h5py.File(self.dev_matched_embed_path, 'r')["embeds"]
             # labels are shaped: [batch_sz, ]
-            self.labels = h5py.File(self.val_label_path, 'r')["labels"]
+            self.labels = h5py.File(self.dev_matched_label_path, 'r')["labels"]
             # idx ids are shaped: [batch_sz, ]
-            self.idx = h5py.File(self.val_idx_path, 'r')['idx']
+            self.idx = h5py.File(self.dev_matched_idx_path, 'r')['idx']
 
-            with h5py.File(self.val_embed_path, 'r') as file:
+            with h5py.File(self.dev_matched_embed_path, 'r') as file:
                 self.dataset_len = len(file["embeds"])
 
             self.random_indices = np.arange(self.dataset_len)
@@ -186,13 +186,13 @@ class MNLIH5Processor(torch.utils.data.Dataset):
         # if matched, initialize the dev data
         if self.type == 'dev_mismatched':
             # embeds are shaped: [batch_sz, layers, tokens, features]
-            self.embeddings = h5py.File(self.val_embed_path, 'r')["embeds"]
+            self.embeddings = h5py.File(self.dev_mismatched_embed_path, 'r')["embeds"]
             # labels are shaped: [batch_sz, ]
-            self.labels = h5py.File(self.val_label_path, 'r')["labels"]
+            self.labels = h5py.File(self.dev_mismatched_label_path, 'r')["labels"]
             # idx ids are shaped: [batch_sz, ]
-            self.idx = h5py.File(self.val_idx_path, 'r')['idx']
+            self.idx = h5py.File(self.dev_mismatched_idx_path, 'r')['idx']
 
-            with h5py.File(self.val_embed_path, 'r') as file:
+            with h5py.File(self.dev_mismatched_embed_path, 'r') as file:
                 self.dataset_len = len(file["embeds"])
 
             self.random_indices = np.arange(self.dataset_len)
