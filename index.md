@@ -33,7 +33,33 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ---
 
-## Our Results
+# NLP Tasks & Data
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+#### SQuAD 2.0 Datasets
+
+| Dataset | Description | NLP Task | Metric | Size |
+|:--------|:------------|:--------:|:------:|------|
+| [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/) | A reading comprehension dataset prepared by crowdworkers on a set of Wikipedia articles. | [span annotation](https://en.wikipedia.org/wiki/Question_answering), [classification](https://en.wikipedia.org/wiki/Binary_classification) | [Exact Match](https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1174/reports/2761899.pdf), [F1](https://en.wikipedia.org/wiki/F-score) | ~150k |
+
+#### GLUE Benchmark Datasets
+
+| Dataset | Description | NLP Task | Metric | Size |
+|:--------|:------------|:--------:|:------:|------|
+| [CoLA](https://nyu-mll.github.io/CoLA/) | Corpus of Linguistic Acceptability | Acceptability | Matthews | ~10k |
+| [SST-2](https://nlp.stanford.edu/sentiment/index.html) | Standford Sentiment Treebank | Sentiment | Accuracy | ~67k |
+| [MSR](https://www.microsoft.com/en-us/download/details.aspx?id=52398) | Microsoft Research Paraphrase Corpus | Paraphrase | Accuracy, F1 | ~4k |
+| [STS-B](https://www.aclweb.org/anthology/S17-2001) | Semantic Textual Similarity Benchmark | Sentence Similarity | Pearson / Spearman | ~7k |
+| [QQPairs](https://www.quora.com/q/quoradata/First-Quora-Dataset-Release-Question-Pairs) | Quora Question Pairs | Paraphrase | Accuracy, F1 | ~400k |
+| [MNLI](https://www.nyu.edu/projects/bowman/multinli/) | Multi-Genre Natural Language Inference Corpus | Natural Language Inference | Accuracy | . |
+| [QNLI](https://rajpurkar.github.io/SQuAD-explorer/) | SQuAD dataset | QA / NLI | Accuracy | ~110k |
+| [RTE](https://aclweb.org/aclwiki/Textual_Entailment_Resource_Pool) | Recognizing Textual Entailment | Natural Language Inference | Accuracy | ~3k |
+| [WNLI](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html) | Natural Language Inference | Accuracy | ~1k |
+
+---
+
+# Our Results
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
@@ -180,7 +206,7 @@ python -m models.ap_mnli --dataset MNLIH5 --model ap_mnli --num-workers 0
 
 ---
 
-## Read the BERTVision Paper
+# Read the Paper
 
 The BERTVision paper has been published, and is yadda yadda yadda... :
 
