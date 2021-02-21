@@ -55,7 +55,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 | [MNLI](https://www.nyu.edu/projects/bowman/multinli/) | Multi-Genre Natural Language Inference Corpus | Natural Language Inference | Accuracy | . |
 | [QNLI](https://rajpurkar.github.io/SQuAD-explorer/) | SQuAD dataset | QA / NLI | Accuracy | ~110k |
 | [RTE](https://aclweb.org/aclwiki/Textual_Entailment_Resource_Pool) | Recognizing Textual Entailment | Natural Language Inference | Accuracy | ~3k |
-| [WNLI](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html) | Natural Language Inference | Accuracy | ~1k |
+| [WNLI](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html) | Winnograd Natural Lanugage Inference | Natural Language Inference | Accuracy | ~1k |
 
 ---
 
