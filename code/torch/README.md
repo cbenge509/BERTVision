@@ -142,16 +142,16 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.4
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```
-python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 9.6296e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 441
 python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.25972e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 563
 
-python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 9.4471e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 203
 python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2.99619e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 949
 ```
 
 |BERT-base CoLA | BERT-large CoLA | BERTVision-base CoLA |  BERTVision-large CoLA |
 |--|--|--|--|
-|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.464</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.518</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.600</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.432</td></tr></table>|
+|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.565</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.596</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.600</td></tr></table>|<table><tr><th>Dev. Matthews</th></tr><tr><td>0.432</td></tr></table>|
 
 ### STSB
 
