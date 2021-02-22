@@ -210,14 +210,14 @@ class BertSearchTrainer(object):
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_matched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
-                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
+                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1)
 
 
                 # matched
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
-                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
+                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2)
 
                 # compute average
                 dev_loss = (dev_loss1 + dev_loss2) / 2
