@@ -72,7 +72,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
-python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 2.0021e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 770
 
 python -m models.bert_glue --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
@@ -80,7 +80,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.901</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.912</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.885</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.901</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.912</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.892</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.910</td></tr></table>|
 
 ### MNLI
 
