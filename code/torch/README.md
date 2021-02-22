@@ -64,7 +64,7 @@ python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-
 
 |BERT-base QQP | BERT-large QQP | BERTVision-base QQP |  BERTVision-large QQP |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.889</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.869</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.886</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.889</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.869</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.886</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.897</td></tr></table>|
 
 ### QNLI
 
