@@ -106,7 +106,7 @@ def train_and_evaluate(lr, seed):
     trainer = H5SearchTrainer(model, processor, criterion, args, scaler, logger)
     # begin training / shift to trainer class
     metric = trainer.train()
-    
+
     return metric
 
 # main fun.
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
-                    'lr': hp.uniform('lr', low=0e-5, high=3e-5)}
+                    'lr': hp.uniform('lr', low=args.lr_low, high=args.lr_high)}
 
     # intialize hyperopt
     trials = Trials()
