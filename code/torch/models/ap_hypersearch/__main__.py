@@ -111,6 +111,7 @@ def train_and_evaluate(lr, seed):
 
 # main fun.
 if __name__ == '__main__':
+    args = get_args()
 
     # training function
     def train_fn(params):
