@@ -45,7 +45,15 @@ def get_args():
     parser.add_argument('--num-workers',
                         type=int,
                         default=0,
-                        help='Number of CPU cores (default: 0)')    
+                        help='Number of CPU cores (default: 0)')
+    parser.add_argument('--lr-low',
+                        type=float,
+                        default=0e-5,
+                        help='Lower bound of LR search')
+    parser.add_argument('--lr-high',
+                        type=float,
+                        default=3e-5,
+                        help='Upper bound of LR search')
     args = parser.parse_args()
 
     return args
