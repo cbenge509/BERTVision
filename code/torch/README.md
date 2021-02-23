@@ -1,5 +1,7 @@
 # Create BERTVision Environment
 
+We recommend generating the below Anaconda environment to replicate our results:
+
 ```
 conda create -n my_ml python=3.7 pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 conda activate my_ml
@@ -11,42 +13,39 @@ pip install loguru hyperopt
 
 # Hyperparameter Searching
 
-We use the following hyperparameters drawing from our own `hyperopt` hyperparameter searches and academic testing.
-We find that smaller data sets are much more sensitive to the learning rate than larger ones.
-
-Our hyperparameter search can be run with the following command:
+We use `hyperopt` to search over parameters and tune our models. We find that
+the smaller data sets are far more sensitive to tuning than the larger ones.
+To replicate our tuning processes, please use the following commands:
 
 ```
 python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 32 --num-labels 2 --max-seq-length 128
 python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 128
 ```
 
-For large data sets, e.g., MNLI, QNLI, and QQP, data set sharding is enabled automatically, which
-randomly samples 15% of the data set to train on to speed up the search.
+For large data sets, e.g., MNLI, QNLI, QQP, and SST, data set sharding is enabled
+automatically, which randomly samples 10% of the data set to train on to speed
+up the parameter search. `shard` is manipulable and can be set by:
 
-Ensure that you specify the GLUE task `model` as well as the appropriate values for `batch-size`, `num-labels` and `max-seq-length`.
+```
+python -m models.ap_hypersearch --model AP_QQP --checkpoint bert-base-uncased --batch-size 32 --num-labels 2 --max-seq-length 128 --shard 0.3
+```
 
-BERT-Large | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
+The table below displays the commonly recommended general hyperparameters for
+each GLUE task. The BERTVision embeddings were generated based on these parameters.
+
+BERT-(base/large) | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
 ---|---|---|---|---|---|---|---|---
 `--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
 `--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5 | 2e-5
 `--batch-size` | 32 | 32 | 32 | 16 | 32 | 32 | 16 | 16
 `--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
-BERT-Base | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B
----|---|---|---|---|---|---|---|---
-`--num-labels` | 3 | 2 | 2 | 2 | 2 | 2 | 2 | 1
-`--lr` | 1e-5 | 1e-5 | 1e-5 | 2e-5 | 2e-5| 2e-5 | 2e-5 | 2e-5
-`--batch-size` | 32 | 32 | 32 | 16 | 32 | 32 | 16 | 16
-`--max-seq-length` | 128 | 128 | 128 | 250 | 128 | 128 | 128 | 128
 
 # Our Results
 BERT-base and AP Models
 
 <img align="center" src="../../images/bert_base_vs_bertvision.png" />
 
-
-# Latest Results
 
 ## GLUE
 
