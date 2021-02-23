@@ -61,7 +61,7 @@ class H5_SQUAD_Trainer(object):
         self.logger = logger
 
         # specify training data set
-        self.train_examples = processor(type='train')
+        self.train_examples = processor(type='train', args=self.args)
 
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
