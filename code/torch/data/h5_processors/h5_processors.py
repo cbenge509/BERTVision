@@ -700,19 +700,24 @@ class SQuADH5Processor(torch.utils.data.Dataset):
 
     NAME = 'SQuADH5'
 
-    def __init__(self, type):
+    def __init__(self, type, args):
         self.type = type
+        self.args = args
 
-        # todo: generalize locations
-        self.train_embed_path = 'C:\\w266\data\\h5py_embeds\\squad_train_embeds.h5'
-        self.train_start_path = 'C:\\w266\data\\h5py_embeds\\squad_train_start_labels.h5'
-        self.train_end_path = 'C:\\w266\data\\h5py_embeds\\squad_train_end_labels.h5'
-        self.train_idx_path = 'C:\\w266\data\\h5py_embeds\\squad_train_indices.h5'
+        if self.args.checkpoint == 'bert-base-uncased':
+            self.file_path = 'C:\\w266\\data\\h5py_embeds\\'
+        elif self.args.checkpoint == 'bert-large-uncased':
+            self.file_path = 'C:\\w266\\data\\h5py_embeds\\bert_large\\'
 
-        self.val_embed_path = 'C:\\w266\data\\h5py_embeds\\squad_dev_embeds.h5'
-        self.val_start_path = 'C:\\w266\data\\h5py_embeds\\squad_dev_start_labels.h5'
-        self.val_end_path = 'C:\\w266\data\\h5py_embeds\\squad_dev_end_labels.h5'
-        self.val_idx_path = 'C:\\w266\data\\h5py_embeds\\squad_dev_indices.h5'
+        self.train_embed_path = self.file_path + 'squad_train_embeds.h5'
+        self.train_start_path = self.file_path + 'squad_train_start_labels.h5'
+        self.train_end_path = self.file_path + 'squad_train_end_labels.h5'
+        self.train_idx_path = self.file_path + 'squad_train_indices.h5'
+
+        self.val_embed_path = self.file_path + 'squad_dev_embeds.h5'
+        self.val_start_path = self.file_path + 'squad_dev_start_labels.h5'
+        self.val_end_path = self.file_path + 'squad_dev_end_labels.h5'
+        self.val_idx_path = self.file_path + 'squad_dev_indices.h5'
 
         # if train, initialize the train data
         if self.type == 'train':
