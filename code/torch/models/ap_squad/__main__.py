@@ -102,7 +102,7 @@ if __name__ == '__main__':
                                                 num_warmup_steps=args.warmup_proportion * num_train_optimization_steps)
 
     # initialize the trainer
-    trainer = H5_GLUE_Trainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
+    trainer = H5_SQUAD_Trainer(model, criterion, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint
