@@ -1,7 +1,7 @@
 # packages
 import os, sys, datetime, time
 sys.path.append("C:/BERTVision/code/torch")
-from utils.collate import collate_H5
+from utils.collate import collate_H5_squad
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
@@ -13,7 +13,7 @@ import subprocess
 subprocess.Popen('C:\\elasticsearch-7.10.2\\bin\\elasticsearch.bat')
 
 
-class H5Evaluator(object):
+class H5_SQUAD_Evaluator(object):
     '''
     This class handles the evaluation of 1-epoch tuned QA embeddings from BERT
 

@@ -3,7 +3,7 @@ import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 from data.h5_processors.h5_processors import SQuADH5Processor
 from utils.compress_utils import AdapterPooler, AP_SQuAD
-from common.trainers.H5_glue_trainer import H5_GLUE_Trainer
+from common.trainers.H5_squad_trainer import H5_SQUAD_Trainer
 from models.ap_squad.args import get_args
 import numpy as np
 import torch
