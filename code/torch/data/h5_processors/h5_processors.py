@@ -683,6 +683,7 @@ class RTEH5Processor(torch.utils.data.Dataset):
 
 # prepare torch data set
 class SQuADH5Processor(torch.utils.data.Dataset):
+    NAME = 'SQuADH5'
     '''
     This class lazily emits batches from H5 files for deep learning.
 
@@ -697,8 +698,6 @@ class SQuADH5Processor(torch.utils.data.Dataset):
     sample : tensor [layers, tokens, features]
         A single sample of data indexed by the torch data set.
     '''
-
-    NAME = 'SQuADH5'
 
     def __init__(self, type, args):
         self.type = type
