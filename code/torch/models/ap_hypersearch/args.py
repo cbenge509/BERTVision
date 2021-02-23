@@ -54,6 +54,10 @@ def get_args():
                         type=float,
                         default=3e-5,
                         help='Upper bound of LR search')
+    parser.add_argument('--shard',
+                        type=float,
+                        default=0.10,
+                        help='Percentage of training set to sample from')    
     args = parser.parse_args()
 
     return args
