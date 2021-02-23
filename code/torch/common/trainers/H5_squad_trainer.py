@@ -149,9 +149,9 @@ class H5_SQUAD_Trainer(object):
             # train
             self.train_epoch(self.criterion, train_dataloader)
             # get dev loss
-            dev_loss, logits, indices = H5Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_and_scores()
+            dev_loss, logits, indices = H5_SQUAD_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_and_scores()
             # compute scores
-            metrics = H5Evaluator(self.model, self.criterion, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
+            metrics = H5_SQUAD_Evaluator(self.model, self.criterion, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
             # print validation results
             self.logger.info("Epoch {0: d}, Dev/Exact {1: 0.3f}, Dev/F1. {2: 0.3f}",
                              epoch+1, metrics['exact'], metrics['f1'])
