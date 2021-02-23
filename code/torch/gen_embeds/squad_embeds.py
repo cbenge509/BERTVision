@@ -358,7 +358,7 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # set tokenizer
-    tokenizer = BertTokenizerFast.from_pretrained(args.model)
+    tokenizer = BertTokenizerFast.from_pretrained(args.checkpoint)
 
     # set squad2.0 flag
     squad_v2 = True
@@ -398,7 +398,7 @@ def main():
                                 drop_last=False)
 
     # load the model
-    model = BertForQuestionAnswering.from_pretrained(args.model).to(device)
+    model = BertForQuestionAnswering.from_pretrained(args.checkpoint).to(device)
 
     # create gradient scaler for mixed precision
     scaler = GradScaler()
@@ -447,7 +447,7 @@ def main():
         print(show_info)
 
     # now proceed to emit embeddings
-    model = BertForQuestionAnswering.from_pretrained(args.model,
+    model = BertForQuestionAnswering.from_pretrained(args.checkpoint,
                                                      output_hidden_states=True).to(device)
 
     # load weights from 1 epoch
