@@ -181,6 +181,12 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.
 |<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.888</td><td>0.886</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.894</td><td>0.891</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.862</td><td>0.859</td></tr></table>|<table><tr><th>Dev. Pearson</th><th>Dev. Spearman</th></tr><tr><td>0.880</td><td>0.879</td></tr></table>|
 
 
+## SQuAD 2.0
+
+|BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
+|--|--|--|--|
+|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+
 # Embeddings Replication
 
 ## GLUE
@@ -243,6 +249,14 @@ python sst_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --
 ```
 python rte_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
 python rte_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+```
+
+
+## SQuAD 2.0
+
+```
+python squad_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
 ```
 
 
