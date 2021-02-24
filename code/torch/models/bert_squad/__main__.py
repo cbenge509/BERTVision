@@ -3,7 +3,7 @@ import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 from data.bert_processors.processors import SQuADProcessor, Tokenize_Transform
 from common.trainers.bert_qa_trainer import BertQATrainer
-from models.squad.args import get_args
+from models.bert_squad.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
