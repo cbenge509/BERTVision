@@ -56,7 +56,7 @@ class H5_SQUAD_Evaluator(object):
                                     shuffle=True,
                                     num_workers=self.args.num_workers,
                                     drop_last=False,
-                                    collate_fn=collate_H5)
+                                    collate_fn=collate_H5_squad)
         # set the model to evaluation
         self.model.eval()
 
