@@ -183,6 +183,16 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.
 
 ## SQuAD 2.0
 
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```
+python -m models.bert_squad --model SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+python -m models.ap_squad --model AP_SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+
+python -m models.bert_squad --model SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+python -m models.ap_squad --model AP_SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+```
+
 |BERT-base STSB | BERT-large STSB | BERTVision-base STSB |  BERTVision-large STSB |
 |--|--|--|--|
 |<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|

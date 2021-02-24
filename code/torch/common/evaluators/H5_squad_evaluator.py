@@ -49,7 +49,7 @@ class H5_SQUAD_Evaluator(object):
         This function prepares the data and handles the validation set testing.
         '''
         # instantiate dev set processor
-        self.dev_examples = self.processor(type='dev')
+        self.dev_examples = self.processor(type='dev', args=self.args)
         # craete dev set data loader
         dev_dataloader = DataLoader(self.dev_examples,
                                     batch_size=self.args.batch_size,
