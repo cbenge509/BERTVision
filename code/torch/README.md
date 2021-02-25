@@ -195,7 +195,7 @@ python -m models.ap_squad --model AP_SQuAD --checkpoint bert-large-uncased --lr 
 
 |BERT-base SQuAD | BERT-large SQuAD | BERTVision-base SQuAD |  BERTVision-large SQuAD |
 |--|--|--|--|
-|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>69.410</td><td>72.571</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>77.579</td><td>80.583</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>70.100</td><td>73.416</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>TODO</td><td>TODO</td></tr></table>|
+|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>69.410</td><td>72.571</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>77.579</td><td>80.583</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>70.100</td><td>73.416</td></tr></table>|<table><tr><th>Dev. Exact</th><th>Dev. F1</th></tr><tr><td>76.956</td><td>80.274</td></tr></table>|
 
 # Embeddings Replication
 
