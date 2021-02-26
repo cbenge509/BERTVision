@@ -170,7 +170,7 @@ if __name__ == '__main__':
       fn=train_fn,
       space=search_space,
       algo=rand.suggest,
-      max_evals=2,
+      max_evals=args.n_trials,
       trials=trials)
 
     # results
