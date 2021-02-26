@@ -270,6 +270,13 @@ python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-lengt
 ```
 
 
+
+# Parameter Freezing
+
+```
+python -m models.pfreezing --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128
+```
+
 # OLD: TO BE REPLACED
 
 ## SQuAD 2.0
