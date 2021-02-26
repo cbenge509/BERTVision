@@ -1,19 +1,21 @@
 # packages
-import sys, os, random
+import sys, os, random, datetime
+from hyperopt import hp, fmin, tpe, STATUS_OK, Trials, rand
 sys.path.append("C:/BERTVision/code/torch")
 from data.bert_processors.processors import *
 from common.trainers.bert_freeze_trainer import BertFreezeTrainer
-from models.bert_glue.args import get_args
+from models.pfreezing.args import get_args
 import numpy as np
 import torch
 import torch.nn as nn
 from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from torch.cuda.amp import GradScaler
 from loguru import logger
+import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed, freeze):
+def train_and_evaluate(seed, no_freeze, freeze_p):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -103,14 +105,14 @@ def train_and_evaluate(seed, freeze):
                               correct_bias=False,
                               weight_decay=args.l2)
 
-    # paramter freezing: exclude these from freezing
-    no_freeze = ['bias', 'LayerNorm.bias', 'LayerNorm.weight', 'embeddings']
+    # parameter freezing: exclude these from freezing
+    no_freeze = no_freeze
 
     # locate randomly selected weights
     locked_masks = {
                     name: torch.tensor(np.random.choice([False, True],
                                                   size=torch.numel(weight),
-                                                  p=[(1-freeze), freeze]).reshape(weight.shape))
+                                                  p=[(1-freeze_p), freeze_p]).reshape(weight.shape))
                     for name, weight in model.named_parameters()
                     if not any(weight in name for weight in no_freeze)
                     }
@@ -125,7 +127,7 @@ def train_and_evaluate(seed, freeze):
     # begin training / shift to trainer class
     metric = trainer.train()
 
-    return freeze, seed, metric
+    return seed, no_freeze, freeze_p, metric
 
 # execution
 if __name__ == '__main__':
@@ -133,50 +135,52 @@ if __name__ == '__main__':
     # set default configuration in args.py
     args = get_args()
 
-    # trial search space
-    search_space = np.linspace(start=0, stop=1, num=50)
+    # set the location for saving the model
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    save_path = os.path.join(args.pickle_path, args.checkpoint, args.model)
+    os.makedirs(save_path, exist_ok=True)
 
-    # container storage
-    m_trial, m_freeze, m_seed, m_metric = [], [], [], []
+    # training function
+    def train_fn(params):
+        seed = int(params['seed'])
+        no_freeze = params['no_freeze']
+        freeze_p = params['freeze_p']
 
-    for trial, freeze_p in enumerate(search_space):
-        logger.info(f"Now freezing this proportion of parameters: {freeze_p}")
-        seed = np.random.randint(0, 1000)
-        np.random.seed(seed)
-        # experiment
-        freeze, seed, metric = train_and_evaluate(seed=seed, freeze=freeze_p)
+        logger.info(f"""\n Excluding freezing on these layer names: {no_freeze},
+                    using this seed: {seed}, and this freezing proportion: {round(freeze_p, 3)}""")
+        seed, no_freeze, freeze_p, metric = train_and_evaluate(seed, no_freeze, freeze_p)
+        return {'loss': 1, 'status': STATUS_OK}  # disabling search; loss is always 1
 
-        # output results
-        if any([args.model == 'SST',
-                args.model == 'MSR',
-                args.model == 'RTE',
-                args.model == 'QNLI',
-                args.model == 'QQP',
-                args.model == 'WNLI',
-                args.model == 'MNLI'
-                ]):
-            logger.info("Epoch {0: d}, Freeze Prop. {1: 0.4f}, Seed. {2: d}, Dev/Acc. {3: 0.3f}",
-                 trial+1, freeze, seed, metric)
+    # search space
+    search_space = {'seed': hp.randint('seed', 1000),
+                    'no_freeze': hp.choice('no_freeze',
+                                           [
+                                           ['embeddings'],
+                                           ['embeddings', 'bias'],
+                                           ['embeddings', 'bias', 'LayerNorm.bias'],
+                                           ['embeddings', 'bias', 'LayerNorm.bias', 'LayerNorm.weight']
+                                           ]),
+                    'freeze_p': hp.uniform('freeze_p', 0, 1)
+                    }
 
-        elif any([args.model == 'STSB']):
-            logger.info("Epoch {0: d}, Freeze Prop. {1: 0.4f}, Seed. {2: d}, Dev/Pearson. {3: 0.3f}",
-                     trial+1, freeze, seed, metric)
+    # intialize hyperopt
+    trials = Trials()
 
-        elif any([args.model == 'CoLA']):
-            logger.info("Epoch {0: d}, Freeze Prop. {1: 0.4f}, Seed. {2: d}, Dev/Mathews. {3: 0.3f}",
-                     trial+1, freeze, seed, metric)
+    argmin = fmin(
+      fn=train_fn,
+      space=search_space,
+      algo=rand.suggest,
+      max_evals=1000,
+      trials=trials)
 
-        # store some results
-        m_trial.append(trial)
-        m_freeze.append(freeze)
-        m_seed.append(seed)
-        m_metric.append(metric)
+    # results
+    logger.info(f"Training complete!")
 
-    # store results to df
-    df = pd.DataFrame({'trial': m_trial, 'freeze': m_freeze, 'seed': m_seed,
-                       'metric': m_metric})
-    # save to disk
-    df.to_csv('freeze_bert.csv', index=False)
+    # save the trials to save path and give it a timestamp filename
+    pkl.dump(trials, open(save_path + '\\%s.pkl' % timestamp, "wb"))
+
+
+
 
 #
 
