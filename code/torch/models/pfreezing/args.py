@@ -51,6 +51,9 @@ def get_args():
                         type=int,
                         default=0,
                         help='Number of CPU cores (default: 0)')
+    parser.add_argument('--n-trials',
+                        type=int,
+                        default=1000)
     args = parser.parse_args()
 
     return args
