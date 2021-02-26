@@ -32,6 +32,9 @@ def get_args():
     parser.add_argument('--log-path',
                         type=str,
                         default=os.path.join('model_logs'))
+    parser.add_argument('--pickle-path',
+                        type=str,
+                        default=os.path.join('pfreezing_trials'))
     parser.add_argument('--warmup-proportion',
                         default=0.1,
                         type=float,
