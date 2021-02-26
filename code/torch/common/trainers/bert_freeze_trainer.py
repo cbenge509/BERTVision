@@ -178,7 +178,7 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
-                return dev_acc
+                return dev_loss, dev_acc
 
 
             elif any([self.args.model == 'CoLA']):
@@ -191,7 +191,7 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
 
-                return matthews
+                return dev_loss, matthews
 
 
             elif any([self.args.model == 'STSB']):
@@ -204,7 +204,10 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Pearson {1: 0.3f}, Dev/Spearman {2: 0.3f}, Dev/Loss {3: 0.3f}",
                                  epoch+1, pearson, spearman, dev_loss)
 
-                return pearson
+                # take the average of the two tests
+                avg_corr = (pearson + spearman) / 2
+
+                return dev_loss, avg_corr
 
 
             elif any([self.args.model == 'MNLI']):
@@ -212,21 +215,23 @@ class BertFreezeTrainer(object):
                 # train
                 self.train_epoch(train_dataloader)
                 # matched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_matched')
+                dev_acc1, dev_precision, dev_recall, dev_f1, dev_loss1 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_matched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
-                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss1)
+                                 epoch+1, dev_acc1, dev_precision, dev_recall, dev_f1, dev_loss1)
 
 
                 # matched
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
+                dev_acc2, dev_precision, dev_recall, dev_f1, dev_loss2 = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {1: 0.3f}, Dev/Re. {1: 0.3f}, Dev/F1 {1: 0.3f}, Dev/Loss {1: 0.3f}",
-                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss2)
+                                 epoch+1, dev_acc2, dev_precision, dev_recall, dev_f1, dev_loss2)
 
-                # compute average
+                # compute average loss
                 dev_loss = (dev_loss1 + dev_loss2) / 2
+                # compute average acc
+                dev_acc = (dev_acc1 + dev_acc2) / 2
 
-                return dev_acc
+                return dev_loss, dev_acc
 
 #

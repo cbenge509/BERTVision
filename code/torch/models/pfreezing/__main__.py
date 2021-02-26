@@ -125,9 +125,9 @@ def train_and_evaluate(seed, no_freeze, freeze_p):
     trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, scaler, logger, locked_masks)
 
     # begin training / shift to trainer class
-    metric = trainer.train()
+    dev_loss, metric = trainer.train()
 
-    return seed, no_freeze, freeze_p, metric
+    return seed, no_freeze, freeze_p, dev_loss, metric
 
 # execution
 if __name__ == '__main__':
@@ -148,8 +148,8 @@ if __name__ == '__main__':
 
         logger.info(f"""\n Excluding freezing on these layer names: {no_freeze},
                     using this seed: {seed}, and this freezing proportion: {round(freeze_p, 3)}""")
-        seed, no_freeze, freeze_p, metric = train_and_evaluate(seed, no_freeze, freeze_p)
-        return {'loss': 1, 'status': STATUS_OK}  # disabling search; loss is always 1
+        seed, no_freeze, freeze_p, dev_loss, metric = train_and_evaluate(seed, no_freeze, freeze_p)
+        return {'loss': 1, 'status': STATUS_OK, 'metric': metric, 'dev_loss': dev_loss}  # disabling search; loss is always 1
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
@@ -170,7 +170,7 @@ if __name__ == '__main__':
       fn=train_fn,
       space=search_space,
       algo=rand.suggest,
-      max_evals=1000,
+      max_evals=2,
       trials=trials)
 
     # results
