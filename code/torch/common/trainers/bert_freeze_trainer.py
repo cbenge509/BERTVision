@@ -49,7 +49,7 @@ class BertFreezeTrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger, locked_masks):
+    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
@@ -58,7 +58,6 @@ class BertFreezeTrainer(object):
         self.scheduler = scheduler
         self.scaler = scaler
         self.logger = logger
-        self.locked_masks = locked_masks
 
         # shard the large datasets:
         if any([self.args.model == 'QQP',
@@ -93,6 +92,24 @@ class BertFreezeTrainer(object):
         self.early_stop = False
 
     def train_epoch(self, train_dataloader):
+
+        # parameter freezing: exclude these from freezing
+        no_freeze = ['embeddings']
+
+        # generate a value between 0 and 1
+        self.freeze_p = np.random.uniform(0, 1)
+
+        # locate randomly selected weights
+        self.locked_masks = {
+                        name: torch.tensor(np.random.choice([False, True],
+                                                      size=torch.numel(weight),
+                                                      p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
+                        for name, weight in self.model.named_parameters()
+                        if not any(weight in name for weight in no_freeze)
+                        }
+
+        self.logger.info(f"Chosen this proportion of weights to freeze: {self.freeze_p}")
+
         # set the model to train
         self.model.train()
         # pull data from data loader
@@ -152,6 +169,12 @@ class BertFreezeTrainer(object):
         self.logger.info(f"Batch size: {len(self.train_examples)}")
         self.logger.info(f"Number of optimization steps: {self.num_train_optimization_steps}")
 
+        # storage containers for training metrics
+        self.epoch_loss = list()
+        self.epoch_metric = list()
+        self.epoch = list()
+        self.epoch_freeze_p = list()
+
         # instantiate dataloader
         train_dataloader = DataLoader(self.train_examples,
                                       batch_size=self.args.batch_size,
@@ -160,16 +183,15 @@ class BertFreezeTrainer(object):
                                       drop_last=False,
                                       collate_fn=collate_BERT)
         # for each epoch
-        for epoch in trange(int(self.args.epochs), desc="Epoch"):
+        if any([self.args.model == 'SST',
+                self.args.model == 'MSR',
+                self.args.model == 'RTE',
+                self.args.model == 'QNLI',
+                self.args.model == 'QQP',
+                self.args.model == 'WNLI'
+                ]):
 
-            if any([self.args.model == 'SST',
-                    self.args.model == 'MSR',
-                    self.args.model == 'RTE',
-                    self.args.model == 'QNLI',
-                    self.args.model == 'QQP',
-                    self.args.model == 'WNLI'
-                    ]):
-
+            for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
@@ -178,11 +200,17 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
 
-                return dev_loss, dev_acc
+                self.epoch_loss.append(dev_loss)
+                self.epoch_metric.append(dev_acc)
+                self.epoch.append(epoch+1)
+                self.epoch_freeze_p.append(self.freeze_p)
+
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
 
 
-            elif any([self.args.model == 'CoLA']):
+        elif any([self.args.model == 'CoLA']):
 
+            for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
@@ -191,11 +219,12 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
 
-                return dev_loss, matthews
+            return dev_loss, matthews
 
 
-            elif any([self.args.model == 'STSB']):
+        elif any([self.args.model == 'STSB']):
 
+            for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
@@ -207,11 +236,12 @@ class BertFreezeTrainer(object):
                 # take the average of the two tests
                 avg_corr = (pearson + spearman) / 2
 
-                return dev_loss, avg_corr
+            return dev_loss, avg_corr
 
 
-            elif any([self.args.model == 'MNLI']):
+        elif any([self.args.model == 'MNLI']):
 
+            for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
                 self.train_epoch(train_dataloader)
                 # matched
@@ -232,6 +262,6 @@ class BertFreezeTrainer(object):
                 # compute average acc
                 dev_acc = (dev_acc1 + dev_acc2) / 2
 
-                return dev_loss, dev_acc
+            return dev_loss, dev_acc
 
 #
