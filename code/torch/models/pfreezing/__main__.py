@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed, no_freeze, freeze_p):
+def train_and_evaluate(seed):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -105,29 +105,18 @@ def train_and_evaluate(seed, no_freeze, freeze_p):
                               correct_bias=False,
                               weight_decay=args.l2)
 
-    # parameter freezing: exclude these from freezing
-    no_freeze = no_freeze
-
-    # locate randomly selected weights
-    locked_masks = {
-                    name: torch.tensor(np.random.choice([False, True],
-                                                  size=torch.numel(weight),
-                                                  p=[(1-freeze_p), freeze_p]).reshape(weight.shape))
-                    for name, weight in model.named_parameters()
-                    if not any(weight in name for weight in no_freeze)
-                    }
-
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
                                                 num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
 
     # initialize the trainer
-    trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, scaler, logger, locked_masks)
+    trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, scaler, logger)
 
     # begin training / shift to trainer class
-    dev_loss, metric = trainer.train()
+    dev_loss, dev_metric, epoch, freeze_p = trainer.train()
 
-    return seed, no_freeze, freeze_p, dev_loss, metric
+    # return metrics
+    return seed, dev_loss, dev_metric, epoch, freeze_p
 
 # execution
 if __name__ == '__main__':
@@ -142,14 +131,15 @@ if __name__ == '__main__':
 
     # training function
     def train_fn(params):
+        # select seed
         seed = int(params['seed'])
-        no_freeze = params['no_freeze']
-        freeze_p = params['freeze_p']
-
-        logger.info(f"""\n Excluding freezing on these layer names: {no_freeze},
-                    using this seed: {seed}, and this freezing proportion: {round(freeze_p, 3)}""")
-        seed, no_freeze, freeze_p, dev_loss, metric = train_and_evaluate(seed, no_freeze, freeze_p)
-        return {'loss': 1, 'status': STATUS_OK, 'metric': metric, 'dev_loss': dev_loss}  # disabling search; loss is always 1
+        # print info to user
+        logger.info(f"""\n Starting trials with this seed: {seed}""")
+        # collect metrics
+        seed, dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed)
+        # return metrics to trials
+        return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
+                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
