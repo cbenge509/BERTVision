@@ -94,10 +94,11 @@ class BertFreezeTrainer(object):
     def train_epoch(self, train_dataloader):
 
         # parameter freezing: exclude these from freezing
-        no_freeze = ['embeddings']
+        no_freeze = ['embeddings', 'dense']
 
         # generate a value between 0 and 1
-        self.freeze_p = np.random.uniform(0, 1)
+        self.freeze_p = 1
+        #self.freeze_p = np.random.uniform(0, 1)
 
         # locate randomly selected weights
         self.locked_masks = {
