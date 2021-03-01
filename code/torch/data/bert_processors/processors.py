@@ -93,6 +93,91 @@ class Tokenize_Transform(torch.utils.data.Dataset):
                                            dtype=torch.long)}
 
 
+class Tokenize_Transform2(torch.utils.data.Dataset):
+    '''
+    This function transforms text into tokens.
+
+    Parameters
+    ----------
+    sample : dict
+        A dictionary containing a sample of text.
+
+    Returns
+    -------
+    sample : dict
+        A dictionary containing:
+        (1) input tokens,
+        (2) attention masks,
+        (3) token type ids,
+        (4) labels, and
+        (5) data set index
+    '''
+    def __init__(self, args, model = 'bert-based-uncased'):
+        # instantiate the tokenizer and args
+        self.args = args
+
+        self.tokenizer = BertTokenizerFast.from_pretrained(model)
+        #Don't include optional arguments are required!
+        #self.logger = logger
+
+    def __call__(self, sample):
+        # retrieve sample and unpack it
+        if 'text2' not in sample:
+            # tokenize as specified
+            encodings = self.tokenizer(
+                                       text=sample['text'],  # document to encode
+                                       add_special_tokens=True,  # add '[CLS]' and '[SEP]'
+                                       max_length=self.args.max_seq_length,  # set max length;
+                                       truncation=True,  # truncate longer messages
+                                       padding='max_length',  # add padding
+                                       return_attention_mask=True,  # create attn. masks
+                                       return_token_type_ids=True,  # token type ids
+                           )
+        # for two sentence tasks, do the following
+        else:
+            encodings = self.tokenizer(
+                                       text=sample['text'],  # document to encode.
+                                       text_pair=sample['text2'], #second sentence to encode
+                                       add_special_tokens=True,  # add '[CLS]' and '[SEP]'
+                                       max_length=self.args.max_seq_length,  # set max length;
+                                       truncation=True,  # truncate longer messages
+                                       padding='max_length',  # add padding
+                                       return_attention_mask=True,  # create attn. masks
+                                       return_token_type_ids=True,  # token type ids
+                           )
+
+        # package up encodings
+        if self.args.model == 'STSB':
+            # need to set label to float
+            return {'input_ids': torch.as_tensor(encodings['input_ids'],
+                                             dtype=torch.long),
+
+                    'attention_mask': torch.as_tensor(encodings['attention_mask'],
+                                              dtype=torch.long),
+
+                     'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
+                                                       dtype=torch.long),
+
+                    'labels': torch.as_tensor(sample['label'],
+                                              dtype=torch.float),
+
+                    'idx': torch.as_tensor(sample['idx'],
+                                           dtype=torch.long)}
+        else:
+            return {'input_ids': torch.as_tensor(encodings['input_ids'],
+                                             dtype=torch.long),
+
+                    'attention_mask': torch.as_tensor(encodings['attention_mask'],
+                                              dtype=torch.long),
+
+                     'token_type_ids': torch.as_tensor(encodings['token_type_ids'],
+                                                       dtype=torch.long),
+
+                    'labels': torch.as_tensor(sample['label'],
+                                              dtype=torch.long),
+
+                    'idx': torch.as_tensor(sample['idx'],
+                                           dtype=torch.long)}
 
 
 class OneSentenceLoader(torch.utils.data.Dataset):

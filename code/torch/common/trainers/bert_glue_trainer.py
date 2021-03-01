@@ -127,6 +127,7 @@ class BertGLUETrainer(object):
 
         # print end of trainig results
         self.logger.info(f"Training complete! Loss: {avg_loss}")
+        return avg_loss
 
     def train(self):
         '''
@@ -146,6 +147,8 @@ class BertGLUETrainer(object):
                                       collate_fn=collate_BERT)
 
         # for each epoch
+        from collections import defaultdict
+        losses = defaultdict(list)
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
 
             if any([self.args.model == 'SST',
@@ -157,13 +160,13 @@ class BertGLUETrainer(object):
                     ]):
 
                 # train
-                self.train_epoch(train_dataloader)
+                losses['train_loss'].append(self.train_epoch(train_dataloader))
                 # get dev loss
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
-
+                losses['dev_acc'].append(dev_acc)
                 # update validation results
                 if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
@@ -176,7 +179,7 @@ class BertGLUETrainer(object):
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
-                        break
+                        #break
 
 
             elif any([self.args.model == 'CoLA']):
@@ -201,7 +204,7 @@ class BertGLUETrainer(object):
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
-                        break
+                        #break
 
 
             elif any([self.args.model == 'STSB']):
@@ -226,7 +229,7 @@ class BertGLUETrainer(object):
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
-                        break
+                        #break
 
 
             elif any([self.args.model == 'MNLI']):
@@ -271,5 +274,6 @@ class BertGLUETrainer(object):
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
+        print(losses)    
 
 #
