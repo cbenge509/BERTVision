@@ -94,11 +94,10 @@ class BertFreezeTrainer(object):
     def train_epoch(self, train_dataloader):
 
         # parameter freezing: exclude these from freezing
-        no_freeze = ['embeddings', 'dense']
+        self.no_freeze = self.args.no_freeze
 
         # generate a value between 0 and 1
-        self.freeze_p = 1
-        #self.freeze_p = np.random.uniform(0, 1)
+        self.freeze_p = self.args.freeze_p
 
         # locate randomly selected weights
         self.locked_masks = {
@@ -106,10 +105,10 @@ class BertFreezeTrainer(object):
                                                       size=torch.numel(weight),
                                                       p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
                         for name, weight in self.model.named_parameters()
-                        if not any(weight in name for weight in no_freeze)
+                        if not any(weight in name for weight in self.no_freeze)
                         }
 
-        self.logger.info(f"Chosen this proportion of weights to freeze: {self.freeze_p}")
+        #self.logger.info(f"Chosen this proportion of weights to freeze: {self.freeze_p}")
 
         # set the model to train
         self.model.train()
@@ -220,7 +219,12 @@ class BertFreezeTrainer(object):
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
 
-            return dev_loss, matthews
+                self.epoch_loss.append(dev_loss)
+                self.epoch_metric.append(matthews)
+                self.epoch.append(epoch+1)
+                self.epoch_freeze_p.append(self.freeze_p)
+
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
 
 
         elif any([self.args.model == 'STSB']):
@@ -237,7 +241,12 @@ class BertFreezeTrainer(object):
                 # take the average of the two tests
                 avg_corr = (pearson + spearman) / 2
 
-            return dev_loss, avg_corr
+                self.epoch_loss.append(dev_loss)
+                self.epoch_metric.append(avg_corr)
+                self.epoch.append(epoch+1)
+                self.epoch_freeze_p.append(self.freeze_p)
+
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
 
 
         elif any([self.args.model == 'MNLI']):
@@ -263,6 +272,11 @@ class BertFreezeTrainer(object):
                 # compute average acc
                 dev_acc = (dev_acc1 + dev_acc2) / 2
 
-            return dev_loss, dev_acc
+                self.epoch_loss.append(dev_loss)
+                self.epoch_metric.append(dev_acc)
+                self.epoch.append(epoch+1)
+                self.epoch_freeze_p.append(self.freeze_p)
+
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
 
 #
