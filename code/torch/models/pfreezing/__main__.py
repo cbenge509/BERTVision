@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed):
+def train_and_evaluate(seed, no_freeze, freeze_p):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -57,15 +57,22 @@ def train_and_evaluate(seed):
     # set grad scaler
     scaler = GradScaler()
 
+    # don't freeze this select of weights
+    args.no_freeze = no_freeze
+    # try this percent of frozen weights
+    args.freeze_p = freeze_p
+    # set the seed
+    args.seed = seed
+
     # set seed for reproducibility
     torch.backends.cudnn.deterministic = True
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
 
     # set seed for multi-gpu
     if n_gpu > 0:
-        torch.cuda.manual_seed_all(seed)
+        torch.cuda.manual_seed_all(args.seed)
 
     # set data set processor
     processor = dataset_map[args.model]
@@ -131,26 +138,29 @@ if __name__ == '__main__':
 
     # training function
     def train_fn(params):
-        # select seed
+        # select params
         seed = int(params['seed'])
+        no_freeze = params['no_freeze']
+        freeze_p = params['freeze_p']
         # print info to user
-        logger.info(f"""\n Starting trials with this seed: {seed}""")
+        logger.info(f"""\n Starting trials with this seed: {seed},
+                    this % of freezing: {freeze_p}, and excluding these layers
+                    from freezing: {no_freeze}""")
         # collect metrics
-        seed, dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed)
+        seed, dev_loss, dev_metric, epoch = train_and_evaluate(seed, no_freeze)
         # return metrics to trials
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
-                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
+                'dev_loss': dev_loss, 'epoch': epoch}  # disabling search for a purpose; loss is always 1
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
                     'no_freeze': hp.choice('no_freeze',
                                            [
                                            ['embeddings'],
-                                           ['embeddings', 'bias'],
-                                           ['embeddings', 'bias', 'LayerNorm.bias'],
-                                           ['embeddings', 'bias', 'LayerNorm.bias', 'LayerNorm.weight']
+                                           ['embeddings', 'dense'],
+                                           ['dense'],
                                            ]),
-                    'freeze_p': hp.uniform('freeze_p', 0, 1)
+                    'freeze_p': hp.loguniform('freeze_p', 0.5, 0.05)
                     }
 
     # intialize hyperopt
