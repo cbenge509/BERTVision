@@ -246,7 +246,6 @@ class BertGLUETrainer(object):
                     self.unimproved_iters = 0
                     self.dev_loss = dev_loss
                     torch.save(self.model, self.snapshot_path)
-
                 else:
                     # stop training with early stopping
                     self.unimproved_iters += 1
@@ -274,6 +273,6 @@ class BertGLUETrainer(object):
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
-        print(losses)    
+        print(losses)
 
 #
