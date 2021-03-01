@@ -123,7 +123,7 @@ def train_and_evaluate(seed, no_freeze, freeze_p):
     dev_loss, dev_metric, epoch, freeze_p = trainer.train()
 
     # return metrics
-    return seed, dev_loss, dev_metric, epoch, freeze_p
+    return dev_loss, dev_metric, epoch, freeze_p
 
 # execution
 if __name__ == '__main__':
@@ -147,10 +147,10 @@ if __name__ == '__main__':
                     this % of freezing: {freeze_p}, and excluding these layers
                     from freezing: {no_freeze}""")
         # collect metrics
-        seed, dev_loss, dev_metric, epoch = train_and_evaluate(seed, no_freeze)
+        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, no_freeze, freeze_p)
         # return metrics to trials
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
-                'dev_loss': dev_loss, 'epoch': epoch}  # disabling search for a purpose; loss is always 1
+                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                                            ['embeddings', 'dense'],
                                            ['dense'],
                                            ]),
-                    'freeze_p': hp.loguniform('freeze_p', 0.5, 0.05)
+                    'freeze_p': hp.uniform('freeze_p', 0.05, 0.5)
                     }
 
     # intialize hyperopt
