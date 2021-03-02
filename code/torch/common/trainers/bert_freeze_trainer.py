@@ -16,30 +16,22 @@ class BertFreezeTrainer(object):
     '''
     This class handles the training of classification models with BERT
     architecture.
-
     Parameters
     ----------
     model : object
         A HuggingFace Classification BERT transformer
-
     tokenizer: object
         A HuggingFace tokenizer that fits the HuggingFace transformer
-
     optimizer: object
         A compatible Torch optimizer
-
     processor: object
         A Torch Dataset processor that emits data
-
     scheduler: object
         The learning rate decreases linearly from the initial lr set
-
     args: object
         A argument parser object; see args.py
-
     scaler: object
         A gradient scaler object to use FP16
-
     Operations
     -------
     This trainer:
@@ -47,7 +39,6 @@ class BertFreezeTrainer(object):
         (2) Generates dev set loss
         (3) Creates start and end logits and collects their original index for scoring
         (4) Writes their results and saves the file as a checkpoint
-
     '''
     def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
@@ -92,35 +83,28 @@ class BertFreezeTrainer(object):
         self.early_stop = False
 
         # use the same frozen weights each epoch and batch
-
         self.freeze = self.args.freeze
 
-        # generate a value between 0 and 1
+        # retrieve the freeze value between 0 and 1
         self.freeze_p = self.args.freeze_p
 
         # freeze embeddings completely AND freeze a randomly chosen % of other params
-        self.locked_embeddings = {
-                        name: torch.tensor(np.random.choice([False, True],
-                                                      size=torch.numel(weight),
-                                                      # freeze embeds 100%
-                                                      p=[0, 1]).reshape(weight.shape))
-                        for name, weight in self.model.named_parameters()
-                        if any(weight in name for weight in self.freeze)
-                        }
-
         self.locked_masks = {
-                        name: torch.tensor(np.random.choice([False, True],
-                                                      size=torch.numel(weight),
-                                                      p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
-                        for name, weight in self.model.named_parameters()
-                        if not any(weight in name for weight in self.freeze)
-                        }
+                        name: (
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          # [no freeze, freeze]
+                                                          p=[0.0, 1.0])
+                                         .reshape(weight.shape))
 
-        self.locked_masks['bert.embeddings.word_embeddings.weight'] = self.locked_embeddings['bert.embeddings.word_embeddings.weight']
-        self.locked_masks['bert.embeddings.position_embeddings.weight'] = self.locked_embeddings['bert.embeddings.position_embeddings.weight']
-        self.locked_masks['bert.embeddings.token_type_embeddings.weight'] = self.locked_embeddings['bert.embeddings.token_type_embeddings.weight']
-        self.locked_masks['bert.embeddings.LayerNorm.weight'] = self.locked_embeddings['bert.embeddings.LayerNorm.weight']
-        self.locked_masks['bert.embeddings.LayerNorm.bias'] = self.locked_embeddings['bert.embeddings.LayerNorm.bias']
+                            if any(weight in name for weight in self.freeze) else
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          p=[(1-self.freeze_p), self.freeze_p])
+                                         .reshape(weight.shape))
+                          )
+                        for name, weight in model.named_parameters()
+                        }
 
 
     def train_epoch(self, train_dataloader):
