@@ -123,11 +123,11 @@ class Parasite(nn.Module):
         super(Parasite, self).__init__()
         self.params = torch.empty((hidden_states, token_size))
         nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
-        self.params = torch.nn.Parameter(self.params)
+        self.params = torch.nn.Parameter(self.params, requires_grad=True)
 
         self.bias = torch.empty((1,bias_size))
         nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
-        self.bias = torch.nn.Parameter(self.bias.unsqueeze(0))
+        self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
 
     def forward(self, x):
         #print(x.shape, self.params.shape, self.bias.shape)
@@ -168,7 +168,9 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
 
         self.parasites = []
         for i in range(1, len(self.encoder_layers) + 1):
-            p = Parasite(i, token_size, bias_size = hidden_state_size)
+            p = Parasite(min(3,i), token_size, bias_size = hidden_state_size)
+            #p = Parasite(i, token_size, bias_size = hidden_state_size)
+
             setattr(self, "p%d"%i, p)
             self.parasites.append(p)
 
@@ -208,18 +210,21 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
             if i == 0:
                 pi = p(embeddings.unsqueeze(1))
             else:
-                pi = p(torch.stack(prev_encoder_layers, dim = 1))
+                #take past n based on fn of current encoder layer
+                pi = p(torch.stack(prev_encoder_layers[max(0,i-2):], dim = 1))
+                #pi = p(torch.stack(prev_encoder_layers, dim = 1))
 
             #add previous hidden states with learned parasite states
-            x = self.encoder_layers[0](prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+            #x = self.encoder_layers[0](prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+            x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
             prev_encoder_layers.append(x)
+
         #outputs
         pooled_output = x[:,0]
         pooled_output = self.output_layer(pooled_output)
         output = torch.sigmoid(pooled_output)
         #print(output, labels)
         #apply activation
-        self.loss = self.criterion(output, labels).cuda()
+        self.loss = self.criterion(output, labels)
         self.logits = output
-        #print(self.loss)
         return self
