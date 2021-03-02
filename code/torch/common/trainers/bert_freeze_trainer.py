@@ -103,7 +103,7 @@ class BertFreezeTrainer(object):
                         name: torch.tensor(np.random.choice([False, True],
                                                       size=torch.numel(weight),
                                                       # freeze embeds 100%
-                                                      p=[(0, 1]).reshape(weight.shape))
+                                                      p=[0, 1]).reshape(weight.shape))
                         for name, weight in self.model.named_parameters()
                         if any(weight in name for weight in self.freeze)
                         }
