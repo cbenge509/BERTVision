@@ -8,7 +8,7 @@ from utils.bert_models import MultiNNLayerParasiteLearnedBERT
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup
+from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW, get_linear_schedule_with_warmup, get_constant_schedule_with_warmup
 from torch.cuda.amp import GradScaler
 from loguru import logger
 
@@ -78,7 +78,10 @@ if __name__ == '__main__':
 
     # instantiate model and attach it to device
     model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length).to(device)
-
+    trainable = 0
+    for p in model.parameters():
+        trainable += p.requires_grad
+    print("Trainable parameters: %d" %trainable)
     # print metrics
     logger.info(f"Device: {str(device).upper()}")
     logger.info(f"Number of GPUs: {n_gpu}")
@@ -102,12 +105,13 @@ if __name__ == '__main__':
     optimizer = AdamW(optimizer_grouped_parameters,
                               lr=args.lr,
                               correct_bias=False,
-                              weight_decay=args.l2)
+                              weight_decay=0)#args.l2)
 
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
                                                 num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
-
+    #constant scheduler
+    scheduler = get_constant_schedule_with_warmup(optimizer, num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
     # initialize the trainer
     trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
