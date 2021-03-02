@@ -140,14 +140,14 @@ if __name__ == '__main__':
     def train_fn(params):
         # select params
         seed = int(params['seed'])
-        no_freeze = params['no_freeze']
+        freeze = params['freeze']
         freeze_p = params['freeze_p']
         # print info to user
         logger.info(f"""\n Starting trials with this seed: {seed},
                     this % of freezing: {freeze_p}, and excluding these layers
-                    from freezing: {no_freeze}""")
+                    from freezing: {freeze}""")
         # collect metrics
-        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, no_freeze, freeze_p)
+        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, freeze, freeze_p)
         # return metrics to trials
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
                 'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
