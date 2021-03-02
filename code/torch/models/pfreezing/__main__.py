@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed, no_freeze, freeze_p):
+def train_and_evaluate(seed, freeze, freeze_p):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -58,7 +58,7 @@ def train_and_evaluate(seed, no_freeze, freeze_p):
     scaler = GradScaler()
 
     # don't freeze this select of weights
-    args.no_freeze = no_freeze
+    args.freeze = freeze
     # try this percent of frozen weights
     args.freeze_p = freeze_p
     # set the seed
@@ -154,13 +154,11 @@ if __name__ == '__main__':
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
-                    'no_freeze': hp.choice('no_freeze',
+                    'freeze': hp.choice('freeze',
                                            [
                                            ['embeddings'],
-                                           ['embeddings', 'dense'],
-                                           ['dense'],
                                            ]),
-                    'freeze_p': hp.uniform('freeze_p', 0.05, 0.5)
+                    'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
                     }
 
     # intialize hyperopt
