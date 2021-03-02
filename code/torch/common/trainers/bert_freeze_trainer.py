@@ -91,25 +91,39 @@ class BertFreezeTrainer(object):
         self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
         self.early_stop = False
 
-    def train_epoch(self, train_dataloader):
+        # use the same frozen weights each epoch and batch
 
-        # parameter freezing: exclude these from freezing
-        self.no_freeze = self.args.no_freeze
+        self.freeze = self.args.freeze
 
         # generate a value between 0 and 1
         self.freeze_p = self.args.freeze_p
 
-        # locate randomly selected weights
+        # freeze embeddings completely AND freeze a randomly chosen % of other params
+        self.locked_embeddings = {
+                        name: torch.tensor(np.random.choice([False, True],
+                                                      size=torch.numel(weight),
+                                                      # freeze embeds 100%
+                                                      p=[(0, 1]).reshape(weight.shape))
+                        for name, weight in self.model.named_parameters()
+                        if any(weight in name for weight in self.freeze)
+                        }
+
         self.locked_masks = {
                         name: torch.tensor(np.random.choice([False, True],
                                                       size=torch.numel(weight),
                                                       p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
                         for name, weight in self.model.named_parameters()
-                        if not any(weight in name for weight in self.no_freeze)
+                        if not any(weight in name for weight in self.freeze)
                         }
 
-        #self.logger.info(f"Chosen this proportion of weights to freeze: {self.freeze_p}")
+        self.locked_masks['bert.embeddings.word_embeddings.weight'] = self.locked_embeddings['bert.embeddings.word_embeddings.weight']
+        self.locked_masks['bert.embeddings.position_embeddings.weight'] = self.locked_embeddings['bert.embeddings.position_embeddings.weight']
+        self.locked_masks['bert.embeddings.token_type_embeddings.weight'] = self.locked_embeddings['bert.embeddings.token_type_embeddings.weight']
+        self.locked_masks['bert.embeddings.LayerNorm.weight'] = self.locked_embeddings['bert.embeddings.LayerNorm.weight']
+        self.locked_masks['bert.embeddings.LayerNorm.bias'] = self.locked_embeddings['bert.embeddings.LayerNorm.bias']
 
+
+    def train_epoch(self, train_dataloader):
         # set the model to train
         self.model.train()
         # pull data from data loader
