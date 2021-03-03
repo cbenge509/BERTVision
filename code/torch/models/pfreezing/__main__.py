@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed, freeze, freeze_p):
+def train_and_evaluate(seed, freeze):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -60,7 +60,7 @@ def train_and_evaluate(seed, freeze, freeze_p):
     # don't freeze this select of weights
     args.freeze = freeze
     # try this percent of frozen weights
-    args.freeze_p = freeze_p
+    #args.freeze_p = freeze_p
     # set the seed
     args.seed = seed
 
@@ -141,13 +141,13 @@ if __name__ == '__main__':
         # select params
         seed = int(params['seed'])
         freeze = params['freeze']
-        freeze_p = params['freeze_p']
+        #freeze_p = params['freeze_p']
         # print info to user
         logger.info(f"""\n Starting trials with this seed: {seed},
-                    this % of freezing: {freeze_p}, and excluding these layers
+                    and excluding these layers
                     from freezing: {freeze}""")
         # collect metrics
-        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, freeze, freeze_p)
+        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, freeze)
         # return metrics to trials
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
                 'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
@@ -156,9 +156,9 @@ if __name__ == '__main__':
     search_space = {'seed': hp.randint('seed', 1000),
                     'freeze': hp.choice('freeze',
                                            [
-                                           ['embeddings'],
+                                           ['dense'],
                                            ]),
-                    'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
+                    #'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
                     }
 
     # intialize hyperopt
