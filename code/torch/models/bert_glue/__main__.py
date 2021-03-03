@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
     # set seed for reproducibility
     torch.backends.cudnn.deterministic = True
+    print(args.seed)
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -106,7 +107,8 @@ if __name__ == '__main__':
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
                                                 num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
-
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
+                                            num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
     # initialize the trainer
     trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class

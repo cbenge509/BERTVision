@@ -48,6 +48,20 @@ def get_args():
                         type=int,
                         default=0,
                         help='H5 cannot be pickled')
+    parser.add_argument('--file',
+                        type = str,
+                        default = 'data.json',
+                        help = "File name of results")
+    #parser.add_argument('--seed',
+    #                    type = int,
+    #                    default = None,
+    #                    help = "random seed")
+    parser.add_argument('--max-layers',
+                        type = int,
+                        default = 20)
+    parser.add_argument('--freeze',
+                        type = int,
+                        default = 1)
     args = parser.parse_args()
 
     return args

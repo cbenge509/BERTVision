@@ -1,0 +1,14 @@
+
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 0 --file MSR_nofreeze_noparasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 1 --file MSR_freeze_noparasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 1 --freeze 0 --file MSR_nofreeze_1parasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 3 --freeze 0 --file MSR_nofreeze_3parasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 90 --freeze 0 --file MSR_nofreeze_allparasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 1 --freeze 1 --file MSR_freeze_1parasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 3 --freeze 1 --file MSR_freeze_3parasite.json --seed 2
+python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 90 --freeze 1 --file MSR_freeze_allparasite.json --seed 2
+
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --file MSR_bert_glue_3.json --seed 8
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --file MSR_bert_glue_4.json --seed 7
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --file MSR_bert_glue_5.json --seed 6
+

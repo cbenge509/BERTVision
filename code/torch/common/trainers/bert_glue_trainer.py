@@ -273,6 +273,11 @@ class BertGLUETrainer(object):
                         self.early_stop = True
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
+
+        import json
+        with open(self.args.file, 'w') as fp:
+            json.dump(dict(losses), fp)
+
         print(losses)
 
 #

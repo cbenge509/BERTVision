@@ -121,24 +121,29 @@ class MultiNNLayerParasiteLearned3(nn.Module):
 class Parasite(nn.Module):
     def __init__(self, hidden_states, token_size, bias_size):
         super(Parasite, self).__init__()
-        self.params = torch.empty((hidden_states, token_size))
-        nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
+        self.params = torch.zeros((hidden_states, token_size))
+        #nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
         self.params = torch.nn.Parameter(self.params, requires_grad=True)
 
-        self.bias = torch.empty((1,bias_size))
-        nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
+        self.bias = torch.zeros((1,bias_size))
+        #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
         self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
 
     def forward(self, x):
         #print(x.shape, self.params.shape, self.bias.shape)
         activations = torch.tensordot(x, self.params, dims=([1,2], [0,1])).unsqueeze(1)
         activations = activations + self.bias
-        return torch.sigmoid(activations)
+        return activations
 
 class MultiNNLayerParasiteLearnedBERT(nn.Module):
-    def __init__(self, token_size = 100, bert_model = 'bert-base-uncased', freeze_bert = True):
+    def __init__(self, token_size = 100,
+                       bert_model = 'bert-base-uncased',
+                       freeze_bert = True,
+                       max_layers = 20,
+                       BERT_weights = None):
         super(MultiNNLayerParasiteLearnedBERT, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
+        self.max_layers = max_layers
 
         if bert_model == 'bert-base-uncased':
             hidden_state_size = 768
@@ -168,8 +173,8 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
 
         self.parasites = []
         for i in range(1, len(self.encoder_layers) + 1):
-            p = Parasite(min(3,i), token_size, bias_size = hidden_state_size)
-            #p = Parasite(i, token_size, bias_size = hidden_state_size)
+            #p = Parasite(min(3,i), token_size, bias_size = hidden_state_size)
+            p = Parasite(min(max_layers, i), token_size, bias_size = hidden_state_size)
 
             setattr(self, "p%d"%i, p)
             self.parasites.append(p)
@@ -203,20 +208,26 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
                                  token_type_ids=token_type_ids)
 
         prev_encoder_layers = [embeddings]
+
         for i in range(len(self.parasites)):
             p = self.parasites[i]
             encoder = self.encoder_layers[i]
 
-            if i == 0:
-                pi = p(embeddings.unsqueeze(1))
-            else:
-                #take past n based on fn of current encoder layer
-                pi = p(torch.stack(prev_encoder_layers[max(0,i-2):], dim = 1))
-                #pi = p(torch.stack(prev_encoder_layers, dim = 1))
+            if self.max_layers != 0:
+                if i == 0:
+                    pi = p(embeddings.unsqueeze(1))
+                else:
+                    #take past n based on fn of current encoder layer
+                    #pi = p(torch.stack(prev_encoder_layers[max(0,i-2):], dim = 1))
+                    pi = p(torch.stack(prev_encoder_layers[max(0, i - self.max_layers + 1):], dim = 1))
 
-            #add previous hidden states with learned parasite states
-            #x = self.encoder_layers[0](prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
-            x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+                #add previous hidden states with learned parasite states
+                #x = self.encoder_layers[0](prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+                #x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+                x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+            else:
+                x = encoder(prev_encoder_layers[-1], attention_mask=extended_attention_mask)[0]
+
             prev_encoder_layers.append(x)
 
         #outputs
