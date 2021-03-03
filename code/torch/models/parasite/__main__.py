@@ -3,7 +3,7 @@ import sys, os, random
 sys.path.append("C:/BERTVision/code/torch")
 from data.bert_processors.processors import *
 from common.trainers.bert_glue_trainer import BertGLUETrainer
-from models.bert_glue.args import get_args
+from models.parasite.args import get_args
 from utils.bert_models import MultiNNLayerParasiteLearnedBERT
 import numpy as np
 import torch
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length).to(device)
+    model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length, freeze_bert = bool(args.freeze), max_layers = args.max_layers).to(device)
     trainable = 0
     for p in model.parameters():
         trainable += p.requires_grad
@@ -98,9 +98,12 @@ if __name__ == '__main__':
     # give l2 regularization to any parameter that is not named after no_decay list
     # give no l2 regulariation to any bias parameter or layernorm bias/weight
     optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
-        {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
+        #{'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
+        #{'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0},
+        {'params': [p for n, p in param_optimizer if not n.startswith('p')], 'lr': args.lr},
+        {'params': [p for n, p in param_optimizer if n.startswith('p')], 'lr': 1e-4}]
 
+    print("Parasite weights: %d" %len([p for n, p in param_optimizer if n.startswith('p')]))
     # set optimizer
     optimizer = AdamW(optimizer_grouped_parameters,
                               lr=args.lr,
