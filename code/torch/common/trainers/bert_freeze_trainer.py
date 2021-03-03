@@ -87,13 +87,12 @@ class BertFreezeTrainer(object):
 
         # retrieve the freeze value between 0 and 1
         #self.freeze_p = self.args.freeze_p
-
-    def train_epoch(self, train_dataloader):
-
-        # if freeezing embeddings is here, then we change freezing each epoch
         self.freeze_p = np.random.uniform(0.05, 0.95)
+
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
+
+        # if locked_masks is here, then hold the same weights frozen constant
         self.locked_masks = {
                         name: (
                             torch.tensor(np.random.choice([False, True],
@@ -110,6 +109,12 @@ class BertFreezeTrainer(object):
                           )
                         for name, weight in self.model.named_parameters()
                         }
+
+    def train_epoch(self, train_dataloader):
+
+        # if locked_masks is here, then vary the amount / actual weights frozen
+        #self.freeze_p = np.random.uniform(0.05, 0.95)
+
 
         # set the model to train
         self.model.train()
