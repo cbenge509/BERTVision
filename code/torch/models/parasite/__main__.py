@@ -77,7 +77,11 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
-    model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length, freeze_bert = bool(args.freeze), max_layers = args.max_layers).to(device)
+    model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length,
+                                            freeze_bert = bool(args.freeze),
+                                            max_layers = args.max_layers,
+                                            #BERT_model = r'C:\BERTVision\code\torch\model_checkpoints\bert-base-uncased\MSR\MSR_1epoch.pt',
+                                            ).to(device)
     trainable = 0
     for p in model.parameters():
         trainable += p.requires_grad

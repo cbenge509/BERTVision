@@ -140,7 +140,7 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
                        bert_model = 'bert-base-uncased',
                        freeze_bert = True,
                        max_layers = 20,
-                       BERT_weights = None):
+                       BERT_model = None):
         super(MultiNNLayerParasiteLearnedBERT, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
         self.max_layers = max_layers
@@ -151,8 +151,10 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
             raise ValueError("Only bert-base-uncased is supported")
 
         #generate the BERT model
-        self.bert_model = BertModel.from_pretrained(bert_model)
-
+        if BERT_model is None:
+            self.bert_model = BertModel.from_pretrained(bert_model)
+        else:
+            self.bert_model = torch.load(BERT_model)
         #bert embeddings layer
         self.bert_embeddings = []
 
@@ -160,7 +162,7 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
         self.encoder_layers = []
 
         for i,(name,module) in enumerate(self.bert_model.named_modules()):
-            if i == 1:
+            if name == 'embeddings' or name == 'bert_model.embeddings':
                 self.bert_embeddings.append(module)
             if 'encoder.layer.' in name and name[-1].isdigit():
                 self.encoder_layers.append(module)
@@ -205,7 +207,7 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
 
         #run through first embedding layer
         embeddings = self.bert_embeddings[0](input_ids=input_ids,
-                                 token_type_ids=token_type_ids)
+                                             token_type_ids=token_type_ids)
 
         prev_encoder_layers = [embeddings]
 
