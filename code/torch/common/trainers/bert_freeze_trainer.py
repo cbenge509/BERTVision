@@ -16,30 +16,22 @@ class BertFreezeTrainer(object):
     '''
     This class handles the training of classification models with BERT
     architecture.
-
     Parameters
     ----------
     model : object
         A HuggingFace Classification BERT transformer
-
     tokenizer: object
         A HuggingFace tokenizer that fits the HuggingFace transformer
-
     optimizer: object
         A compatible Torch optimizer
-
     processor: object
         A Torch Dataset processor that emits data
-
     scheduler: object
         The learning rate decreases linearly from the initial lr set
-
     args: object
         A argument parser object; see args.py
-
     scaler: object
         A gradient scaler object to use FP16
-
     Operations
     -------
     This trainer:
@@ -47,7 +39,6 @@ class BertFreezeTrainer(object):
         (2) Generates dev set loss
         (3) Creates start and end logits and collects their original index for scoring
         (4) Writes their results and saves the file as a checkpoint
-
     '''
     def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
@@ -91,24 +82,39 @@ class BertFreezeTrainer(object):
         self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
         self.early_stop = False
 
-    def train_epoch(self, train_dataloader):
+        # use the same frozen weights each epoch and batch
+        self.freeze = self.args.freeze
 
-        # parameter freezing: exclude these from freezing
-        self.no_freeze = self.args.no_freeze
+        # retrieve a freeze value between 0 and 1
+        #self.freeze_p = self.args.freeze_p
+        self.freeze_p = np.random.uniform(0.05, 0.95)
 
-        # generate a value between 0 and 1
-        self.freeze_p = self.args.freeze_p
+        # declare progress
+        self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
 
-        # locate randomly selected weights
+        # if locked_masks is here, then hold the same weights frozen constant
         self.locked_masks = {
-                        name: torch.tensor(np.random.choice([False, True],
-                                                      size=torch.numel(weight),
-                                                      p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
+                        name: (
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          # [no freeze, freeze]
+                                                          p=[0.0, 1.0])
+                                         .reshape(weight.shape))
+                            # freeze everything, but if you share a name with self.freeze; variably turn on some weights
+                            if any(weight in name for weight in self.freeze) else
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          p=[(1-self.freeze_p), self.freeze_p])
+                                         .reshape(weight.shape))
+                          )
                         for name, weight in self.model.named_parameters()
-                        if not any(weight in name for weight in self.no_freeze)
                         }
 
-        #self.logger.info(f"Chosen this proportion of weights to freeze: {self.freeze_p}")
+    def train_epoch(self, train_dataloader):
+
+        # if locked_masks is here, then vary the amount / actual weights frozen
+        #self.freeze_p = np.random.uniform(0.05, 0.95)
+
 
         # set the model to train
         self.model.train()
