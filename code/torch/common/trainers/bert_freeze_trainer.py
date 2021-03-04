@@ -85,7 +85,7 @@ class BertFreezeTrainer(object):
         # use the same frozen weights each epoch and batch
         self.freeze = self.args.freeze
 
-        # retrieve the freeze value between 0 and 1
+        # retrieve a freeze value between 0 and 1
         #self.freeze_p = self.args.freeze_p
         self.freeze_p = np.random.uniform(0.05, 0.95)
 
@@ -100,7 +100,7 @@ class BertFreezeTrainer(object):
                                                           # [no freeze, freeze]
                                                           p=[0.0, 1.0])
                                          .reshape(weight.shape))
-
+                            # freeze everything, but if you share a name with self.freeze; variably turn on some weights
                             if any(weight in name for weight in self.freeze) else
                             torch.tensor(np.random.choice([False, True],
                                                           size=torch.numel(weight),
