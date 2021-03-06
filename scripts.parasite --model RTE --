@@ -1,4 +1,5 @@
 
+
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 0 --file MSR_nofreeze_noparasite.json --seed 2
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 1 --file MSR_freeze_noparasite.json --seed 2
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 1 --freeze 0 --file MSR_nofreeze_1parasite.json --seed 2
@@ -12,4 +13,20 @@ python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-siz
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 3 --freeze 1 --file MSR_1_epoch_freeze_3parasite.json --seed 2
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 100 --freeze 1 --file MSR_1_epoch_freeze_allparasite.json --seed 2
 python -m models.parasite --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 1 --file MSR_1_epoch_freeze_allparasite.json --seed 2
+
+python -m models.parasite --model QNLI --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 15 --max-layers 1 --freeze 1 --file qnli_freeze_1layer.json --seed 2
+python -m models.parasite --model QQP --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 5 --max-layers 1 --freeze 1 --file qqp_freeze_1layer.json --seed 2
+python -m models.parasite --model SST --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 64 --warmup-proportion 0.1 --epochs 20 --max-layers 1 --freeze 1 --file sst_freeze_1layer.json --seed 2
+python -m models.parasite --model CoLA --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 64 --warmup-proportion 0.1 --epochs 25 --max-layers 1 --freeze 1 --file cola_freeze_1layer.json --seed 2
+python -m models.parasite --model RTE --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 64 --warmup-proportion 0.1 --epochs 25 --max-layers 1 --freeze 1 --file cola_freeze_1layer.json --seed 2
+
+
+python -m models.parasite --model QNLI --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 15 --max-layers 0 --freeze 0 --file qnli_nofreeze_nolayer.json --seed 2
+python -m models.parasite --model QQP --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 5 --max-layers 0 --freeze 0 --file qqp_nofreeze_nolayer.json --seed 2
+python -m models.parasite --model SST --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 64 --warmup-proportion 0.1 --epochs 20 --max-layers 0 --freeze 0 --file sst_nofreeze_nolayer.json --seed 2
+python -m models.parasite --model CoLA --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 64 --warmup-proportion 0.1 --epochs 25 --max-layers 0 --freeze 0 --file cola_nofreeze_nolayer.json --seed 2
+
+
+python -m models.parasite --model QQP --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 15 --max-layers 1 --freeze 1 --file qqp_freeze_1layer_15epochs.json --seed 2
+python -m models.parasite --model QNLI --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128 --warmup-proportion 0.1 --epochs 30 --max-layers 1 --freeze 1 --file qnli_freeze_1layer_30epochs.json --seed 2
 
