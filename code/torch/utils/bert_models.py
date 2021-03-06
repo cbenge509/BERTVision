@@ -118,7 +118,7 @@ class MultiNNLayerParasiteLearned3(nn.Module):
         p4 = F.relu(self.p4(torch.stack([x1, x2, x3, x4], dim = 1)))
         return p4
 
-class Parasite(nn.Module):
+class ParasitePhase1(nn.Module):
     def __init__(self, hidden_states, token_size, bias_size):
         super(Parasite, self).__init__()
         self.params = torch.zeros((hidden_states, token_size))
@@ -134,6 +134,37 @@ class Parasite(nn.Module):
         activations = torch.tensordot(x, self.params, dims=([1,2], [0,1])).unsqueeze(1)
         activations = activations + self.bias
         return activations
+
+class Parasite(nn.Module):
+    def __init__(self, hidden_states, token_size, bias_size):
+        '''
+        hidden_states: number of previous encoder layers to take into account
+        token_size: the token length for each inputs
+        bias_size: 786 -- embedding dimension is the bias size
+        '''
+
+        super(Parasite, self).__init__()
+        self.params = torch.zeros((hidden_states, token_size))
+        #nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
+        self.params = torch.nn.Parameter(self.params, requires_grad=True)
+
+        self.bias = torch.zeros((1,bias_size))
+        #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
+        self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
+
+        self.linear_1 = torch.nn.Linear(bias_size, 64)
+        self.nonlinear = torch.nn.GELU()
+        self.linear_2 = torch.nn.Linear(64, bias_size)
+
+    def forward(self, x):
+        #print(x.shape, self.params.shape, self.bias.shape)
+        activations = torch.tensordot(x, self.params, dims=([1,2], [0,1])).unsqueeze(1)
+        activations = activations + self.bias
+
+        x = self.linear_1(activations)
+        x  = self.nonlinear(x)
+        x = self.linear_2(x)
+        return x
 
 class MultiNNLayerParasiteLearnedBERT(nn.Module):
     def __init__(self, token_size = 100,
