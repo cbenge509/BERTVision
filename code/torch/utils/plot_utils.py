@@ -297,3 +297,46 @@ def altair_frozen_weights_performance_ridge_plot(data, xaxis_title = "Dev Metric
         .configure_title(anchor='middle')
 
     return viz
+
+#---------------------------------------------------------------------------
+## Altair : Comparison of Parasite to BERT faceted bar chart
+##
+## assumes data in shape of :
+##      task     model        score
+##      -------  -----------  -------------
+##      QNLI     BERT-base    0.8194
+##      SST-B    Parasite 16  0.650343
+##      ...
+##
+## assumes number of model_color_range values equals number of unique models
+#---------------------------------------------------------------------------
+def altair_parasite_comparison_faceted_bar(data, yaxis_title = "Performance", title_main = "Parasite Model Performance", 
+    subtitle = "Compared to BERT-base", height=600, width=200, model_color_range = [berkeley_palette['wellman_tile'], berkeley_palette['berkeley_blue'], berkeley_palette['pacific']]):
+
+    assert type(data) is pd.core.frame.DataFrame, "Parameter `data` must be of type pandas.core.frame.DataFrame."
+    assert all(e in data.columns.to_list() for e in ['task', 'model', 'score']), "Parameter `data` must contain the following columns: ['task','model','score']."
+    assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
+
+    base = alt.Chart().mark_bar(opacity=0.9).encode(
+        x=alt.X('model:N', axis=alt.Axis(title=None, labelFontSize=20, labelAngle=-45)),
+        y=alt.Y('score:Q', axis=alt.Axis(title=yaxis_title, labelFontSize=20, titleFontSize=25), scale=alt.Scale(domain=[0.0, 1.0])),
+        color=alt.Color('model:N', scale= alt.Scale(range = model_color_range), 
+            legend=alt.Legend(title="Models", symbolType="square", labelFontSize=20, titlePadding=20, titleFontSize=25))
+    ).properties(height=height, width=width)
+
+    text = alt.Chart().mark_text(color='white', dy=15, size=15).encode(
+        x=alt.X('model:N', axis=alt.Axis(title=None)),
+        y=alt.Y('score:Q', axis=alt.Axis(title=yaxis_title), scale=alt.Scale(domain=[0.0, 1.0])),
+        text=alt.Text('score:Q', format='.3N')
+    )
+
+    viz = alt.layer(base + text, data = data)\
+        .facet(
+            column=alt.Column('task:N', title=None, 
+                header=alt.Header(labelAngle=0, labelAlign='center', labelFontSize=20, labelFont='Lato', labelColor=berkeley_palette['pacific'], titleFontSize=20, labelPadding=10)
+            )
+        ).configure(padding={'top':20, 'bottom':20, 'right':20, 'left':20})\
+        .properties(title={'text':title_main, 'subtitle': subtitle}, bounds='flush')\
+        .configure_title(dy=-10)
+    
+    return viz
