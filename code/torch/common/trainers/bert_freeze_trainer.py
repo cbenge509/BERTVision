@@ -53,10 +53,11 @@ class BertFreezeTrainer(object):
         # shard the large datasets:
         if any([self.args.model == 'QQP',
                 self.args.model == 'QNLI',
-                self.args.model == 'MNLI'
+                self.args.model == 'MNLI',
+                self.args.model == 'SST'
                 ]):
             # turn on sharding
-            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, args=self.args)
 
         else:
             # create the usual processor

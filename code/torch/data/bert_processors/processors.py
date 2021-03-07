@@ -389,8 +389,10 @@ class QNLI(TwoSentenceLoader):
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        self.args = args
+        self.seed = self.args['args'].seed
+        self.shard = self.args['args'].shard
 
         # if type is train:
         if self.type == 'train':
@@ -405,7 +407,7 @@ class QNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -492,8 +494,10 @@ class QQP(torch.utils.data.Dataset):
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        self.args = args
+        self.seed = self.args['args'].seed
+        self.shard = self.args['args'].shard
 
         # if type is train:
         if self.type == 'train':
@@ -505,7 +509,7 @@ class QQP(torch.utils.data.Dataset):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -653,8 +657,11 @@ class MNLI(TwoSentenceLoader):
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        self.args = args
+        self.seed = self.args['args'].seed
+        self.shard = self.args['args'].shard
+
 
         # if type is train:
         if self.type == 'train':
@@ -681,7 +688,7 @@ class MNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         else:
             # if type is dev_matched:
@@ -783,7 +790,7 @@ class STSB(TwoSentenceLoader):
 
 class SST(OneSentenceLoader):
     NAME = 'SST'
-    def __init__(self, type, transform=None):
+    def __init__(self, type, transform=None, shard=False, **args):
         '''
         Stanford Sentiment Treebank
         '''
@@ -793,6 +800,13 @@ class SST(OneSentenceLoader):
         self.type = type
         # init transform if specified
         self.transform = transform
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # unpack useful args if given
+        self.args = args
+        self.seed = self.args['args'].seed
+        self.shard = self.args['args'].shard
+
         # SST columns
         __cols = ['label', 'sentence']
         __dtypes = {'score':np.float16, 'index':np.int16}
@@ -812,6 +826,10 @@ class SST(OneSentenceLoader):
             self.train = self.train[['id','sentence','label']]
             # set label
             self.train.label = self.train.label.to_numpy(dtype=np.float16)
+
+            # if true, reduce train size
+            if self.shard:
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         # if type is dev:
         if self.type == 'dev':

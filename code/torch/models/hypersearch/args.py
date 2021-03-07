@@ -45,7 +45,11 @@ def get_args():
     parser.add_argument('--num-workers',
                         type=int,
                         default=0,
-                        help='Number of CPU cores (default: 0)')    
+                        help='Number of CPU cores (default: 0)')
+    parser.add_argument('--shard',
+                        type=float,
+                        default=0.10,
+                        help='Percentage of training set to sample from')    
     args = parser.parse_args()
 
     return args
