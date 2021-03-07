@@ -57,7 +57,7 @@ class BertFreezeTrainer(object):
                 self.args.model == 'SST'
                 ]):
             # turn on sharding
-            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, args=self.args)
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
 
         else:
             # create the usual processor
