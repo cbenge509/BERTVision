@@ -77,8 +77,19 @@ def train_and_evaluate(seed, freeze):
     # set data set processor
     processor = dataset_map[args.model]
 
-    # use it to create the train set
-    train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
+    # shard the large datasets:
+    if any([args.model == 'QQP',
+            args.model == 'QNLI',
+            args.model == 'MNLI',
+            args.model == 'SST'
+            ]):
+        # turn on sharding
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, args=args)
+
+    else:
+        # create the usual processor
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger))
+
 
     # set training length
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
