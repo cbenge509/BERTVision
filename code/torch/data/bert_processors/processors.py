@@ -803,9 +803,7 @@ class SST(OneSentenceLoader):
         # init shard for sampling large ds if specified
         self.shard = shard
         # unpack useful args if given
-        self.args = args
-        self.seed = self.args['args'].seed
-        self.shard = self.args['args'].shard
+        self.seed = args
 
         # SST columns
         __cols = ['label', 'sentence']
@@ -829,7 +827,7 @@ class SST(OneSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
+                self.train = self.train.sample(frac=0.35, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
 
         # if type is dev:
         if self.type == 'dev':
