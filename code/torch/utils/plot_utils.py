@@ -318,10 +318,11 @@ def altair_parasite_comparison_faceted_bar(data, yaxis_title = "Performance", ti
     assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
 
     base = alt.Chart().mark_bar(opacity=0.9).encode(
-        x=alt.X('model:N', axis=alt.Axis(title=None, labelFontSize=20, labelAngle=-45)),
+        #x=alt.X('model:N', axis=alt.Axis(title=None, labelFontSize=20, labelAngle=-45)),
+        x=alt.X('model:N', axis=None),
         y=alt.Y('score:Q', axis=alt.Axis(title=yaxis_title, labelFontSize=20, titleFontSize=25), scale=alt.Scale(domain=[0.0, 1.0])),
         color=alt.Color('model:N', scale= alt.Scale(range = model_color_range), 
-            legend=alt.Legend(title="Models", symbolType="square", labelFontSize=20, titlePadding=20, titleFontSize=25))
+            legend=alt.Legend(title="Models", symbolType="square", labelFontSize=20, titlePadding=20, titleFontSize=25, labelLimit=500, orient='bottom'))
     ).properties(height=height, width=width)
 
     text = alt.Chart().mark_text(color='white', dy=15, size=15).encode(
