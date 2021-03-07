@@ -40,9 +40,10 @@ class BertFreezeTrainer(object):
         (3) Creates start and end logits and collects their original index for scoring
         (4) Writes their results and saves the file as a checkpoint
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, optimizer, processor, scheduler, args, kwargs, scaler, logger):
         # pull in objects
         self.args = args
+        self.kwargs = kwargs
         self.model = model
         self.optimizer = optimizer
         self.processor = processor
@@ -57,7 +58,7 @@ class BertFreezeTrainer(object):
                 self.args.model == 'SST'
                 ]):
             # turn on sharding
-            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, kwargs=self.kwargs)
 
         else:
             # create the usual processor
