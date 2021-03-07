@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
 import numpy as np
+import json
 
 class BertGLUETrainer(object):
     '''
@@ -274,10 +275,9 @@ class BertGLUETrainer(object):
                         self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
                         break
 
-        import json
-        with open(self.args.file, 'w') as fp:
-            json.dump(dict(losses), fp)
-
-        print(losses)
+        if self.args.file:
+            with open(self.args.file, 'w') as fp:
+                json.dump(dict(losses), fp)
+            print(losses)
 
 #
