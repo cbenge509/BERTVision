@@ -59,10 +59,12 @@ def train_and_evaluate(seed, freeze):
 
     # don't freeze this select of weights
     args.freeze = freeze
-    # try this percent of frozen weights
-    #args.freeze_p = freeze_p
+
     # set the seed
     args.seed = seed
+
+    # make kwargs
+    kwargs = args
 
     # set seed for reproducibility
     torch.backends.cudnn.deterministic = True
@@ -84,7 +86,7 @@ def train_and_evaluate(seed, freeze):
             args.model == 'SST'
             ]):
         # turn on sharding
-        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, seed=args.seed)
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, kwargs=kwargs)
 
     else:
         # create the usual processor
@@ -128,7 +130,7 @@ def train_and_evaluate(seed, freeze):
                                                 num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
 
     # initialize the trainer
-    trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, scaler, logger)
+    trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, kwargs, scaler, logger)
 
     # begin training / shift to trainer class
     dev_loss, dev_metric, epoch, freeze_p = trainer.train()
