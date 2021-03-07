@@ -84,7 +84,7 @@ def train_and_evaluate(seed, freeze):
             args.model == 'SST'
             ]):
         # turn on sharding
-        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, args=args)
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, seed=args.seed)
 
     else:
         # create the usual processor
