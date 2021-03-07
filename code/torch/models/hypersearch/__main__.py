@@ -70,10 +70,11 @@ def train_and_evaluate(lr, seed):
     # shard the large datasets:
     if any([args.model == 'QQP',
             args.model == 'QNLI',
-            args.model == 'MNLI'
+            args.model == 'MNLI',
+            args.model == 'SST'
             ]):
         # turn on sharding
-        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, seed=seed)
+        train_processor = processor(type='train', transform=Tokenize_Transform(args, logger), shard=True, args=args)
 
     else:
         # create the usual processor
