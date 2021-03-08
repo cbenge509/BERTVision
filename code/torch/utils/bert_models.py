@@ -152,9 +152,12 @@ class Parasite(nn.Module):
         #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
         self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
 
-        self.linear_1 = torch.nn.Linear(bias_size, 64)
+        self.linear_1 = torch.nn.Linear(bias_size, 16)
         self.nonlinear = torch.nn.GELU()
-        self.linear_2 = torch.nn.Linear(64, bias_size)
+        #self.linear_11 = torch.nn.Linear(16, 16)
+        #self.nonlinear_11 = torch.nn.ReLU()
+
+        #self.linear_2 = torch.nn.Linear(16, bias_size)
 
     def forward(self, x):
         #print(x.shape, self.params.shape, self.bias.shape)
@@ -162,8 +165,10 @@ class Parasite(nn.Module):
         activations = activations + self.bias
 
         x = self.linear_1(activations)
-        x  = self.nonlinear(x)
-        x = self.linear_2(x)
+        x = self.nonlinear(x)
+        #x = self.linear_11(x)
+        #x = self.nonlinear_11(x)
+        #x = self.linear_2(x)
         return x
 
 class MultiNNLayerParasiteLearnedBERT(nn.Module):
