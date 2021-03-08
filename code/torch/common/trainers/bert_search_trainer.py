@@ -49,9 +49,10 @@ class BertSearchTrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, optimizer, processor, scheduler, args, kwargs, scaler, logger):
         # pull in objects
         self.args = args
+        self.kwargs = kwargs
         self.model = model
         self.optimizer = optimizer
         self.processor = processor
@@ -65,7 +66,7 @@ class BertSearchTrainer(object):
                 self.args.model == 'MNLI'
                 ]):
             # turn on sharding
-            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, seed=args.seed)
+            self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger), shard=True, kwargs=self.kwargs)
 
         else:
             # create the usual processor

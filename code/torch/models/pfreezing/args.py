@@ -54,6 +54,10 @@ def get_args():
     parser.add_argument('--n-trials',
                         type=int,
                         default=1000)
+    parser.add_argument('--shard',
+                        type=float,
+                        default=0.30,
+                        help='Percentage of training set to sample from')
     args = parser.parse_args()
 
     return args

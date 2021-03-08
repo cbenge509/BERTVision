@@ -49,7 +49,7 @@ def get_args():
                         default=0,
                         help='Number of CPU cores (default: 0)')
     parser.add_argument('--file',
-                        type = str)
+                        type=str)
     args = parser.parse_args()
 
     return args
