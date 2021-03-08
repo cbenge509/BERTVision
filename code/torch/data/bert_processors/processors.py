@@ -372,7 +372,7 @@ class WNLI(TwoSentenceLoader):
 
 class QNLI(TwoSentenceLoader):
     NAME = 'QNLI'
-    def __init__(self, type, transform=None, shard=False, **args):
+    def __init__(self, type, transform=None, shard=False, **kwargs):
         '''
         Example line:
         index	question	sentence	label
@@ -383,14 +383,17 @@ class QNLI(TwoSentenceLoader):
         '''
         # set path for QNLI
         self.path = 'C:\w266\data\GLUE\Question NLI\QNLI'
-        # init configurable string
+       # init configurable string
         self.type = type
         # init transform if specified
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        if kwargs:
+            self.kwargs = kwargs
+            self.seed = self.kwargs['kwargs'].seed
+            self.shard = self.kwargs['kwargs'].shard
 
         # if type is train:
         if self.type == 'train':
@@ -405,7 +408,7 @@ class QNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -464,7 +467,7 @@ class MSR(TwoSentenceLoader):
 
 class QQP(torch.utils.data.Dataset):
     NAME = 'QQP'
-    def __init__(self, type, transform=None, shard=False, **args):
+    def __init__(self, type, transform=None, shard=False, **kwargs):
         '''
         Example line:
         id	qid1	qid2	question1	question2	is_duplicate
@@ -486,14 +489,17 @@ class QQP(torch.utils.data.Dataset):
         '''
         # set path for QQPairs
         self.path = 'C:\w266\data\GLUE\Quora Question Pairs\QQP'
-        # init configurable string
+       # init configurable string
         self.type = type
         # init transform if specified
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        if kwargs:
+            self.kwargs = kwargs
+            self.seed = self.kwargs['kwargs'].seed
+            self.shard = self.kwargs['kwargs'].shard
 
         # if type is train:
         if self.type == 'train':
@@ -505,7 +511,7 @@ class QQP(torch.utils.data.Dataset):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         if self.type == 'dev':
             # initialize dev
@@ -638,7 +644,7 @@ class CoLA(torch.utils.data.Dataset):
 
 class MNLI(TwoSentenceLoader):
     NAME = 'MNLI'
-    def __init__(self, type, transform=None, shard=False, **args):
+    def __init__(self, type, transform=None, shard=False, **kwargs):
         '''
         Line header:
         index	promptID	pairID	genre	sentence1_binary_parse	sentence2_binary_parse	sentence1_parse	sentence2_parse	sentence1	sentence2	label1	gold_label
@@ -647,14 +653,18 @@ class MNLI(TwoSentenceLoader):
         '''
         # set path for MNLI
         self.path = 'C:\w266\data\GLUE\MultiNLI (Matched and Mismatched)\MNLI'
-        # init configurable string
+       # init configurable string
         self.type = type
         # init transform if specified
         self.transform = transform
         # init shard for sampling large ds if specified
         self.shard = shard
-        # set seed if given
-        self.seed = args
+        # unpack useful args if given
+        if kwargs:
+            self.kwargs = kwargs
+            self.seed = self.kwargs['kwargs'].seed
+            self.shard = self.kwargs['kwargs'].shard
+
 
         # if type is train:
         if self.type == 'train':
@@ -681,7 +691,7 @@ class MNLI(TwoSentenceLoader):
 
             # if true, reduce train size
             if self.shard:
-                self.train = self.train.sample(frac=0.30, replace=False, random_state=self.seed['seed']).reset_index(drop=True)
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         else:
             # if type is dev_matched:
@@ -783,7 +793,7 @@ class STSB(TwoSentenceLoader):
 
 class SST(OneSentenceLoader):
     NAME = 'SST'
-    def __init__(self, type, transform=None):
+    def __init__(self, type, transform=None, shard=False, **kwargs):
         '''
         Stanford Sentiment Treebank
         '''
@@ -793,6 +803,14 @@ class SST(OneSentenceLoader):
         self.type = type
         # init transform if specified
         self.transform = transform
+        # init shard for sampling large ds if specified
+        self.shard = shard
+        # unpack useful args if given
+        if kwargs:
+            self.kwargs = kwargs
+            self.seed = self.kwargs['kwargs'].seed
+            self.shard = self.kwargs['kwargs'].shard
+
         # SST columns
         __cols = ['label', 'sentence']
         __dtypes = {'score':np.float16, 'index':np.int16}
@@ -812,6 +830,10 @@ class SST(OneSentenceLoader):
             self.train = self.train[['id','sentence','label']]
             # set label
             self.train.label = self.train.label.to_numpy(dtype=np.float16)
+
+            # if true, reduce train size
+            if self.shard:
+                self.train = self.train.sample(frac=self.shard, replace=False, random_state=self.seed).reset_index(drop=True)
 
         # if type is dev:
         if self.type == 'dev':
