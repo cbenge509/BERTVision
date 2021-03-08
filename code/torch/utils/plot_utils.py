@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import altair as alt
+from collections import OrderedDict
 
 
 ############################################################################
@@ -19,7 +20,8 @@ import altair as alt
 # secondary reference : https://alumni.berkeley.edu/brand/color-palette# CLass Initialization
 #---------------------------------------------------------------------------
 
-berkeley_palette = {'berkeley_blue'     : '#003262',
+berkeley_palette = OrderedDict({
+                    'berkeley_blue'     : '#003262',
                     'california_gold'   : '#fdb515',
                     'founders_rock'     : '#3b7ea1',
                     'medalist'          : '#c4820e',
@@ -41,6 +43,7 @@ berkeley_palette = {'berkeley_blue'     : '#003262',
                     'metallic_gold'     : '#BC9B6A',
                     'california_purple' : '#5C3160'                   
                     }
+                    )
 
 #---------------------------------------------------------------------------
 ## Altair custom "Cal" theme
@@ -311,11 +314,18 @@ def altair_frozen_weights_performance_ridge_plot(data, xaxis_title = "Dev Metric
 ## assumes number of model_color_range values equals number of unique models
 #---------------------------------------------------------------------------
 def altair_parasite_comparison_faceted_bar(data, yaxis_title = "Performance", title_main = "Parasite Model Performance", 
-    subtitle = "Compared to BERT-base", height=600, width=200, model_color_range = [berkeley_palette['wellman_tile'], berkeley_palette['berkeley_blue'], berkeley_palette['pacific']]):
+    subtitle = "Compared to BERT-base", height=600, width=200, 
+    #model_color_range = [berkeley_palette['wellman_tile'], berkeley_palette['berkeley_blue'], berkeley_palette['pacific']]
+    ):
 
     assert type(data) is pd.core.frame.DataFrame, "Parameter `data` must be of type pandas.core.frame.DataFrame."
     assert all(e in data.columns.to_list() for e in ['task', 'model', 'score']), "Parameter `data` must contain the following columns: ['task','model','score']."
-    assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
+    #assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
+
+    if len(np.unique(data.model)) > len(berkeley_palette):
+        raise RuntimeError("Too many models to color code")
+    else:
+        model_color_range = [berkeley_palette[color] for color in list(berkeley_palette.keys())[:len(berkeley_palette)]]
 
     base = alt.Chart().mark_bar(opacity=0.9).encode(
         #x=alt.X('model:N', axis=alt.Axis(title=None, labelFontSize=20, labelAngle=-45)),
