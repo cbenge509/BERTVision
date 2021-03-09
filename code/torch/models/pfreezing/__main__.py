@@ -165,11 +165,64 @@ if __name__ == '__main__':
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
                 'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
 
+    layers_0_3 = ['bert.encoder.layer.0.intermediate.dense.weight',
+                 'bert.encoder.layer.0.intermediate.dense.bias',
+                 'bert.encoder.layer.0.output.dense.weight',
+                 'bert.encoder.layer.0.output.dense.bias',
+                 'bert.encoder.layer.1.intermediate.dense.weight',
+                 'bert.encoder.layer.1.intermediate.dense.bias',
+                 'bert.encoder.layer.1.output.dense.weight',
+                 'bert.encoder.layer.1.output.dense.bias',
+                 'bert.encoder.layer.2.intermediate.dense.weight',
+                 'bert.encoder.layer.2.intermediate.dense.bias',
+                 'bert.encoder.layer.2.output.dense.weight',
+                 'bert.encoder.layer.2.output.dense.bias',
+                 'bert.encoder.layer.3.intermediate.dense.weight',
+                 'bert.encoder.layer.3.intermediate.dense.bias',
+                 'bert.encoder.layer.3.output.dense.weight',
+                 'bert.encoder.layer.3.output.dense.bias']
+
+    layers_6_9 = ['bert.encoder.layer.6.intermediate.dense.weight',
+                 'bert.encoder.layer.6.intermediate.dense.bias',
+                 'bert.encoder.layer.6.output.dense.weight',
+                 'bert.encoder.layer.6.output.dense.bias',
+                 'bert.encoder.layer.7.intermediate.dense.weight',
+                 'bert.encoder.layer.7.intermediate.dense.bias',
+                 'bert.encoder.layer.7.output.dense.weight',
+                 'bert.encoder.layer.7.output.dense.bias',
+                 'bert.encoder.layer.8.intermediate.dense.weight',
+                 'bert.encoder.layer.8.intermediate.dense.bias',
+                 'bert.encoder.layer.8.output.dense.weight',
+                 'bert.encoder.layer.8.output.dense.bias',
+                 'bert.encoder.layer.9.intermediate.dense.weight',
+                 'bert.encoder.layer.9.intermediate.dense.bias',
+                 'bert.encoder.layer.9.output.dense.weight',
+                 'bert.encoder.layer.9.output.dense.bias']
+
+    layers_8_11 = ['bert.encoder.layer.8.intermediate.dense.weight',
+                 'bert.encoder.layer.8.intermediate.dense.bias',
+                 'bert.encoder.layer.8.output.dense.weight',
+                 'bert.encoder.layer.8.output.dense.bias',
+                 'bert.encoder.layer.9.intermediate.dense.weight',
+                 'bert.encoder.layer.9.intermediate.dense.bias',
+                 'bert.encoder.layer.9.output.dense.weight',
+                 'bert.encoder.layer.9.output.dense.bias',
+                 'bert.encoder.layer.10.intermediate.dense.weight',
+                 'bert.encoder.layer.10.intermediate.dense.bias',
+                 'bert.encoder.layer.10.output.dense.weight',
+                 'bert.encoder.layer.10.output.dense.bias',
+                 'bert.encoder.layer.11.intermediate.dense.weight',
+                 'bert.encoder.layer.11.intermediate.dense.bias',
+                 'bert.encoder.layer.11.output.dense.weight',
+                 'bert.encoder.layer.11.output.dense.bias']
+
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
                     'freeze': hp.choice('freeze',
                                            [
-                                           ['dense'],
+                                           layers_0_3,
+                                           layers_6_9,
+                                           layers_8_11,
                                            ]),
                     #'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
                     }
