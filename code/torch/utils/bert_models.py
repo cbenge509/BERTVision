@@ -136,7 +136,7 @@ class ParasitePhase1(nn.Module):
         return activations
 
 class Parasite(nn.Module):
-    def __init__(self, hidden_states, token_size, bias_size):
+    def __init__(self, hidden_states, token_size, bias_size, adapter_size = 16):
         '''
         hidden_states: number of previous encoder layers to take into account
         token_size: the token length for each inputs
@@ -152,12 +152,12 @@ class Parasite(nn.Module):
         #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
         self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
 
-        self.linear_1 = torch.nn.Linear(bias_size, 16)
+        self.linear_1 = torch.nn.Linear(bias_size, adapter_size)
         self.nonlinear = torch.nn.GELU()
-        #self.linear_11 = torch.nn.Linear(16, 16)
+        #self.linear_11 = torch.nn.Linear(adapter_size, adapter_size)
         #self.nonlinear_11 = torch.nn.ReLU()
 
-        #self.linear_2 = torch.nn.Linear(16, bias_size)
+        self.linear_2 = torch.nn.Linear(adapter_size, bias_size)
 
     def forward(self, x):
         #print(x.shape, self.params.shape, self.bias.shape)
@@ -168,7 +168,7 @@ class Parasite(nn.Module):
         x = self.nonlinear(x)
         #x = self.linear_11(x)
         #x = self.nonlinear_11(x)
-        #x = self.linear_2(x)
+        x = self.linear_2(x)
         return x
 
 class MultiNNLayerParasiteLearnedBERT(nn.Module):
