@@ -120,10 +120,10 @@ class AdapterPooler(torch.nn.Module):
 
 
 
-class AP_Model(torch.nn.Module):
-    ''' Adaptive Pooler Model '''
+class AP_SQuAD(torch.nn.Module):
+    ''' Adaptive Pooler Model for SQuAD '''
     def __init__(self, n_layers, n_batch_sz, n_tokens, n_features):
-        super(AP_Model, self).__init__()
+        super(AP_SQuAD, self).__init__()
         self.n_layers = n_layers
         self.n_batch_sz = n_batch_sz
         self.n_tokens = n_tokens
@@ -146,14 +146,14 @@ class AP_Model(torch.nn.Module):
 
 
 
-class SST_AP(torch.nn.Module):
+class AP_GLUE(torch.nn.Module):
     '''
-        Adapter Pooler for SST
+        Adapter Pooler for GLUE
         Data emitted from H5 Processor is shape:
         [batch_sz, layers, tokens, features]
     '''
     def __init__(self, n_layers, n_batch_sz, n_tokens, n_features, n_labels):
-        super(SST_AP, self).__init__()
+        super(AP_GLUE, self).__init__()
         self.n_layers = n_layers
         self.n_batch_sz = n_batch_sz
         self.n_tokens = n_tokens
