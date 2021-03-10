@@ -1,23 +1,28 @@
 # packages
 import os, sys, datetime
 sys.path.append("C:/BERTVision/code/torch")
-from utils.collate import collate_squad_train
-from common.evaluators.bert_qa_evaluator import BertQAEvaluator
+from utils.collate import collate_H5_squad
+from common.evaluators.H5_squad_evaluator import H5_SQUAD_Evaluator
 from torch.cuda.amp import autocast
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
-import numpy as np
 
-class BertQATrainer(object):
+
+
+class H5_SQUAD_Trainer(object):
     '''
-    This class handles the training of QA models with BERT architecture.
+    This class handles the training of 1-epoch tuned QA embeddings from BERT
 
     Parameters
     ----------
     model : object
-        A HuggingFace QuestionAnswering BERT transformer
+        A compression model; see compress_utils.py
+
+    criterion : loss function
+        A loss function
 
     optimizer: object
         A compatible Torch optimizer
@@ -42,11 +47,13 @@ class BertQATrainer(object):
         (3) Creates start and end logits and collects their original index for scoring
         (4) Writes their results and saves the file as a checkpoint
 
+
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, criterion, optimizer, processor, scheduler, args, scaler, logger):
         # pull in objects
         self.args = args
         self.model = model
+        self.criterion = criterion
         self.optimizer = optimizer
         self.processor = processor
         self.scheduler = scheduler
@@ -54,7 +61,7 @@ class BertQATrainer(object):
         self.logger = logger
 
         # specify training data set
-        self.train_examples = processor(type='train')
+        self.train_examples = processor(type='train', args=self.args)
 
         # create a timestamp for the checkpoints
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -70,40 +77,41 @@ class BertQATrainer(object):
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
-        self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
+        self.best_dev_f1, self.unimproved_iters = 0, 0
         self.early_stop = False
 
-    def train_epoch(self, train_dataloader):
+    def train_epoch(self, criterion, train_dataloader):
         # set the model to train
         self.model.train()
         # pull data from data loader
         for step, batch in enumerate(tqdm(train_dataloader, desc="Training")):
             # and sent it to the GPU
-            input_ids, attn_mask, start_pos, end_pos, token_type_ids = (
-                batch['input_ids'].to(self.args.device),
-                batch['attention_mask'].to(self.args.device),
-                batch['start_positions'].to(self.args.device),
-                batch['end_positions'].to(self.args.device),
-                batch['token_type_ids'].to(self.args.device)
+            embeddings, start_ids, end_ids = (
+                batch['embeddings'].to(self.args.device),
+                batch['start_ids'].to(self.args.device),
+                batch['end_ids'].to(self.args.device)
             )
+
             # FP16
             with autocast():
                 # forward
-                out = self.model(
-                                 input_ids=input_ids,
-                                 attention_mask=attn_mask,
-                                 start_positions=start_pos,
-                                 end_positions=end_pos,
-                                 token_type_ids=token_type_ids
-                                 )
+                start, end = self.model(embeddings)
+
+            # get loss for start and ending positions
+            start_loss = criterion(start, start_ids)
+            end_loss = criterion(end, end_ids)
+
+            # combine them
+            total_loss = (start_loss + end_loss) / 2
+
             # loss
             if self.args.n_gpu > 1:
-                loss = out.loss.mean()
+                raise NotImplementedError
             else:
-                loss = out.loss
+                loss = total_loss
 
             # backward
-            self.scaler.scale(out.loss).backward()
+            self.scaler.scale(loss).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
             self.scheduler.step()
@@ -134,17 +142,16 @@ class BertQATrainer(object):
                                       shuffle=True,
                                       num_workers=self.args.num_workers,
                                       drop_last=False,
-                                      collate_fn=collate_squad_train)
+                                      collate_fn=collate_H5_squad)
+
         # for each epoch
         for epoch in trange(int(self.args.epochs), desc="Epoch"):
             # train
-            self.train_epoch(train_dataloader)
+            self.train_epoch(self.criterion, train_dataloader)
             # get dev loss
-            dev_loss = BertQAEvaluator(self.model, self.processor, self.args).get_loss()
-            # get scoring logits and indices
-            logits, indices = BertQAEvaluator(self.model, self.processor, self.args).get_scores()
+            dev_loss, logits, indices = H5_SQUAD_Evaluator(self.model, self.criterion, self.processor, self.args).get_loss_and_scores()
             # compute scores
-            metrics = BertQAEvaluator(self.model, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
+            metrics = H5_SQUAD_Evaluator(self.model, self.criterion, self.processor, self.args).score_squad_val(shuffled_idx=indices, logits=logits, n_best_size=20, max_answer=30)
             # print validation results
             self.logger.info("Epoch {0: d}, Dev/Exact {1: 0.3f}, Dev/F1. {2: 0.3f}",
                              epoch+1, metrics['exact'], metrics['f1'])

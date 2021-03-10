@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import BertModel
+import torch.nn.functional as F
 
 class LP_Model(torch.nn.Module):
     ''' Learned Pooling Model '''
@@ -80,4 +81,199 @@ class STSB_model(torch.nn.Module):
         x = self.cls(x).squeeze(-1)
         self.logits = x
         self.loss = self.loss_fct(x, labels).type(torch.float64)
+        return self
+
+class MultiNNLayerParasiteLearned3(nn.Module):
+    def __init__(self, hidden_state_size, freeze_bert = True):
+        super(MultiNNLayerParasiteLearned3, self).__init__()
+        self.nnlayer1 = NNLayer() #replace with BERTLayers
+        self.nnlayer2 = NNLayer()
+        self.nnlayer3 = NNLayer()
+        self.nnlayer4 = NNLayer()
+
+        if freeze_bert:
+            for layer in dir(self):
+                if 'nnlayer' in layer:
+                    layer = getattr(self, layer)
+                    for parameter in layer.parameters():
+                        parameter.requires_grad = False
+
+        self.p1 = Parasite(1, hidden_state_size)
+        self.p2 = Parasite(2, hidden_state_size)
+        self.p3 = Parasite(3, hidden_state_size)
+        self.p4 = Parasite(4, hidden_state_size)
+
+    def forward(self, x):
+        x1 = self.nnlayer1(x)
+
+        p1 = self.p1(x1.unsqueeze(1))
+        x2 = self.nnlayer2(p1)
+
+        p2 = self.p2(torch.stack([x1, x2], dim = 1))
+        x3 = self.nnlayer3(p2+x1)
+
+        p3 = self.p3(torch.stack([x1, x2, x3], dim = 1))
+        x4 = self.nnlayer3(p3+p2+x1)
+
+        p4 = F.relu(self.p4(torch.stack([x1, x2, x3, x4], dim = 1)))
+        return p4
+
+class ParasitePhase1(nn.Module):
+    def __init__(self, hidden_states, token_size, bias_size):
+        super(Parasite, self).__init__()
+        self.params = torch.zeros((hidden_states, token_size))
+        #nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
+        self.params = torch.nn.Parameter(self.params, requires_grad=True)
+
+        self.bias = torch.zeros((1,bias_size))
+        #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
+        self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
+
+    def forward(self, x):
+        #print(x.shape, self.params.shape, self.bias.shape)
+        activations = torch.tensordot(x, self.params, dims=([1,2], [0,1])).unsqueeze(1)
+        activations = activations + self.bias
+        return activations
+
+class Parasite(nn.Module):
+    def __init__(self, hidden_states, token_size, bias_size):
+        '''
+        hidden_states: number of previous encoder layers to take into account
+        token_size: the token length for each inputs
+        bias_size: 786 -- embedding dimension is the bias size
+        '''
+
+        super(Parasite, self).__init__()
+        self.params = torch.zeros((hidden_states, token_size))
+        #nn.init.kaiming_normal_(self.params, mode='fan_out', nonlinearity='relu')
+        self.params = torch.nn.Parameter(self.params, requires_grad=True)
+
+        self.bias = torch.zeros((1,bias_size))
+        #nn.init.kaiming_normal_(self.bias, mode='fan_out', nonlinearity='relu')
+        self.bias = torch.nn.Parameter(self.bias.unsqueeze(0), requires_grad=True)
+
+        self.linear_1 = torch.nn.Linear(bias_size, 16)
+        self.nonlinear = torch.nn.GELU()
+        #self.linear_11 = torch.nn.Linear(16, 16)
+        #self.nonlinear_11 = torch.nn.ReLU()
+
+        #self.linear_2 = torch.nn.Linear(16, bias_size)
+
+    def forward(self, x):
+        #print(x.shape, self.params.shape, self.bias.shape)
+        activations = torch.tensordot(x, self.params, dims=([1,2], [0,1])).unsqueeze(1)
+        activations = activations + self.bias
+
+        x = self.linear_1(activations)
+        x = self.nonlinear(x)
+        #x = self.linear_11(x)
+        #x = self.nonlinear_11(x)
+        #x = self.linear_2(x)
+        return x
+
+class MultiNNLayerParasiteLearnedBERT(nn.Module):
+    def __init__(self, token_size = 100,
+                       bert_model = 'bert-base-uncased',
+                       freeze_bert = True,
+                       max_layers = 20,
+                       BERT_model = None):
+        super(MultiNNLayerParasiteLearnedBERT, self).__init__()
+        self.criterion = nn.CrossEntropyLoss()
+        self.max_layers = max_layers
+
+        if bert_model == 'bert-base-uncased':
+            hidden_state_size = 768
+        else:
+            raise ValueError("Only bert-base-uncased is supported")
+
+        #generate the BERT model
+        if BERT_model is None:
+            self.bert_model = BertModel.from_pretrained(bert_model)
+        else:
+            self.bert_model = torch.load(BERT_model)
+        #bert embeddings layer
+        self.bert_embeddings = []
+
+        #encoder layers
+        self.encoder_layers = []
+
+        for i,(name,module) in enumerate(self.bert_model.named_modules()):
+            if name == 'embeddings' or name == 'bert_model.embeddings':
+                self.bert_embeddings.append(module)
+            if 'encoder.layer.' in name and name[-1].isdigit():
+                self.encoder_layers.append(module)
+
+        #freeze BERT if desired
+        if freeze_bert:
+            for layer in self.bert_embeddings + self.encoder_layers:
+                for parameter in layer.parameters():
+                    parameter.requires_grad = False
+
+        self.parasites = []
+        for i in range(1, len(self.encoder_layers) + 1):
+            #p = Parasite(min(3,i), token_size, bias_size = hidden_state_size)
+            p = Parasite(min(max_layers, i), token_size, bias_size = hidden_state_size)
+
+            setattr(self, "p%d"%i, p)
+            self.parasites.append(p)
+
+        self.output_layer = nn.Linear(768, 2)
+
+    def forward(self,
+            input_ids=None,
+            attention_mask=None,
+            token_type_ids=None,
+            labels = None
+        ):
+        """
+        Take the same BERT inputs in order to process attention_mask
+        """
+
+        #get broadcastable attention mask for encoder layers
+        extended_attention_mask = attention_mask[:, None, None, :]
+
+        batch_size, seq_length = input_ids.size()
+
+        device = input_ids.device
+
+        if attention_mask is None:
+            attention_mask = torch.ones(((batch_size, seq_length)), device=device)
+        if token_type_ids is None:
+            token_type_ids = torch.zeros(input_shape, dtype=torch.long, device=device)
+
+        #run through first embedding layer
+        embeddings = self.bert_embeddings[0](input_ids=input_ids,
+                                             token_type_ids=token_type_ids)
+
+        prev_encoder_layers = [embeddings]
+
+        for i in range(len(self.parasites)):
+            p = self.parasites[i]
+            encoder = self.encoder_layers[i]
+
+            if self.max_layers != 0:
+                if i == 0:
+                    pi = p(embeddings.unsqueeze(1))
+                else:
+                    #take past n based on fn of current encoder layer
+                    #pi = p(torch.stack(prev_encoder_layers[max(0,i-2):], dim = 1))
+                    pi = p(torch.stack(prev_encoder_layers[max(0, i - self.max_layers + 1):], dim = 1))
+
+                #add previous hidden states with learned parasite states
+                #x = self.encoder_layers[0](prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+                #x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+                x = encoder(prev_encoder_layers[-1] + pi, attention_mask=extended_attention_mask)[0]
+            else:
+                x = encoder(prev_encoder_layers[-1], attention_mask=extended_attention_mask)[0]
+
+            prev_encoder_layers.append(x)
+
+        #outputs
+        pooled_output = x[:,0]
+        pooled_output = self.output_layer(pooled_output)
+        output = torch.sigmoid(pooled_output)
+        #print(output, labels)
+        #apply activation
+        self.loss = self.criterion(output, labels)
+        self.logits = output
         return self
