@@ -85,11 +85,11 @@ class BertFreezeTrainer(object):
         self.early_stop = False
 
         # use the same frozen weights each epoch and batch
-        self.freeze = [] #self.args.freeze
+        self.freeze = self.args.freeze
 
         # retrieve a freeze value between 0 and 1
         #self.freeze_p = self.args.freeze_p
-        self.freeze_p = np.random.uniform(0, 1)
+        self.freeze_p = np.random.uniform(0.05, 0.95)
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
