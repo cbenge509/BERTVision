@@ -93,13 +93,25 @@ class BertFreezeTrainer(object):
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
 
-        # randomly find weights to take
+        # randomly find weights to take, but take in this condition
+        freeze = ['intermediate.dense', 'output.dense']
+        exclude = ['attention']
+
         mask = {
-                 name: torch.tensor(np.random.choice([False, True],
-                                                      size=torch.numel(weight),
-                                                      # freeze args.freeze_p%
-                                                      p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
-                        for name, weight in initial_weights.items()
+                        name: (
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          p=[0.0, 1.0])
+                                         .reshape(weight.shape))
+
+                            if any(weight in name for weight in freeze)
+                            and not any(weight in name for weight in exclude) else
+                            torch.tensor(np.random.choice([False, True],
+                                                          size=torch.numel(weight),
+                                                          p=[1.0, 0.0])
+                                         .reshape(weight.shape))
+                          )
+                        for name, weight in initial_dict.items()
                         }
 
         # load trained bert model state
