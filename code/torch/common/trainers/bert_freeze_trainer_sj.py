@@ -89,7 +89,7 @@ class BertFreezeTrainer(object):
 
         # retrieve a freeze value between 0 and 1
         #self.freeze_p = self.args.freeze_p
-        self.freeze_p = np.random.uniform(0.00, 1)
+        self.freeze_p = np.random.uniform(0, 1)
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
