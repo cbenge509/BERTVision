@@ -111,7 +111,7 @@ class BertFreezeTrainer(object):
                                                           p=[1.0, 0.0])
                                          .reshape(weight.shape))
                           )
-                        for name, weight in initial_dict.items()
+                        for name, weight in initial_weights.items()
                         }
 
         # load trained bert model state
