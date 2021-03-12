@@ -108,7 +108,7 @@ class BertFreezeTrainer(object):
                             and not any(weight in name for weight in exclude) else
                             torch.tensor(np.random.choice([False, True],
                                                           size=torch.numel(weight),
-                                                          p=[1.0, 0.0])
+                                                          p=[(1-self.freeze_p), self.freeze_p])
                                          .reshape(weight.shape))
                           )
                         for name, weight in initial_weights.items()
