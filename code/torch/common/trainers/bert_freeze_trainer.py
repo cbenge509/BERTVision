@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from tqdm.notebook import trange
 import numpy as np
-
+import copy
 
 class BertFreezeTrainer(object):
     '''
@@ -84,40 +84,45 @@ class BertFreezeTrainer(object):
         self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
         self.early_stop = False
 
-        # use the same frozen weights each epoch and batch
-        self.freeze = self.args.freeze
+        # save a copy of initial bert params
+        initial_weights = copy.deepcopy(self.model.state_dict())
 
         # retrieve a freeze value between 0 and 1
-        #self.freeze_p = self.args.freeze_p
-        self.freeze_p = np.random.uniform(0.05, 0.95)
+        self.freeze_p = np.random.uniform(0.01, 0.99)
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
 
-        # if locked_masks is here, then hold the same weights frozen constant
-        self.locked_masks = {
-                        name: (
-                            torch.tensor(np.random.choice([False, True],
-                                                          size=torch.numel(weight),
-                                                          # [no freeze, freeze]
-                                                          p=[0.0, 1.0])
-                                         .reshape(weight.shape))
-                            # freeze everything, but if you share a name with self.freeze; variably turn on some weights
-                            if any(weight in name for weight in self.freeze) else
-                            torch.tensor(np.random.choice([False, True],
-                                                          size=torch.numel(weight),
-                                                          p=[(1-self.freeze_p), self.freeze_p])
-                                         .reshape(weight.shape))
-                          )
-                        for name, weight in self.model.named_parameters()
+        # randomly find weights to take
+        mask = {
+                 name: torch.tensor(np.random.choice([False, True],
+                                                      size=torch.numel(weight),
+                                                      # freeze args.freeze_p%
+                                                      p=[(1-self.freeze_p), self.freeze_p]).reshape(weight.shape))
+                        for name, weight in initial_weights.items()
                         }
 
+        # load trained bert model state
+        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-10_21-53-58.pt')
+
+        # create a copy of the weights
+        trained_weights = copy.deepcopy(self.model.state_dict())
+
+        # create a new model state
+        result = {}
+        # for each key
+        for key, value in initial_weights.items():
+            # add the key
+            result[key] = []
+            # get current shape to reshape later
+            current_shape = initial_weights[key].shape
+            # if True, replace initial value with trained value
+            result[key] = initial_weights[key].cuda().where(mask[key].cuda(), trained_weights[key].cuda())
+
+        # load the model with the new mix of weights
+        self.model.load_state_dict(result)
+
     def train_epoch(self, train_dataloader):
-
-        # if locked_masks is here, then vary the amount / actual weights frozen
-        #self.freeze_p = np.random.uniform(0.05, 0.95)
-
-
         # set the model to train
         self.model.train()
         # pull data from data loader
@@ -201,7 +206,7 @@ class BertFreezeTrainer(object):
 
             for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
-                self.train_epoch(train_dataloader)
+                #self.train_epoch(train_dataloader)  # temporarily skip; go straight to evaluation
                 # get dev loss
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
