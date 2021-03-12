@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed, freeze):
+def train_and_evaluate(seed):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -58,7 +58,7 @@ def train_and_evaluate(seed, freeze):
     scaler = GradScaler()
 
     # don't freeze this select of weights
-    args.freeze = freeze
+    #args.freeze = freeze
 
     # set the seed
     args.seed = seed
@@ -153,77 +153,24 @@ if __name__ == '__main__':
     def train_fn(params):
         # select params
         seed = int(params['seed'])
-        freeze = params['freeze']
+        #freeze = params['freeze']
         #freeze_p = params['freeze_p']
         # print info to user
-        logger.info(f"""\n Starting trials with this seed: {seed},
-                    and excluding these layers
-                    from freezing: {freeze}""")
+        logger.info(f"""\n Starting trials with this seed: {seed}""")
         # collect metrics
-        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, freeze)
+        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed)
         # return metrics to trials
-        return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
-                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}  # disabling search for a purpose; loss is always 1
-
-    layers_0_3 = ['bert.encoder.layer.0.intermediate.dense.weight',
-                 'bert.encoder.layer.0.intermediate.dense.bias',
-                 'bert.encoder.layer.0.output.dense.weight',
-                 'bert.encoder.layer.0.output.dense.bias',
-                 'bert.encoder.layer.1.intermediate.dense.weight',
-                 'bert.encoder.layer.1.intermediate.dense.bias',
-                 'bert.encoder.layer.1.output.dense.weight',
-                 'bert.encoder.layer.1.output.dense.bias',
-                 'bert.encoder.layer.2.intermediate.dense.weight',
-                 'bert.encoder.layer.2.intermediate.dense.bias',
-                 'bert.encoder.layer.2.output.dense.weight',
-                 'bert.encoder.layer.2.output.dense.bias',
-                 'bert.encoder.layer.3.intermediate.dense.weight',
-                 'bert.encoder.layer.3.intermediate.dense.bias',
-                 'bert.encoder.layer.3.output.dense.weight',
-                 'bert.encoder.layer.3.output.dense.bias']
-
-    layers_6_9 = ['bert.encoder.layer.6.intermediate.dense.weight',
-                 'bert.encoder.layer.6.intermediate.dense.bias',
-                 'bert.encoder.layer.6.output.dense.weight',
-                 'bert.encoder.layer.6.output.dense.bias',
-                 'bert.encoder.layer.7.intermediate.dense.weight',
-                 'bert.encoder.layer.7.intermediate.dense.bias',
-                 'bert.encoder.layer.7.output.dense.weight',
-                 'bert.encoder.layer.7.output.dense.bias',
-                 'bert.encoder.layer.8.intermediate.dense.weight',
-                 'bert.encoder.layer.8.intermediate.dense.bias',
-                 'bert.encoder.layer.8.output.dense.weight',
-                 'bert.encoder.layer.8.output.dense.bias',
-                 'bert.encoder.layer.9.intermediate.dense.weight',
-                 'bert.encoder.layer.9.intermediate.dense.bias',
-                 'bert.encoder.layer.9.output.dense.weight',
-                 'bert.encoder.layer.9.output.dense.bias']
-
-    layers_8_11 = ['bert.encoder.layer.8.intermediate.dense.weight',
-                 'bert.encoder.layer.8.intermediate.dense.bias',
-                 'bert.encoder.layer.8.output.dense.weight',
-                 'bert.encoder.layer.8.output.dense.bias',
-                 'bert.encoder.layer.9.intermediate.dense.weight',
-                 'bert.encoder.layer.9.intermediate.dense.bias',
-                 'bert.encoder.layer.9.output.dense.weight',
-                 'bert.encoder.layer.9.output.dense.bias',
-                 'bert.encoder.layer.10.intermediate.dense.weight',
-                 'bert.encoder.layer.10.intermediate.dense.bias',
-                 'bert.encoder.layer.10.output.dense.weight',
-                 'bert.encoder.layer.10.output.dense.bias',
-                 'bert.encoder.layer.11.intermediate.dense.weight',
-                 'bert.encoder.layer.11.intermediate.dense.bias',
-                 'bert.encoder.layer.11.output.dense.weight',
-                 'bert.encoder.layer.11.output.dense.bias']
+        return {'loss': 1-dev_metric[0], 'status': STATUS_OK, 'metric': dev_metric,
+                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
-                    'freeze': hp.choice('freeze',
-                                           [
-                                           layers_0_3,
-                                           layers_6_9,
-                                           layers_8_11,
-                                           ]),
+                    #'freeze': hp.choice('freeze',
+                    #                       [
+                    #                       layers_0_3,
+                    #                       layers_6_9,
+                    #                       layers_8_11,
+                    #                       ]),
                     #'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
                     }
 
@@ -233,7 +180,7 @@ if __name__ == '__main__':
     argmin = fmin(
       fn=train_fn,
       space=search_space,
-      algo=rand.suggest,
+      algo=tpe.suggest,
       max_evals=args.n_trials,
       trials=trials)
 
