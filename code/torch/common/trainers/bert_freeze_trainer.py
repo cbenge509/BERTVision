@@ -103,7 +103,7 @@ class BertFreezeTrainer(object):
                         }
 
         # load trained bert model state
-        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-10_21-53-58.pt')
+        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-11_20-14-05.pt')
 
         # create a copy of the weights
         trained_weights = copy.deepcopy(self.model.state_dict())
