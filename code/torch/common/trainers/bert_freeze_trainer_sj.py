@@ -85,7 +85,7 @@ class BertFreezeTrainer(object):
         self.early_stop = False
 
         # use the same frozen weights each epoch and batch
-        self.freeze = self.args.freeze
+        self.freeze = []#self.args.freeze
 
         # retrieve a freeze value between 0 and 1
         #self.freeze_p = self.args.freeze_p

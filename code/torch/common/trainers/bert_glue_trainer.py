@@ -79,7 +79,7 @@ class BertGLUETrainer(object):
 
         # create placeholders for model metrics and early stopping if desired
         self.iterations, self.nb_tr_steps, self.tr_loss = 0, 0, 0
-        self.best_dev_f1, self.unimproved_iters, self.dev_loss = 0, 0, np.inf
+        self.best_dev_f1, self.unimproved_iters, self.dev_loss, self.dev_acc = 0, 0, np.inf, -np.inf
         self.early_stop = False
 
     def train_epoch(self, train_dataloader):
@@ -169,9 +169,9 @@ class BertGLUETrainer(object):
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
                 losses['dev_acc'].append(dev_acc)
                 # update validation results
-                if dev_loss < self.dev_loss:
+                if dev_acc > self.dev_acc:
                     self.unimproved_iters = 0
-                    self.dev_loss = dev_loss
+                    self.dev_acc = dev_acc
                     torch.save(self.model, self.snapshot_path)
 
                 else:
@@ -179,7 +179,7 @@ class BertGLUETrainer(object):
                     self.unimproved_iters += 1
                     if self.unimproved_iters >= self.args.patience:
                         self.early_stop = True
-                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Loss: {self.dev_loss}")
+                        self.logger.info(f"Early Stopping. Epoch: {epoch}, Best Dev Acc: {self.dev_acc}")
                         #break
 
 
