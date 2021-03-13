@@ -160,7 +160,7 @@ def altair_frozen_weights_performance_plot(data, xaxis_title = "Frozen Weights P
     title_main = "Dense Variably Unfrozen", title_subtitle = "GLUE Task: MSR", comparison_bert_type = "BERT-base", 
     ci_bar = True, comparison_bert_range = [0.842, 0.830, 0.828, 0.827, 0.843], line_type = "poly", poly_order = 10, 
     line_color_range = [berkeley_palette['berkeley_blue'], berkeley_palette['wellman_tile'], berkeley_palette['rose_garden'], berkeley_palette['lawrence']],
-    ci_bar_color = berkeley_palette['golden_gate']):
+    ci_bar_color = berkeley_palette['golden_gate'], AdapterBERT_performance = None):
 
     assert type(data) is pd.core.frame.DataFrame, "Parameter `data` must be of type pandas.core.frame.DataFrame."
     assert all(e in data.columns.to_list() for e in ['Frozen Weights Pct', '1', '2', '3', '4']), "Parameter `data` must contain the following columns: ['Frozen Weights Pct', '1', '2', '3', '4']."
@@ -175,10 +175,14 @@ def altair_frozen_weights_performance_plot(data, xaxis_title = "Frozen Weights P
         assert type(poly_order) is int, "Parameter `poly_order` must be of type int."
         assert 0 < poly_order <= 20, "Parameter `poly_order` must be integer value between 1 and 20."
 
+    if AdapterBERT_performance is not None:
+        assert type(AdapterBERT_performance) is float, "Parameter `AdapterBERT_performance` must be of type None or type float."
+
     band_range_ = list(np.arange(0.0,1.1,0.1))
-    y_lower_, y_upper_ = min(np.hstack([data['1'], data['2'], data['3'], data['4']])), max(np.hstack([data['1'], data['2'], data['3'], data['4']]))
+    y_lower_, y_upper_ = min(np.hstack([data['1'], data['2'], data['3'], data['4']])), max(np.hstack([data['1'], data['2'], data['3'], data['4'], np.where(np.isnan(AdapterBERT_performance),0,AdapterBERT_performance)]))
     x_lower_, x_upper_ = min(data['Frozen Weights Pct'] - 0.05), max(data['Frozen Weights Pct'] + 0.05)
     bert_base_avg_ = " ".join([comparison_bert_type, "baseline:", str(round(np.mean(comparison_bert_range), 5))])
+    ab_perf_avg_ = " ".join(["AdapterBERT baseline:", str(round(np.mean(np.where(np.isnan(AdapterBERT_performance),0,AdapterBERT_performance)), 5)), "(64 Adapters)"])
 
     base = alt.Chart(data).mark_point(opacity=0.3, size=30)\
         .transform_fold(
@@ -188,20 +192,32 @@ def altair_frozen_weights_performance_plot(data, xaxis_title = "Frozen Weights P
             x=alt.X('Frozen Weights Pct:Q', scale=alt.Scale(domain=[x_lower_, x_upper_])), 
             y=alt.Y('Dev Metric:Q', scale=alt.Scale(domain=[y_lower_, y_upper_])), 
             color=alt.Color('category:N', scale= alt.Scale(range = line_color_range),
-                legend=alt.Legend(title='Epochs'))
+                legend=alt.Legend(title='Epochs', symbolOpacity=1.0))
         ).properties(width = 1200, height = 600)
 
     if line_type == "poly":
-        reg = base.transform_regression('Frozen Weights Pct', 'Dev Metric', method='poly', groupby=['category'], order = poly_order).mark_line(size=5, opacity=1.0)
+        reg = base.transform_regression('Frozen Weights Pct', 'Dev Metric', method='poly', groupby=['category'], order = poly_order)\
+            .mark_line(size=5, opacity=1.0)
     else:
-        reg = base.transform_loess('Frozen Weights Pct','Dev Metric', groupby=['category']).mark_line(size=5, opacity=1.0)
+        reg = base.transform_loess('Frozen Weights Pct','Dev Metric', groupby=['category'])\
+            .mark_line(size=5, opacity=1.0)
 
     line = alt.Chart(pd.DataFrame({'Dev Metric': [np.mean(comparison_bert_range)]}))\
         .mark_rule(size=3, strokeDash=[8,5], color=berkeley_palette['pacific']).encode(y='Dev Metric')
 
-    text = alt.Chart(pd.DataFrame({'Frozen Weights Pct':[0.8], 'Dev Metric':[np.max(comparison_bert_range) + 0.005], 'out':[bert_base_avg_]}))\
+    text = alt.Chart(pd.DataFrame({'Frozen Weights Pct':[0.8], 'Dev Metric':[np.max(comparison_bert_range) + 0.006], 'out':[bert_base_avg_]}))\
         .mark_text(fontSize=18, font='Lato', color=berkeley_palette['pacific'])\
             .encode(text='out',x='Frozen Weights Pct:Q',y='Dev Metric:Q')
+
+    ab_perf = None
+    if AdapterBERT_performance is not None:
+        ab_perf = alt.Chart(pd.DataFrame({'Dev Metric': [AdapterBERT_performance]}))\
+           .mark_rule(size=3, strokeDash=[8,5], color=berkeley_palette['lap_lane'])\
+               .encode(y='Dev Metric')
+        
+        ab_text = alt.Chart(pd.DataFrame({'Frozen Weights Pct':[0.2], 'Dev Metric':[np.max([np.max(comparison_bert_range) + 0.006, AdapterBERT_performance + 0.010])], 'out':[ab_perf_avg_]}))\
+            .mark_text(fontSize=18, font='Lato', color=berkeley_palette['pacific'])\
+                .encode(text='out',x='Frozen Weights Pct:Q',y='Dev Metric:Q')
 
     if ci_bar:
         band = alt.Chart(pd.DataFrame({'x':band_range_, 'lower':[min(comparison_bert_range)] * len(band_range_), 'upper':[max(comparison_bert_range)] * len(band_range_)}))\
@@ -210,13 +226,25 @@ def altair_frozen_weights_performance_plot(data, xaxis_title = "Frozen Weights P
                 y=alt.Y('lower', axis=alt.Axis(title=yaxis_title)),
                 y2='upper')
 
-        viz = alt.layer(base + reg + line + text + band).configure_view(strokeWidth=0)\
-            .configure_axis(grid=False).resolve_legend(color='independent')\
-            .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        if ab_perf is not None:
+            viz = alt.layer(base + reg + line + text + band + ab_perf + ab_text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        else:
+            viz = alt.layer(base + reg + line + text + band).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+
     else:
-        viz = alt.layer(base + reg + line + text).configure_view(strokeWidth=0)\
-            .configure_axis(grid=False).resolve_legend(color='independent')\
-            .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        if ab_perf is not None:
+            viz = alt.layer(base + reg + line + text + ab_perf + ab_text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        else:
+            viz = alt.layer(base + reg + line + text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+
 
     return viz
 
@@ -314,18 +342,17 @@ def altair_frozen_weights_performance_ridge_plot(data, xaxis_title = "Dev Metric
 ## assumes number of model_color_range values equals number of unique models
 #---------------------------------------------------------------------------
 def altair_parasite_comparison_faceted_bar(data, yaxis_title = "Performance", title_main = "Parasite Model Performance", 
-    subtitle = "Compared to BERT-base", height=600, width=200, 
-    #model_color_range = [berkeley_palette['wellman_tile'], berkeley_palette['berkeley_blue'], berkeley_palette['pacific']]
-    ):
+    subtitle = "Compared to BERT-base", height=600, width=200, model_color_range = [berkeley_palette['wellman_tile'], berkeley_palette['berkeley_blue'], berkeley_palette['pacific']]):
 
     assert type(data) is pd.core.frame.DataFrame, "Parameter `data` must be of type pandas.core.frame.DataFrame."
     assert all(e in data.columns.to_list() for e in ['task', 'model', 'score']), "Parameter `data` must contain the following columns: ['task','model','score']."
-    #assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
+    assert len(np.unique(data.model)) == len(model_color_range), "Number of `model_color_range` values must match the number of unique models in the dataframe."
 
-    if len(np.unique(data.model)) > len(berkeley_palette):
-        raise RuntimeError("Too many models to color code")
-    else:
-        model_color_range = [berkeley_palette[color] for color in list(berkeley_palette.keys())[:len(berkeley_palette)]]
+    # hah! I see the lazy color scheming going on here!  Trying to get out of explicitly providing them!  #Shame!
+    #if len(np.unique(data.model)) > len(berkeley_palette):
+    #    raise RuntimeError("Too many models to color code")
+    #else:
+    #    model_color_range = [berkeley_palette[color] for color in list(berkeley_palette.keys())[:len(berkeley_palette)]]
 
     base = alt.Chart().mark_bar(opacity=0.9).encode(
         #x=alt.X('model:N', axis=alt.Axis(title=None, labelFontSize=20, labelAngle=-45)),
