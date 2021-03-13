@@ -249,6 +249,109 @@ def altair_frozen_weights_performance_plot(data, xaxis_title = "Frozen Weights P
     return viz
 
 #---------------------------------------------------------------------------
+## Altair : Frozen Weights Performance plot (for 8 lines)
+##
+## assumes data in shape of :
+##      Frozen Weights Pct     1        2        3        4        5        6        7        8
+##      ------------------     -------- -------- -------- -------- -------- -------- -------- --------
+##      0.33845...             0.773913 0.811014 0.812754 0.818551 0.773913 0.811014 0.812754 0.818551
+##      ...
+#---------------------------------------------------------------------------
+
+def altair_frozen_weights_performance_plot8(data, xaxis_title = "Frozen Weights Pct", yaxis_title = "Dev Metric", width = 1200, height = 600,
+    title_main = "Dense Variably Unfrozen", title_subtitle = "GLUE Task: MSR", comparison_bert_type = "BERT-base", 
+    ci_bar = True, comparison_bert_range = [0.842, 0.830, 0.828, 0.827, 0.843, 0.842, 0.830, 0.828, 0.827, 0.843], line_type = "poly", poly_order = 10, 
+    line_color_range = [berkeley_palette['berkeley_blue'], berkeley_palette['wellman_tile'], berkeley_palette['rose_garden'], berkeley_palette['lawrence'],
+        berkeley_palette['lap_lane'],berkeley_palette['medalist'],berkeley_palette['south_hall'],berkeley_palette['soybean']],
+    ci_bar_color = berkeley_palette['golden_gate'], AdapterBERT_performance = None):
+
+    assert type(data) is pd.core.frame.DataFrame, "Parameter `data` must be of type pandas.core.frame.DataFrame."
+    assert all(e in data.columns.to_list() for e in ['Frozen Weights Pct', '1', '2', '3', '4', '5', '6', '7', '8']), "Parameter `data` must contain the following columns: ['Frozen Weights Pct', '1', '2', '3', '4', '5', '6', '7', '8']."
+
+    if ci_bar:
+        assert type(comparison_bert_range) is list, "Parameter `comparison_bert_range` must be of type list."
+        assert len(comparison_bert_range) > 1, "Parameter `comparison_bert_range` must contain at least two values."
+        assert all(isinstance(x, float) for x in comparison_bert_range), "All values in `comparison_bert_range` must be of type float."
+    
+    assert line_type in ['poly', 'loess'], "Parameter `line_type` only supports the options: 'poly' or 'loess'."
+    if line_type == 'poly':
+        assert type(poly_order) is int, "Parameter `poly_order` must be of type int."
+        assert 0 < poly_order <= 20, "Parameter `poly_order` must be integer value between 1 and 20."
+
+    if AdapterBERT_performance is not None:
+        assert type(AdapterBERT_performance) is float, "Parameter `AdapterBERT_performance` must be of type None or type float."
+
+    band_range_ = list(np.arange(0.0,1.1,0.1))
+    y_lower_, y_upper_ = min(np.hstack([data['1'], data['2'], data['3'], data['4'], data['5'], data['6'], data['7'], data['8']])), max(np.hstack([data['1'], data['2'], data['3'], data['4'], data['5'], data['6'], data['7'], data['8'], np.where(np.isnan(AdapterBERT_performance),0,AdapterBERT_performance)]))
+    x_lower_, x_upper_ = min(data['Frozen Weights Pct'] - 0.05), max(data['Frozen Weights Pct'] + 0.05)
+    bert_base_avg_ = " ".join([comparison_bert_type, "baseline:", str(round(np.mean(comparison_bert_range), 5))])
+    ab_perf_avg_ = " ".join(["AdapterBERT baseline:", str(round(np.mean(np.where(np.isnan(AdapterBERT_performance),0,AdapterBERT_performance)), 5)), "(64 Adapters)"])
+
+    base = alt.Chart(data).mark_point(opacity=0.3, size=30)\
+        .transform_fold(
+            fold=['1','2','3','4', '5', '6', '7', '8'],
+            as_=['category', 'Dev Metric']
+        ).encode(
+            x=alt.X('Frozen Weights Pct:Q', scale=alt.Scale(domain=[x_lower_, x_upper_])), 
+            y=alt.Y('Dev Metric:Q', scale=alt.Scale(domain=[y_lower_, y_upper_])), 
+            color=alt.Color('category:N', scale= alt.Scale(range = line_color_range),
+                legend=alt.Legend(title='Epochs', symbolOpacity=1.0))
+        ).properties(width = 1200, height = 600)
+
+    if line_type == "poly":
+        reg = base.transform_regression('Frozen Weights Pct', 'Dev Metric', method='poly', groupby=['category'], order = poly_order)\
+            .mark_line(size=5, opacity=1.0)
+    else:
+        reg = base.transform_loess('Frozen Weights Pct','Dev Metric', groupby=['category'])\
+            .mark_line(size=5, opacity=1.0)
+
+    line = alt.Chart(pd.DataFrame({'Dev Metric': [np.mean(comparison_bert_range)]}))\
+        .mark_rule(size=3, strokeDash=[8,5], color=berkeley_palette['pacific']).encode(y='Dev Metric')
+
+    text = alt.Chart(pd.DataFrame({'Frozen Weights Pct':[0.8], 'Dev Metric':[np.max(comparison_bert_range) + 0.006], 'out':[bert_base_avg_]}))\
+        .mark_text(fontSize=18, font='Lato', color=berkeley_palette['pacific'])\
+            .encode(text='out',x='Frozen Weights Pct:Q',y='Dev Metric:Q')
+
+    ab_perf = None
+    if AdapterBERT_performance is not None:
+        ab_perf = alt.Chart(pd.DataFrame({'Dev Metric': [AdapterBERT_performance]}))\
+           .mark_rule(size=3, strokeDash=[8,5], color=berkeley_palette['lap_lane'])\
+               .encode(y='Dev Metric')
+        
+        ab_text = alt.Chart(pd.DataFrame({'Frozen Weights Pct':[0.2], 'Dev Metric':[np.max([np.max(comparison_bert_range) + 0.006, AdapterBERT_performance + 0.010])], 'out':[ab_perf_avg_]}))\
+            .mark_text(fontSize=18, font='Lato', color=berkeley_palette['pacific'])\
+                .encode(text='out',x='Frozen Weights Pct:Q',y='Dev Metric:Q')
+
+    if ci_bar:
+        band = alt.Chart(pd.DataFrame({'x':band_range_, 'lower':[min(comparison_bert_range)] * len(band_range_), 'upper':[max(comparison_bert_range)] * len(band_range_)}))\
+            .mark_area(opacity = 0.2, color=ci_bar_color).encode(
+                x=alt.X('x', axis=alt.Axis(title=xaxis_title)),
+                y=alt.Y('lower', axis=alt.Axis(title=yaxis_title)),
+                y2='upper')
+
+        if ab_perf is not None:
+            viz = alt.layer(base + reg + line + text + band + ab_perf + ab_text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        else:
+            viz = alt.layer(base + reg + line + text + band).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+
+    else:
+        if ab_perf is not None:
+            viz = alt.layer(base + reg + line + text + ab_perf + ab_text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+        else:
+            viz = alt.layer(base + reg + line + text).configure_view(strokeWidth=0)\
+                .configure_axis(grid=False)\
+                .properties(title = {"text" : title_main, "subtitle" : title_subtitle})
+
+
+    return viz
+
+#---------------------------------------------------------------------------
 ## Altair : Frozen Weights per Epoch Ridge Plot
 ##
 ## assumes data in shape of :
