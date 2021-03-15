@@ -92,7 +92,7 @@ class BertFreezeTrainer(object):
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
-        np.random.seed(seed=1)
+        np.random.seed(seed=self.args.seed)
 
         # randomly find weights to take, but take in this condition
         inject = self.args.inject
