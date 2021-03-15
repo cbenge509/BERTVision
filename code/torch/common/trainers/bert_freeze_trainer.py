@@ -88,20 +88,21 @@ class BertFreezeTrainer(object):
         initial_weights = copy.deepcopy(self.model.state_dict())
 
         # retrieve a freeze value between 0 and 1
-        self.freeze_p = np.random.uniform(0.01, 0.99)
+        self.freeze_p = np.random.uniform(0.05, 0.95)
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
+        np.random.seed(seed=1)
 
         # randomly find weights to take, but take in this condition
-        inject = ['intermediate.dense', 'output.dense']
-        reject = ['attention']
+        inject = self.args.inject
+        reject = self.args.reject
 
         mask = {
                         name: (
                             torch.tensor(np.random.choice([False, True],
                                                           size=torch.numel(weight),
-                                                          p=[(1-self.freeze_p), self.freeze_p])
+                                                          p=[self.freeze_p, (1-self.freeze_p)])
                                          .reshape(weight.shape))
 
                             if any(weight in name for weight in inject)
