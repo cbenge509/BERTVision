@@ -15,7 +15,7 @@ import pickle as pkl
 
 
 # main fun.
-def train_and_evaluate(seed):
+def train_and_evaluate(seed, inject, reject):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -62,6 +62,8 @@ def train_and_evaluate(seed):
 
     # set the seed
     args.seed = seed
+    args.inject = inject
+    args.reject = reject
 
     # make kwargs
     kwargs = args
@@ -153,25 +155,94 @@ if __name__ == '__main__':
     def train_fn(params):
         # select params
         seed = int(params['seed'])
+        inject = params['inject']
+        reject = params['reject']
         #freeze = params['freeze']
         #freeze_p = params['freeze_p']
         # print info to user
-        logger.info(f"""\n Starting trials with this seed: {seed}""")
+        logger.info(f"""\n Starting trials with this seed: {seed} and this injection
+                    {inject}""")
         # collect metrics
-        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed)
+        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, inject, reject)
         # return metrics to trials
         return {'loss': 1-dev_metric[0], 'status': STATUS_OK, 'metric': dev_metric,
                 'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}
 
+
+    layers_0_3 = ['bert.encoder.layer.0.intermediate.dense.weight',
+                 'bert.encoder.layer.0.intermediate.dense.bias',
+                 'bert.encoder.layer.0.output.dense.weight',
+                 'bert.encoder.layer.0.output.dense.bias',
+                 'bert.encoder.layer.1.intermediate.dense.weight',
+                 'bert.encoder.layer.1.intermediate.dense.bias',
+                 'bert.encoder.layer.1.output.dense.weight',
+                 'bert.encoder.layer.1.output.dense.bias',
+                 'bert.encoder.layer.2.intermediate.dense.weight',
+                 'bert.encoder.layer.2.intermediate.dense.bias',
+                 'bert.encoder.layer.2.output.dense.weight',
+                 'bert.encoder.layer.2.output.dense.bias',
+                 'bert.encoder.layer.3.intermediate.dense.weight',
+                 'bert.encoder.layer.3.intermediate.dense.bias',
+                 'bert.encoder.layer.3.output.dense.weight',
+                 'bert.encoder.layer.3.output.dense.bias']
+
+    layers_6_9 = ['bert.encoder.layer.6.intermediate.dense.weight',
+                 'bert.encoder.layer.6.intermediate.dense.bias',
+                 'bert.encoder.layer.6.output.dense.weight',
+                 'bert.encoder.layer.6.output.dense.bias',
+                 'bert.encoder.layer.7.intermediate.dense.weight',
+                 'bert.encoder.layer.7.intermediate.dense.bias',
+                 'bert.encoder.layer.7.output.dense.weight',
+                 'bert.encoder.layer.7.output.dense.bias',
+                 'bert.encoder.layer.8.intermediate.dense.weight',
+                 'bert.encoder.layer.8.intermediate.dense.bias',
+                 'bert.encoder.layer.8.output.dense.weight',
+                 'bert.encoder.layer.8.output.dense.bias',
+                 'bert.encoder.layer.9.intermediate.dense.weight',
+                 'bert.encoder.layer.9.intermediate.dense.bias',
+                 'bert.encoder.layer.9.output.dense.weight',
+                 'bert.encoder.layer.9.output.dense.bias']
+
+    layers_8_11 = ['bert.encoder.layer.8.intermediate.dense.weight',
+                 'bert.encoder.layer.8.intermediate.dense.bias',
+                 'bert.encoder.layer.8.output.dense.weight',
+                 'bert.encoder.layer.8.output.dense.bias',
+                 'bert.encoder.layer.9.intermediate.dense.weight',
+                 'bert.encoder.layer.9.intermediate.dense.bias',
+                 'bert.encoder.layer.9.output.dense.weight',
+                 'bert.encoder.layer.9.output.dense.bias',
+                 'bert.encoder.layer.10.intermediate.dense.weight',
+                 'bert.encoder.layer.10.intermediate.dense.bias',
+                 'bert.encoder.layer.10.output.dense.weight',
+                 'bert.encoder.layer.10.output.dense.bias',
+                 'bert.encoder.layer.11.intermediate.dense.weight',
+                 'bert.encoder.layer.11.intermediate.dense.bias',
+                 'bert.encoder.layer.11.output.dense.weight',
+                 'bert.encoder.layer.11.output.dense.bias']
+
+    all_FFN = ['intermediate.dense', 'output.dense']
+    pooler = ['pooler', 'classifer']
+    reject = ['attention']
+
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
-                    #'freeze': hp.choice('freeze',
-                    #                       [
-                    #                       layers_0_3,
-                    #                       layers_6_9,
-                    #                       layers_8_11,
-                    #                       ]),
-                    #'freeze_p': hp.uniform('freeze_p', 0.05, 0.95)
+                    'inject': hp.choice('freeze',
+                                           [
+                                           layers_0_3,
+                                           layers_6_9,
+                                           layers_8_11,
+                                           layers_0_3 + layers_6_9,
+                                           layers_0_3 + layers_8_11,
+                                           layers_6_9 + layers_8_11,
+                                           all_FFN,
+                                           all_FFN + pooler,
+                                           layers_6_9 + pooler
+                                           ]
+                                           ),
+                    'reject': hp.choice('reject',
+                                        [
+                                         reject
+                                        ])
                     }
 
     # intialize hyperopt
