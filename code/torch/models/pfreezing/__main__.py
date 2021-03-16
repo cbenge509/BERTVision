@@ -248,7 +248,7 @@ if __name__ == '__main__':
     argmin = fmin(
       fn=train_fn,
       space=search_space,
-      algo=tpe.random,
+      algo=rand.suggest,
       max_evals=args.n_trials,
       trials=trials)
 
