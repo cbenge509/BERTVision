@@ -43,7 +43,7 @@ def train_and_evaluate(seed, inject, reject):
     os.makedirs(log_path, exist_ok=True)
 
     # initialize logging
-    logger.add(log_path + '\\' + args.model + '.log', rotation="10 MB")
+    logger.add(log_path + '\\' + args.model + '.log', rotation="5000 MB")
     logger.info(f"Training model {args.model} on this checkpoint: {args.checkpoint}")
 
     # set device to gpu/cpu
@@ -221,22 +221,19 @@ if __name__ == '__main__':
                  'bert.encoder.layer.11.output.dense.bias']
 
     all_FFN = ['intermediate.dense', 'output.dense']
-    pooler = ['pooler', 'classifer']
+    pooler = ['pooler']
+    classifier = ['classifier']
     reject = ['attention']
 
     # search space
     search_space = {'seed': hp.randint('seed', 1000),
                     'inject': hp.choice('freeze',
                                            [
-                                           layers_0_3,
-                                           layers_6_9,
-                                           layers_8_11,
-                                           layers_0_3 + layers_6_9,
-                                           layers_0_3 + layers_8_11,
-                                           layers_6_9 + layers_8_11,
-                                           all_FFN,
-                                           all_FFN + pooler,
-                                           layers_6_9 + pooler
+                                           pooler,
+                                           classifier,
+                                           pooler + all_FFN,
+                                           classifier + pooler,
+                                           classifier + all_FFN
                                            ]
                                            ),
                     'reject': hp.choice('reject',
