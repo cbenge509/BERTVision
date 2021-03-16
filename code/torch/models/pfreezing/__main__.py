@@ -165,7 +165,7 @@ if __name__ == '__main__':
         # collect metrics
         dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, inject, reject)
         # return metrics to trials
-        return {'loss': 1-dev_metric[0], 'status': STATUS_OK, 'metric': dev_metric,
+        return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
                 'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}
 
 
@@ -248,7 +248,7 @@ if __name__ == '__main__':
     argmin = fmin(
       fn=train_fn,
       space=search_space,
-      algo=tpe.suggest,
+      algo=tpe.random,
       max_evals=args.n_trials,
       trials=trials)
 
