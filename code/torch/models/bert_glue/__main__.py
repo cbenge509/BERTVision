@@ -57,7 +57,6 @@ if __name__ == '__main__':
 
     # set seed for reproducibility
     torch.backends.cudnn.deterministic = True
-    print(args.seed)
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
