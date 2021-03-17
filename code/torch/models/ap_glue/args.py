@@ -48,6 +48,10 @@ def get_args():
                         type=int,
                         default=0,
                         help='H5 cannot be pickled')
+    parser.add_mutually_exclusive_group(required=False)
+    parser.add_argument('--error', dest='error', action='store_true')
+    parser.add_argument('--no-error', dest='error', action='store_false')
+    parser.set_defaults(feature=True)    
     args = parser.parse_args()
 
     return args
