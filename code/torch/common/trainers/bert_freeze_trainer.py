@@ -92,48 +92,19 @@ class BertFreezeTrainer(object):
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
-        np.random.seed(seed=self.args.seed)
+        np.random.seed(seed=1)
 
         # randomly find weights to take, but take in this condition
-        inject = self.args.inject
-        reject = self.args.reject
-
-        mask = {
-                        name: (
-                            torch.tensor(np.random.choice([False, True],
-                                                          size=torch.numel(weight),
-                                                          p=[self.freeze_p, (1-self.freeze_p)])
-                                         .reshape(weight.shape))
-
-                            if any(weight in name for weight in inject)
-                            and not any(weight in name for weight in reject) else
-                            torch.tensor(np.random.choice([False, True],
-                                                          size=torch.numel(weight),
-                                                          p=[0.0, 1.0])
-                                         .reshape(weight.shape))
-                          )
-                        for name, weight in initial_weights.items()
-                        }
-
-        # load trained bert model state
-        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-11_20-14-05.pt')
-
-        # create a copy of the weights
-        trained_weights = copy.deepcopy(self.model.state_dict())
-
-        # create a new model state
-        result = {}
-        # for each key
-        for key, value in initial_weights.items():
-            # add the key
-            result[key] = []
-            # get current shape to reshape later
-            current_shape = initial_weights[key].shape
-            # if True, replace initial value with trained value
-            result[key] = initial_weights[key].cuda().where(mask[key].cuda(), trained_weights[key].cuda())
-
-        # load the model with the new mix of weights
-        self.model.load_state_dict(result)
+        #inject = self.args.inject
+        #reject = self.args.reject
+        #python -m models.pfreezing --model RTE --checkpoint bert-base-uncased --batch-size 16 --lr 2e-5 --num-labels 2 --max-seq-length 250
+        self.inject_p = 0.01
+        self.duration = 100000
+        self.patience = 0
+        self.t0_weights = copy.deepcopy(self.model.state_dict())
+        self.trained_model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-11_20-14-05.pt')
+        self.trained_weights = copy.deepcopy(self.trained_model.state_dict())
+        np.random.seed(self.args.seed)
 
     def train_epoch(self, train_dataloader):
         # set the model to train
@@ -190,6 +161,129 @@ class BertFreezeTrainer(object):
         '''
         This function handles the entirety of the training, dev, and scoring.
         '''
+        def mask_generator(inject_p, inject, reject, weights):
+            inject = inject
+            reject = reject
+            mask = {
+                            name: (
+                                torch.tensor(np.random.choice([False, True],
+                                                              size=torch.numel(weight),
+                                                              p=[inject_p, (1-inject_p)])
+                                             .reshape(weight.shape))
+
+                                if any(weight in name for weight in inject)
+                                and not any(weight in name for weight in reject) else
+                                torch.tensor(np.random.choice([False, True],
+                                                              size=torch.numel(weight),
+                                                              p=[0.0, 1.0])
+                                             .reshape(weight.shape))
+                              )
+                            for name, weight in weights.items()
+                            }
+            return mask
+
+        def weight_generator(current_weights, mask, injecting_weights):
+            # create a new model state
+            result = {}
+            # for each key
+            for key, value in current_weights.items():
+                # add the key
+                result[key] = []
+                # if False, replace initial value with trained value
+                result[key] = current_weights[key].cuda().where(mask[key].cuda(), injecting_weights[key].cuda())
+            return result
+
+
+        def metropolis_train(position, inject_p, current_weights, injecting_weights):
+            position = position
+            inject_p = inject_p
+            current_weights = current_weights
+            injecting_weights = injecting_weights
+            # identify the current layers to inject
+            inject = ['bert.encoder.layer.%s.intermediate.dense.weight' % position,
+                     'bert.encoder.layer.%s.output.dense.weight' % position]
+            reject = ['attention']
+            # create mask for the injection
+            mask = mask_generator(inject_p=inject_p,
+                                  inject=inject,
+                                  reject=reject,
+                                  weights=current_weights)
+            # inject new weights
+            injected_weights = weight_generator(current_weights=current_weights,
+                                                    mask=mask,
+                                                    injecting_weights=injecting_weights)
+            # load the model with the new mix of weights
+            self.model.load_state_dict(injected_weights)
+            # train
+            dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+            return dev_acc, injected_weights
+
+        def metropolis(inject_p, duration, current_weights, injecting_weights):
+            duration = duration
+            inject_p = inject_p
+            current_weights = current_weights
+            injecting_weights = injecting_weights
+            # collect metrics
+            blocks_visited = np.zeros(duration)
+            weights_changed = np.zeros(duration)
+            metrics = np.zeros(duration)
+            injection_rate = np.zeros(duration)
+            # step 1: start randomly at layer 0-11
+            current_position = np.random.randint(low=0, high=12)
+            for i in range(duration):
+                if inject_p >= 0.98:
+                    break
+                print('injecting this % of weights now', inject_p)
+                injection_rate[i] = inject_p
+                # record position
+                blocks_visited[i] = current_position
+                print('now on current:', current_position)
+                # generate a proposal encoder block to visit
+                proposal = current_position + np.random.choice([-1, 1])
+                # loop around the encoder blocks
+                if proposal < 0:
+                    proposal = 11  # keep in the right layer ranges
+                if proposal > 11:
+                    proposal = 0
+                print('proposal block:', proposal)
+                # generate hypotheticals - evaluate on current
+                dev_metric_current, current_injected_weights = metropolis_train(position=current_position,
+                                                                                inject_p=inject_p,
+                                                                                current_weights=current_weights,
+                                                                                injecting_weights=injecting_weights)
+                # generate hypotheticals - evaluate on proposal
+                #dev_metric_proposal, proposal_injected_weights = metropolis_train(position=proposal,
+                #                                                                  inject_p=inject_p,
+                #                                                                  current_weights=current_weights,
+                #                                                                  injecting_weights=injecting_weights)
+                # report results
+                print('current metric:', dev_metric_current)
+                #print('proposal metric:', dev_metric_proposal)
+                metrics[i] = dev_metric_current
+                # if current block outperforms proposal block
+                if dev_metric_current > 0.7:
+                    current_weights = current_injected_weights
+                    # record that a weight was altered at this layer
+                    weights_changed[i] = 1
+                    # otherwise proceed and draw comparions in next move
+                if dev_metric_current < 0.7:
+                    self.patience += 1
+                    #if self.patience > 500:
+                    #    break
+                # move to new encoder block?
+                if (current_position == 0) or (proposal == 0):
+                    prob_move = (proposal+1) / (current_position+1)
+                else:
+                    prob_move = proposal / current_position
+                if np.random.uniform() < prob_move:
+                    # move
+                    current_position = proposal
+                duration -= 1
+                if duration % 10 == 0:
+                    inject_p += 0.001
+
+            return blocks_visited, weights_changed, metrics, injection_rate
+
         # tell the user general metrics
         self.logger.info(f"Number of examples: {len(self.train_examples)}")
         self.logger.info(f"Batch size: {len(self.train_examples)}")
@@ -221,17 +315,23 @@ class BertFreezeTrainer(object):
                 # train
                 #self.train_epoch(train_dataloader)  # temporarily skip; go straight to evaluation
                 # get dev loss
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                #inject_p, duration, current_weights, trained_weights
+                blocks_visited, weights_changed, metrics, injection_rate = metropolis(inject_p=self.inject_p,
+                                            duration=self.duration,
+                                            current_weights=self.trained_weights,
+                                            injecting_weights=self.t0_weights)
+                # trained_weights, t0_weights
                 # print validation results
-                self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
-                                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
+                #self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
+                #                 epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
+                import pandas as pd
+                result_df = pd.DataFrame({'blocks_visited': blocks_visited,
+                                          'weights_changed': weights_changed,
+                                          'metrics': metrics,
+                                          'injection_rate': injection_rate})
+                result_df.to_csv('metropolis_%s.csv' % self.args.model, index=False)
 
-                self.epoch_loss.append(dev_loss)
-                self.epoch_metric.append(dev_acc)
-                self.epoch.append(epoch+1)
-                self.epoch_freeze_p.append(self.freeze_p)
-
-            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
+            return blocks_visited, weights_changed, metrics, injection_rate
 
 
         elif any([self.args.model == 'CoLA']):
