@@ -249,7 +249,7 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
 
         for i in range(len(self.parasites)):
             p = self.parasites[i]
-            encoder = self.encoder_layers[i]
+            encoder = self.encoder_layers[0] #switch this to i
 
             if self.max_layers != 0:
                 if i == 0:
