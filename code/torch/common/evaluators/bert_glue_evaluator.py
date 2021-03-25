@@ -79,18 +79,19 @@ class BertGLUEEvaluator(object):
         self.model.eval()
 
         # store results
-        predicted_labels, target_labels = list(), list()
+        predicted_labels, target_labels, idx_list = list(), list(), list()
 
         # for each batch of data,
         self.logger.info(f"Generating metrics")
 
         for step, batch in enumerate(tqdm(dev_dataloader, desc="Evaluating")):
             # send it to the GPU
-            input_ids, attn_mask, token_type_ids, labels = (
+            input_ids, attn_mask, token_type_ids, labels, indices = (
                 batch['input_ids'].to(self.args.device),
                 batch['attention_mask'].to(self.args.device),
                 batch['token_type_ids'].to(self.args.device),
-                batch['labels'].to(self.args.device)
+                batch['labels'].to(self.args.device),
+                batch['idx'].to(self.args.device)
             )
 
             # forward
@@ -117,6 +118,7 @@ class BertGLUEEvaluator(object):
             # get predicted / labels
             predicted_labels.extend(pred.cpu().detach().numpy().flatten())
             target_labels.extend(labels.cpu().detach().numpy())
+            idx_list.extend(indices.cpu().detach().numpy())
 
             # loss metrics
             self.dev_loss += loss.item()
@@ -128,6 +130,8 @@ class BertGLUEEvaluator(object):
 
         # prepare labels and predictions
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
+        # get index list
+        idx_list = np.array(idx_list)
 
         # metrics
         if any([self.args.model == 'SST',
@@ -143,6 +147,16 @@ class BertGLUEEvaluator(object):
             precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
+
+            if any([self.args.model == 'RTE',
+                    self.args.model == 'MSR']):
+                if self.args.error is True:
+                    import pandas as pd
+                    result_df = pd.DataFrame({'pred': predicted_labels,
+                                              'target': target_labels,
+                                              'idx': idx_list})
+                    result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
+
             return accuracy, precision, recall, f1, avg_loss
 
         elif any([self.args.model == 'CoLA']):

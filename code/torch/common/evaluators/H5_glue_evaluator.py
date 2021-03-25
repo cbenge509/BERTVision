@@ -65,7 +65,7 @@ class H5_GLUE_Evaluator(object):
         self.model.eval()
 
         # store results
-        predicted_labels, target_labels = list(), list()
+        predicted_labels, target_labels, idx_list = list(), list(), list()
 
         # for each batch of data,
         self.logger.info(f"Generating metrics")
@@ -100,6 +100,7 @@ class H5_GLUE_Evaluator(object):
             # store y and y-hat
             predicted_labels.extend(pred.cpu().detach().numpy().flatten())
             target_labels.extend(labels.cpu().detach().numpy())
+            idx_list.extend(indices.cpu().detach().numpy())
 
             # loss metrics
             self.dev_loss += loss.item()
@@ -108,6 +109,9 @@ class H5_GLUE_Evaluator(object):
 
         # metrics
         predicted_labels, target_labels = np.array(predicted_labels), np.array(target_labels)
+        # get index list
+        idx_list = np.array(idx_list)
+
         avg_loss = self.dev_loss / self.nb_dev_steps
 
         if any([self.args.model == 'AP_SST',
@@ -124,6 +128,16 @@ class H5_GLUE_Evaluator(object):
             precision = metrics.precision_score(target_labels, predicted_labels, average='micro')
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
+
+            if any([self.args.model == 'AP_RTE',
+                    self.args.model == 'AP_MSR']):
+                if self.args.error is True:
+                    import pandas as pd
+                    result_df = pd.DataFrame({'pred': predicted_labels,
+                                              'target': target_labels,
+                                              'idx': idx_list})
+                    result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
+
             return accuracy, precision, recall, f1, avg_loss
 
         elif any([self.args.model == 'AP_CoLA']):

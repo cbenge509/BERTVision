@@ -133,7 +133,7 @@ if __name__ == '__main__':
       fn=train_fn,
       space=search_space,
       algo=tpe.suggest,
-      max_evals=100,
+      max_evals=200,
       trials=trials)
 
     # output argmin results
