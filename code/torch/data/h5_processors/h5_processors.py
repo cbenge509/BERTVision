@@ -37,7 +37,7 @@ class COLAH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'cola_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'cola_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'cola_idx.h5'
+        self.val_idx_path = self.file_path + 'cola_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train':
@@ -273,7 +273,7 @@ class MSRH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'msr_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'msr_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'msr_idx.h5'
+        self.val_idx_path = self.file_path + 'msr_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train' and self.shard == True:
@@ -394,7 +394,7 @@ class QNLIH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'qnli_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'qnli_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'qnli_idx.h5'
+        self.val_idx_path = self.file_path + 'qnli_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train' and self.shard == True:
@@ -515,7 +515,7 @@ class QQPH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'qqpairs_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'qqpairs_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'qqpairs_idx.h5'
+        self.val_idx_path = self.file_path + 'qqpairs_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train' and self.shard == True:
@@ -630,7 +630,7 @@ class RTEH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'rte_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'rte_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'rte_idx.h5'
+        self.val_idx_path = self.file_path + 'rte_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train':
@@ -813,7 +813,7 @@ class SSTH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'sst_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'sst_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'sst_idx.h5'
+        self.val_idx_path = self.file_path + 'sst_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train' and self.shard == True:
@@ -926,7 +926,7 @@ class STSBH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'stsb_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'stsb_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'stsb_idx.h5'
+        self.val_idx_path = self.file_path + 'stsb_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train':
@@ -1011,7 +1011,7 @@ class WNLIH5Processor(torch.utils.data.Dataset):
 
         self.val_embed_path = self.file_path + 'wnli_dev_bert_embeds.h5'
         self.val_label_path = self.file_path + 'wnli_dev_labels.h5'
-        self.val_idx_path = self.file_path + 'wnli_idx.h5'
+        self.val_idx_path = self.file_path + 'wnli_dev_idx.h5'
 
         # if train, initialize the train data
         if self.type == 'train':

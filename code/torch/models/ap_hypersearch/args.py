@@ -57,7 +57,11 @@ def get_args():
     parser.add_argument('--shard',
                         type=float,
                         default=0.10,
-                        help='Percentage of training set to sample from')    
+                        help='Percentage of training set to sample from')
+    parser.add_mutually_exclusive_group(required=False)
+    parser.add_argument('--error', dest='error', action='store_true')
+    parser.add_argument('--no-error', dest='error', action='store_false')
+    parser.set_defaults(feature=True)    
     args = parser.parse_args()
 
     return args

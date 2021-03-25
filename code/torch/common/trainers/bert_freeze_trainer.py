@@ -12,6 +12,7 @@ from tqdm.notebook import trange
 import numpy as np
 import copy
 
+
 class BertFreezeTrainer(object):
     '''
     This class handles the training of classification models with BERT
@@ -88,20 +89,22 @@ class BertFreezeTrainer(object):
         initial_weights = copy.deepcopy(self.model.state_dict())
 
         # retrieve a freeze value between 0 and 1
-        self.freeze_p = np.random.uniform(0.01, 0.99)
+        self.freeze_p = np.random.uniform(0.05, 0.95)
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
+        np.random.seed(seed=self.args.seed)
 
         # randomly find weights to take, but take in this condition
-        inject = ['intermediate.dense', 'output.dense']
-        reject = ['attention']
+        inject = self.args.inject
+        reject = self.args.reject
 
-        mask = {
+        # created mask to load weights
+        self.locked_masks = {
                         name: (
                             torch.tensor(np.random.choice([False, True],
                                                           size=torch.numel(weight),
-                                                          p=[(1-self.freeze_p), self.freeze_p])
+                                                          p=[self.freeze_p, (1-self.freeze_p)])
                                          .reshape(weight.shape))
 
                             if any(weight in name for weight in inject)
@@ -126,15 +129,14 @@ class BertFreezeTrainer(object):
         for key, value in initial_weights.items():
             # add the key
             result[key] = []
-            # get current shape to reshape later
-            current_shape = initial_weights[key].shape
             # if True, replace initial value with trained value
-            result[key] = initial_weights[key].cuda().where(mask[key].cuda(), trained_weights[key].cuda())
+            result[key] = initial_weights[key].cuda().where(self.locked_masks[key].cuda(), trained_weights[key].cuda())
 
         # load the model with the new mix of weights
         self.model.load_state_dict(result)
 
     def train_epoch(self, train_dataloader):
+
         # set the model to train
         self.model.train()
         # pull data from data loader
