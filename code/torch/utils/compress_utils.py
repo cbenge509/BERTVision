@@ -47,11 +47,12 @@ class TimeDistributed(nn.Module):
          Else, x is (timesteps, samples, output_size)
    """
 
-    def __init__(self, n_tokens, n_features, batch_first=True):
+    def __init__(self, n_tokens, n_features, adapter_dim, batch_first=True):
         super(TimeDistributed, self).__init__()
         self.n_tokens = n_tokens
         self.n_features = n_features
-        self.module =  torch.nn.Linear(self.n_features, self.n_tokens)
+        self.adapter_dim = adapter_dim
+        self.module =  torch.nn.Linear(self.n_features, self.adapter_dim)
         self.batch_first = batch_first
 
     def forward(self, x):
@@ -89,15 +90,16 @@ class AdapterPooler(torch.nn.Module):
         A tensor containing embeddings with the following
         dimensions: [batch_sz, tokens, tokens, layers]
     '''
-    def __init__(self, layers, batch_sz, tokens, features, shared_weights=True):
+    def __init__(self, layers, batch_sz, tokens, features, adapter_dim, shared_weights=True):
         super(AdapterPooler, self).__init__()
         self.GELU = torch.nn.GELU()
         self.n_layers = layers
         self.n_batch_sz = batch_sz
         self.n_tokens = tokens
         self.n_features = features
+        self.adapter_dim = adapter_dim
         if shared_weights:
-            self.pooler_layer = TimeDistributed(self.n_tokens, self.n_features)
+            self.pooler_layer = TimeDistributed(self.n_tokens, self.n_features, self.adapter_dim)
         else:
             raise NotImplementedError
 
@@ -113,9 +115,9 @@ class AdapterPooler(torch.nn.Module):
         # apply GELU
         x = self.GELU(x)
         # move axis
-        x = x.permute(0, 2, 1)  # [tokens*batch_sz, tokens, layers]
+        x = x.permute(0, 2, 1)  # [tokens*batch_sz, embedding_size, layers]
         # reshape
-        x = torch.reshape(x, shape=(-1, self.n_tokens, self.n_tokens, self.n_layers))
+        x = torch.reshape(x, shape=(-1, self.n_tokens, self.adapter_dim, self.n_layers))
         return x  # [batch_sz, tokens, tokens, layers]
 
 
@@ -152,23 +154,24 @@ class AP_GLUE(torch.nn.Module):
         Data emitted from H5 Processor is shape:
         [batch_sz, layers, tokens, features]
     '''
-    def __init__(self, n_layers, n_batch_sz, n_tokens, n_features, n_labels):
+    def __init__(self, n_layers, n_batch_sz, n_tokens, n_features, n_labels, adapter_dim):
         super(AP_GLUE, self).__init__()
         self.n_layers = n_layers
         self.n_batch_sz = n_batch_sz
         self.n_tokens = n_tokens
         self.n_features = n_features
         self.num_labels = n_labels
-        self.AP1 = AdapterPooler(self.n_layers, self.n_batch_sz, self.n_tokens, self.n_features)
-        self.linear1 = torch.nn.Linear(self.n_tokens*self.n_tokens*self.n_layers, self.num_labels)
+        self.adapter_dim = adapter_dim
+        self.AP1 = AdapterPooler(self.n_layers, self.n_batch_sz, self.n_tokens, self.n_features, self.adapter_dim)
+        self.linear1 = torch.nn.Linear(self.n_tokens*self.adapter_dim*self.n_layers, self.num_labels)
         return None
 
     def forward(self, x):
         x = self.AP1(x)  # yields [batch_sz, tokens, tokens, layers]
         # reshape to [batch_sz, tokens, tokens*layers]
-        x = torch.reshape(x, shape=(-1, self.n_tokens, self.n_tokens*self.n_layers))
+        x = torch.reshape(x, shape=(-1, self.n_tokens, self.adapter_dim*self.n_layers))
         # reshape again to combine dimensions
-        x = x.view(-1, self.n_tokens*self.n_tokens*self.n_layers)  # [batch_sz, tokens*tokens*layers]
+        x = x.view(-1, self.n_tokens*self.adapter_dim*self.n_layers)  # [batch_sz, tokens*tokens*layers]
         # output layer
         x = self.linear1(x)  # [batch_sz, num_labels]
         return x

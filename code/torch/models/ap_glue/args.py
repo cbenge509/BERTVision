@@ -26,6 +26,10 @@ def get_args():
                         default=219,
                         type=int,
                         help='Tokenization max length')
+    parser.add_argument('--adapter-dim',
+                        default = 0,
+                        type = int,
+                        help = 'Adapter Pooler dimension length')
     parser.add_argument('--save-path',
                         type=str,
                         default=os.path.join('model_checkpoints'))
@@ -51,7 +55,7 @@ def get_args():
     parser.add_mutually_exclusive_group(required=False)
     parser.add_argument('--error', dest='error', action='store_true')
     parser.add_argument('--no-error', dest='error', action='store_false')
-    parser.set_defaults(feature=True)    
+    parser.set_defaults(feature=True)
     args = parser.parse_args()
 
     return args
