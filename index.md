@@ -327,7 +327,7 @@ python squad_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length
 python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
 ```
 
-The BERTVision paper has been published, and is yadda yadda yadda... :
+# Read the Paper
 
-**[BERTVision: A Parameter-Efficient Approach for BERT-based NLP Tasks](./paper/BERTVision_2020.pdf)**
+To read the full paper, please direction your attention to : **[BERTVision: A Parameter-Efficient Approach for BERT-based NLP Tasks](./paper/BERTVision_2020.pdf)**
 
