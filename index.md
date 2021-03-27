@@ -1,4 +1,5 @@
-<img src="./images/bertvision.png" align="center" />
+<center><img src="./images/bertvision.png" align="center" /></center>
+<br>
 
 # Introduction to BERTVision
 
@@ -14,7 +15,8 @@ Training data for BERTVision is provided by extraction of the embeddings modestl
 
 **Depicted below: extraction of data for Span Annotation Task**
 
-<img src="./images/Data_Pipeline_Span_Annotation.png" width=1024 align="center" />
+<center><img src="./images/Data_Pipeline_Span_Annotation.png" align="center" /></center>
+<br>
 
 ---
 
@@ -31,7 +33,8 @@ BERT embeddings from all encoder layers are first transformed through our custom
 
 Our development and experiementation was performed in an Infrastructure-as-a-Service topology consisting of two NVIDIA Tesla V100 GPU-backed virtual machines in the Microsoft Azure cloud.  Data was stored on virtually attached SSD's utilizing approximately 20TiB combined.  Our development enviornment consisted of Python v3.8.5, TensorFLow v2.4.1, and PyTorch v1.7.1. Visualization support was provided primarily through the Altair v4.1.0 and Plotly v4.14.3 libraries, and all documentation was managed through LaTeX.  Azure DevOps (Boards) and GitHub (repositories) were used to managed project and code, respectively.
 
-<img src="./images/BERTVision_development_pipeline.png" />
+<center><img src="./images/BERTVision_development_pipeline.png" width=2048 align="center"/></center>
+<br>
 
 ---
 
