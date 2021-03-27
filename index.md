@@ -96,7 +96,7 @@ The table below displays the commonly recommended general hyperparameters for ea
 | `--batch-size`    | 32   | 32   | 32  | 16  | 32  | 32  | 16   | 16    |
 | `--max-seq-length`| 128  | 128  | 128 | 250 | 128 | 128 | 128  | 128   |
 
-### Results Table : BERT$_{base}$ & BERT$_{large}$ vs. BERTVision (All Tasks)
+### Results Table : BERT-(base/large} vs. BERTVision (All Tasks)
 
 <img src="./images/bert_base_vs_bertvision.png"/>
 
