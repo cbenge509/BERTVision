@@ -100,217 +100,232 @@ The table below displays the commonly recommended general hyperparameters for ea
 
 <img src="./images/bert_base_vs_bertvision.png"/>
 
+In the following sections we outline the individual results per NLP task and provide the code required to replicate our results:
 
-
-### Results : SQuAD 2.0
-
-To replicate our results, please run the follow commands from `BERTVision\code\torch`:
-
-```bash
-python -m models.bert --dataset SQuAD --model bert-base-uncased --num-workers 4 
-    --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0
-python -m models.adapter_pooler --dataset SQuADH5 --model AP --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 2e-5 --l2 1.0`
-```
-
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>70.3950</td><td>73.5724</td>
-    </tr> 
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>70.0581</td><td>73.3558</td>
-    </tr>
-</table>
-
-### Results (GLUE) : SST-2
+## GLUE Tasks
+### Results : QQP
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.sst --dataset SST --model SST --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_sst --dataset SSTH5 --model ap_sst --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5`
+python -m models.bert_glue --model QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+
+python -m models.bert_glue --model QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.91628</td><td>0.91628</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.9128</td><td>0.9128</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Accuracy**  | 0.8890    | 0.8690     | 0.8860          | 0.8970           |
 
-### Results (GLUE) : MSR
-To replicate our results, please run the follow commands from `BERTVision\code\torch`:
-
-```bash
-python -m models.msr --dataset MSR --model msr --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
-python -m models.ap_msr --dataset MSRH5 --model ap_msr --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 3e-5 --l2 1.0
-```
-
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.75188</td><td>NA</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.7820</td><td>0.7820</td>
-    </tr>
-</table>
-
-### Results (GLUE) : RTE
+### Results : QNLI
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.rte --dataset RTE --model RTE --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_rte --dataset RTEH5 --model ap_rte --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.bert_glue --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QNLI --checkpoint bert-base-uncased --lr 2.0021e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 770
+
+python -m models.bert_glue --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.5848</td><td>0.5848</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.6354</td><td>0.6354</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Accuracy**  | 0.9010    | 0.9120     | 0.8920          | 0.9100           |
 
-### Results (GLUE) : QNLI
+### Results : MNLI
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.qnli --dataset qnli --model qnli --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_qnli --dataset QNLIH5 --model ap_qnli --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.bert_glue --model MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+
+python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.9078</td><td>NA</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.8948</td><td>0.8948</td>
-    </tr>
-</table>
+|                         | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:------------------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Matched Accuracy**     | 0.8240    | 0.8530     | 0.8220          | 0.8490           |
+|**Mismatched Accuracy**  | 0.8290    | 0.8510     | 0.8290          | 0.8500           |
 
-### Results (GLUE) : QQPairs
+### Results : RTE
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.qqpairs --dataset QQPairs --model QQPairs --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_qqpairs --dataset QQPairs --model ap_qqpairs --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.2220e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 600
+python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 0.0003593259178474023 --num-labels 2 --max-seq-length 250 --adapter-dim 8 --batch-size 16 --seed 926
+
+python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 8.3621e-6 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 244
+python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2614e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 414
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Acc.</th><th>Dev. F1</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.8962</td><td>NA</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.8963</td><td>0.8963</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Accuracy**  | 0.6570    | 0.6640     | 0.7260          | 0.5920           |
 
-### Results (GLUE) : STSB
+### Results : SST
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.stsb --dataset STSB --model STSB --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_stsb --dataset STSBH5 --model ap_stsb --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.bert_glue --model SST --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_SST --checkpoint bert-base-uncased --lr 0.0009739884755578448 --num-labels 2 --max-seq-length 128 --adapter-dim 32 --batch-size 64 --seed 1788
+
+python -m models.bert_glue --model SST --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Pearson.</th><th>Spearman</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.84533</td><td>0.84609</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.8571</td><td>0.8568</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Accuracy**  | 0.9200    | 0.9330     | 0.9270          | 0.9290           |
 
-### Results (GLUE) : COLA
+### Results : MSR
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.cola --dataset COLA --model COLA --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
-python -m models.ap_cola --dataset COLAH5 --model ap_cola --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.4380e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 734
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 0.0007591458513071305 --num-labels 2 --max-seq-length 128 --adapter-dim 16 --batch-size 16 --seed 926
+
+python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.2771e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 158
+python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.4399e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 465
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Matthews</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.5131</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.5408</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Accuracy**  | 0.8280    | 0.7680     | 0.8400          | 0.8370           |
 
-### Results (GLUE) : MNLI
+### Results : CoLA
 
 To replicate our results, please run the follow commands from `BERTVision\code\torch`:
 
 ```bash
-python -m models.mnli --dataset MNLI --model MNLI --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
-python -m models.ap_mnli --dataset MNLIH5 --model ap_mnli --num-workers 0 
-    --batch-size 16 --epochs 1 --lr 1e-5 --l2 1.0
+python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 9.6296e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 441
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.25972e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 563
+
+python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 9.4471e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 203
+python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2.99619e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 949
 ```
 
-<table>
-    <tr>
-        <th>Model</th><th>Epoch</th><th>Batch Size</th><th>L2</th><th>Dev. Matched</th><th>Dev. Mismatched</th>
-    </tr>
-    <tr>
-        <td>BERT-base</td><td>1</td><td>16</td><td>1.0</td><td>0.8304</td><td>0.8348</td>
-    </tr>
-    <tr>
-        <td>BERTVision</td><td>1</td><td>16</td><td>1.0</td><td>0.8287</td><td>0.8303</td>
-    </tr>
-</table>
+|              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:-------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Matthews**  | 0.5650    | 0.5960     | 0.6000          | 0.4320           |
 
+### Results : STS-B
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```bash
+python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 1.86524e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 637
+python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.7762e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 260
+
+python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 7.1099e-6 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 701
+python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.98363e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 131
+```
+
+|                | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:---------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Pearson**     | 0.8880    | 0.8940     | 0.8620          | 0.8800           |
+|**Spearman**    | 0.8860    | 0.8910     | 0.8590          | 0.8790           |
+
+## SQuAD v2.0
+
+To replicate our results, please run the follow commands from `BERTVision\code\torch`:
+
+```bash
+python -m models.bert_squad --model SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+python -m models.ap_squad --model AP_SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+
+python -m models.bert_squad --model SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+python -m models.ap_squad --model AP_SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+```
+
+### Results : SQuAD
 ---
 
-# Read the Paper
+|                   | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
+|:------------------|:---------:|:----------:|:---------------:|:----------------:|
+|**Exact Match**    | 0.6941    | 0.7758     | 0.7010          | 0.7696           |
+|**F1**             | 0.7257    | 0.8058     | 0.7342          | 0.8027           |
+
+# Replication of Embeddings
+
+The BERTVision architecture relies on the generation of embeddings from the hidden-state activations within BERT to form a training and inference dataset.  The code to replicate our results and generate these embeddings is provided in the following subsection.  Please note that these embeddings will require several TiB of available disk space to generate and store.
+
+## GLUE
+
+To replicate our AdapterPooler models, you must first output 1-epoch fine-tuned BERT embeddings. The commands below will fine tune BERT, generate the embeddings, and should be run from the following directory `BERTVision\code\torch\gen_embeds`:
+### QQP Embeddings
+
+```bash
+python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python qqpairs_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+```
+
+### QNLI Embeddings
+
+```bash
+python qnli_embeds.py --model QNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python qnli_embeds.py --model QNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+```
+
+### MNLI Embeddings
+
+```bash
+python mnli_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+```
+
+### STS-B Embeddings
+
+```bash
+python stsb_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+python stsb_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 1 --max-seq-length 128 --batch-size 16
+```
+
+### CoLA Embeddings
+
+```bash
+python cola_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+python cola_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 16
+```
+
+### MSR Embeddings
+
+```bash
+python msr_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python msr_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+```
+
+### SST Embeddings
+
+```bash
+python sst_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python sst_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+```
+
+### RTE Embeddings
+
+```bash
+python rte_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+python rte_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 250 --batch-size 16
+```
+
+## SQuAD v2.0
+
+To replicate our AdapterPooler models, you must first output 1-epoch fine-tuned BERT embeddings. The commands below will fine tune BERT, generate the embeddings, and should be run from the following directory `BERTVision\code\torch\gen_embeds`:
+
+### SQuAD Embeddings
+
+```bash
+python squad_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16
+python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+```
 
 The BERTVision paper has been published, and is yadda yadda yadda... :
 
