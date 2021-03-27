@@ -72,11 +72,34 @@ The format of the GLUE benchmark is model-agnostic, so any system capable of pro
 
 # Our Results
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+### Hyperparameter Searching
+
+We use `hyperopt` to search over parameters and tune our models. We find that the smaller data sets are far more sensitive to tuning than the larger ones. To replicate our tuning processes, please use the following commands:
+
+```bash
+python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 32 --num-labels 2 --max-seq-length 128
+python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 128
+```
+
+For large data sets, e.g., MNLI, QNLI, QQP, and SST, data set sharding is enabled automatically, which randomly samples 10% of the data set to train on to speed up the parameter search. shard is manipulable and can be set by:
+
+```bash
+python -m models.ap_hypersearch --model AP_QQP --checkpoint bert-base-uncased --batch-size 32 --num-labels 2 --max-seq-length 128 --shard 0.
+```
+
+The table below displays the commonly recommended general hyperparameters for each GLUE task. The BERTVision embeddings were generated based on these parameters:
+
+| BERT-(base/large) | MNLI | QNLI | QQP | RTE | SST | MSR | CoLA | STS-B |
+|:------------------|:-----|:-----|:----|:----|:----|:----|:-----|:------|
+| `--num-labels`    | 3    | 2    | 2   | 2   | 2   | 2   | 2    | 1     |
+| `--lr`            | 1e-5 | 1e-5 | 1e-5|2e-5 | 2e-5|2e-5 | 2e-5 | 2e-5  |
+| `--batch-size`    | 32   | 32   | 32  | 16  | 32  | 32  | 16   | 16    |
+| `--max-seq-length`| 128  | 128  | 128 | 250 | 128 | 128 | 128  | 128   |
+
+### Results Table : BERT$_{base}$ & BERT$_{large}$ vs. BERTVision (All Tasks)
 
 <img src="./images/bert_base_vs_bertvision.png"/>
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 
 ### Results : SQuAD 2.0
