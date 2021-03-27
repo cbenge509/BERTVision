@@ -121,7 +121,7 @@ To replicate our results, please run the follow commands from `BERTVision\code\t
 
 ```
 python -m models.bert_glue --model SST --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
-python -m models.ap_glue --model AP_SST --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_SST --checkpoint bert-base-uncased --lr 0.0009739884755578448 --num-labels 2 --max-seq-length 128 --adapter-dim 32 --batch-size 64 --seed 1788
 
 python -m models.bert_glue --model SST --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
 python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
@@ -129,7 +129,7 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 2e-
 
 |BERT-base SST | BERT-large SST | BERTVision-base SST |  BERTVision-large SST |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.920</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.933</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.922</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.929</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.920</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.933</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.927</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.929</td></tr></table>|
 
 ### MSR
 
