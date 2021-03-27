@@ -10,7 +10,9 @@ All models were trained on the hidden embedding activation states of BERT-base a
 
 ### How it Works: Data Pipeline
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Training data for BERTVision is provided by extraction of the embeddings modestly updated within BERT during partial fine-tuning (i.e. fine-tuning using a small fraction of the data).  After partial fine-tuning, the entire training set is inferenced through BERT and embedding values are collected for each sample in the shape of $(386,1024,25)$ for SQuAD (and similar for GLUE) - much like an image represetened in the shape of $(H,W,C)$.  These training "images" are then fit to a much smaller model using our AdapterPooler technique, and are reduced along the depth dimension using a simple linear pooling technique adapted from [Tenney et. al](https://arxiv.org/pdf/1905.05950.pdf)'s *edge probing* method.
+
+**Depicted below: extraction of data for Span Annotation Task**
 
 <img src="./images/Data_Pipeline_Span_Annotation.png" />
 
@@ -18,7 +20,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ### How it Works: Model Architecture
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+BERT embeddings from all encoder layers are first transformed through our customer adapter layer (referred to as *LayerWeightShare* in the paper).  Next, the last two dimensions output from the adapter are flattened, and a residual skip connection to the original input is combined with them before being projected down for final inferencing.  Depicted below is the architecture for the span annotation task; the tensor is projected down to a size of $(386,2)$ with a densely connected layer and split on the last axis into two model heads.  These represent the logits of the start-span and end-span position for the span annotation task; for other tasks, the output sequence varies depending on the task goal.
 
 <center><img src="./images/BERTVision_QA_Model.png" width=400 align="center" /></center>
 <br>
@@ -27,7 +29,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ### How it Works: Model Development & Training
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Our development and experiementation was performed in an Infrastructure-as-a-Service topology consisting of two NVIDIA Tesla V100 GPU-backed virtual machines in the Microsoft Azure cloud.  Data was stored on virtually attached SSD's utilizing approximately 20TiB combined.  Our development enviornment consisted of Python $v3.8.5$, TensorFLow $v2.4.1$, and PyTorch $v1.7.1$. Visualization support was provided primarily through the Altair $v4.1.0$ and Plotly $v4.14.3$ libraries, and all documentation was managed through $\LaTeX$.  Azure DevOps (Boards) and GitHub (repositories) were used to managed project and code, respectively.
 
 <img src="./images/BERTVision_development_pipeline.png" />
 
