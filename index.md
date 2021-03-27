@@ -1,4 +1,4 @@
-<img src="./images/bertvision.png" />
+<img src="./images/bertvision.png" align="center" />
 
 # Introduction to BERTVision
 
@@ -14,7 +14,7 @@ Training data for BERTVision is provided by extraction of the embeddings modestl
 
 **Depicted below: extraction of data for Span Annotation Task**
 
-<img src="./images/Data_Pipeline_Span_Annotation.png" />
+<img src="./images/Data_Pipeline_Span_Annotation.png" width=1024 align="center" />
 
 ---
 
@@ -22,7 +22,7 @@ Training data for BERTVision is provided by extraction of the embeddings modestl
 
 BERT embeddings from all encoder layers are first transformed through our customer adapter layer (referred to as *LayerWeightShare* in the paper).  Next, the last two dimensions output from the adapter are flattened, and a residual skip connection to the original input is combined with them before being projected down for final inferencing.  Depicted below is the architecture for the span annotation task; the tensor is projected down to a size of (386,2) with a densely connected layer and split on the last axis into two model heads.  These represent the logits of the start-span and end-span position for the span annotation task; for other tasks, the output sequence varies depending on the task goal.
 
-<center><img src="./images/BERTVision_QA_Model.png" width=400 align="center" /></center>
+<center><img src="./images/BERTVision_QA_Model.png" align="center" /></center>
 <br>
 
 ---
