@@ -66,7 +66,7 @@ The format of the GLUE benchmark is model-agnostic, so any system capable of pro
 | [MSR](https://www.microsoft.com/en-us/download/details.aspx?id=52398) | Microsoft Research Paraphrase Corpus | Paraphrase | Accuracy, F1 | ~4k |
 | [STS-B](https://www.aclweb.org/anthology/S17-2001) | Semantic Textual Similarity Benchmark | Sentence Similarity | Pearson / Spearman | ~7k |
 | [QQPairs](https://www.quora.com/q/quoradata/First-Quora-Dataset-Release-Question-Pairs) | Quora Question Pairs | Paraphrase | Accuracy, F1 | ~400k |
-| [MNLI](https://www.nyu.edu/projects/bowman/multinli/) | Multi-Genre Natural Language Inference Corpus | Natural Language Inference | Accuracy | . |
+| [MNLI](https://www.nyu.edu/projects/bowman/multinli/) | Multi-Genre Natural Language Inference Corpus | Natural Language Inference | Accuracy | ~393k |
 | [QNLI](https://rajpurkar.github.io/SQuAD-explorer/) | SQuAD dataset | QA / NLI | Accuracy | ~110k |
 | [RTE](https://aclweb.org/aclwiki/Textual_Entailment_Resource_Pool) | Recognizing Textual Entailment | Natural Language Inference | Accuracy | ~3k |
 | [WNLI](https://cs.nyu.edu/faculty/davise/papers/WinogradSchemas/WS.html) | Winnograd Natural Lanugage Inference | Natural Language Inference | Accuracy | ~1k |
