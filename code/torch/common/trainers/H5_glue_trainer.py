@@ -155,6 +155,7 @@ class H5_GLUE_Trainer(object):
                 self.train_epoch(self.criterion, train_dataloader)
                 # get metrics
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
+                self.dev_acc = dev_acc
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
@@ -180,6 +181,7 @@ class H5_GLUE_Trainer(object):
                 self.train_epoch(self.criterion, train_dataloader)
                 # get metrics
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_matched')
+                self.dev_acc = dev_acc
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
@@ -200,6 +202,7 @@ class H5_GLUE_Trainer(object):
 
                 # get metrics
                 dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev_mismatched')
+                self.dev_acc = dev_acc
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
@@ -251,6 +254,7 @@ class H5_GLUE_Trainer(object):
 
                 # get metrics
                 matthews, dev_loss = H5_GLUE_Evaluator(self.model, self.criterion, self.processor, self.args, self.logger).get_loss(type='dev')
+                self.dev_acc = matthews
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)

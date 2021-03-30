@@ -433,7 +433,7 @@ def main():
                                                           num_labels=args.num_labels,
                                                           output_hidden_states=True).to(device)
     # load weights from 1 epoch
-    model.load_state_dict(torch.load(checkpoint_location + args.name + '_epoch_1.pt'))
+    model.load_state_dict(torch.load(checkpoint_location + args.name + '_epoch_1_original.pt'))
 
     # export embeddings
     emit_train_embeddings(train_embed_dataloader, train_ds, model, device, args)

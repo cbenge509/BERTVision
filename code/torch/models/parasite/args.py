@@ -53,15 +53,19 @@ def get_args():
                         default = 'data.json',
                         help = "File name of results")
     #parser.add_argument('--seed',
-    #                    type = int,
-    #                    default = None,
-    #                    help = "random seed")
+#                        type = int,
+#                        default = None,
+                        #help = "random seed"
+#                        )
     parser.add_argument('--max-layers',
                         type = int,
                         default = 20)
     parser.add_argument('--freeze',
                         type = int,
                         default = 1)
+    parser.add_argument('--specific-layer',
+                        type = int,
+                        default = None)
     args = parser.parse_args()
 
     return args

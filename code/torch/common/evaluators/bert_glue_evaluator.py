@@ -43,7 +43,7 @@ class BertGLUEEvaluator(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, processor, args, logger):
+    def __init__(self, model, processor, args, logger, standalone_eval = False):
         # init training objects
         self.args = args
         self.model = model
@@ -55,6 +55,8 @@ class BertGLUEEvaluator(object):
         self.nb_dev_steps = 0
         self.nb_dev_examples = 0
 
+        self.standalone_eval = standalone_eval
+
     def get_loss(self, type):
         '''
         This function prepares the data and handles the validation set testing.
@@ -65,7 +67,8 @@ class BertGLUEEvaluator(object):
         self.dev_examples = self.processor(type=self.type, transform=Tokenize_Transform(self.args, self.logger))
 
         # declare progress
-        self.logger.info(f"Initializing {self.args.model}-dev with {self.args.max_seq_length} token length")
+        if not self.standalone_eval:
+            self.logger.info(f"Initializing {self.args.model}-dev with {self.args.max_seq_length} token length")
 
         # craete dev set data loader
         dev_dataloader = DataLoader(self.dev_examples,
