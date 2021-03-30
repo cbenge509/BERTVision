@@ -120,7 +120,7 @@ python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.8890    | 0.8690     | 0.8860          | 0.8970           |
+|**Accuracy**  | 0.8962    | 0.8963     | 0.8860          | 0.8970           |
 
 ### Results : QNLI
 
@@ -136,7 +136,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.9010    | 0.9120     | 0.8920          | 0.9100           |
+|**Accuracy**  | 0.9018    | 0.9073     | 0.8920          | 0.9100           |
 
 ### Results : MNLI
 
@@ -152,8 +152,8 @@ python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e
 
 |                         | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:------------------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Matched Accuracy**     | 0.8240    | 0.8530     | 0.8220          | 0.8490           |
-|**Mismatched Accuracy**  | 0.8290    | 0.8510     | 0.8290          | 0.8500           |
+|**Matched Accuracy**     | 0.8231    | 0.8519     | 0.8220          | 0.8490           |
+|**Mismatched Accuracy**  | 0.8328    | 0.8513     | 0.8290          | 0.8500           |
 
 ### Results : RTE
 
@@ -169,7 +169,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.6570    | 0.6640     | 0.7260          | 0.5920           |
+|**Accuracy**  | 0.6390    | 0.5307     | 0.6354          | 0.5920           |
 
 ### Results : SST
 
@@ -185,7 +185,7 @@ python -m models.ap_glue --model AP_SST --checkpoint bert-large-uncased --lr 2e-
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.9200    | 0.9330     | 0.9270          | 0.9290           |
+|**Accuracy**  | 0.9266    | 0.9289     | 0.9270          | 0.9290           |
 
 ### Results : MSR
 
@@ -201,7 +201,7 @@ python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.4
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.8280    | 0.7680     | 0.8400          | 0.8370           |
+|**Accuracy**  | 0.8203    | 0.7635     | 0.8400          | 0.8370           |
 
 ### Results : CoLA
 
@@ -217,7 +217,7 @@ python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2.
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Matthews**  | 0.5650    | 0.5960     | 0.6000          | 0.4320           |
+|**Matthews**  | 0.5337    | 0.2067     | 0.6000          | 0.4320           |
 
 ### Results : STS-B
 
@@ -233,8 +233,8 @@ python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.
 
 |                | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:---------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Pearson**     | 0.8880    | 0.8940     | 0.8620          | 0.8800           |
-|**Spearman**    | 0.8860    | 0.8910     | 0.8590          | 0.8790           |
+|**Pearson**     | 0.8736    | 0.8623     | 0.8620          | 0.8800           |
+|**Spearman**    | 0.8685    | 0.8618     | 0.8590          | 0.8790           |
 
 ## SQuAD v2.0
 
