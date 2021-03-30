@@ -143,7 +143,7 @@ if __name__ == '__main__':
 
     # minimize the objective over the space
     from hyperopt import fmin, tpe
-    best = fmin(objective, space, algo=tpe.suggest, max_evals=int(24 * 60 * 60 / (4 * 60*60)))
+    best = fmin(objective, space, algo=tpe.suggest, max_evals=8 * 60 * 60 / 60)
 
     print (best)
 

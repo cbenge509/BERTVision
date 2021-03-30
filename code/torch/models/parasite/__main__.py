@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # tell the CLI user that they mistyped the data set
     if args.model not in dataset_map:
         raise ValueError('Unrecognized dataset')
-
+    args.error = False
     # set the location for saving the model
     save_path = os.path.join(args.save_path, args.checkpoint, args.model)
     os.makedirs(save_path, exist_ok=True)
@@ -77,9 +77,11 @@ if __name__ == '__main__':
     num_train_optimization_steps = int(len(train_processor) / args.batch_size) * args.epochs
 
     # instantiate model and attach it to device
+    print("specific layer:", args.specific_layer)
     model = MultiNNLayerParasiteLearnedBERT(token_size = args.max_seq_length,
                                             freeze_bert = bool(args.freeze),
                                             max_layers = args.max_layers,
+                                            specific_layer = args.specific_layer,
                                             #BERT_model = r'C:\BERTVision\code\torch\model_checkpoints\bert-base-uncased\MSR\MSR_1epoch.pt',
                                             ).to(device)
     trainable = 0
@@ -120,7 +122,7 @@ if __name__ == '__main__':
     #constant scheduler
     scheduler = get_constant_schedule_with_warmup(optimizer, num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
     # initialize the trainer
-    trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
+    trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger, save = False)
     # begin training / shift to trainer class
     trainer.train()
     # load the checkpoint

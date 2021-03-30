@@ -49,7 +49,7 @@ class BertGLUETrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger):
+    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger, save = True):
         # pull in objects
         self.args = args
         self.model = model
@@ -58,6 +58,7 @@ class BertGLUETrainer(object):
         self.scheduler = scheduler
         self.scaler = scaler
         self.logger = logger
+        self.save = save
 
         # specify training data set
         self.train_examples = self.processor(type='train', transform=Tokenize_Transform(self.args, self.logger))
@@ -172,7 +173,8 @@ class BertGLUETrainer(object):
                 if dev_acc > self.dev_acc:
                     self.unimproved_iters = 0
                     self.dev_acc = dev_acc
-                    torch.save(self.model, self.snapshot_path)
+                    if self.save:
+                        torch.save(self.model, self.snapshot_path)
 
                 else:
                     # stop training with early stopping
@@ -197,7 +199,8 @@ class BertGLUETrainer(object):
                 if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
                     self.dev_loss = dev_loss
-                    torch.save(self.model, self.snapshot_path)
+                    if self.save:
+                        torch.save(self.model, self.snapshot_path)
 
                 else:
                     # stop training with early stopping
@@ -222,7 +225,8 @@ class BertGLUETrainer(object):
                 if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
                     self.dev_loss = dev_loss
-                    torch.save(self.model, self.snapshot_path)
+                    if self.save:
+                        torch.save(self.model, self.snapshot_path)
 
                 else:
                     # stop training with early stopping
@@ -246,7 +250,8 @@ class BertGLUETrainer(object):
                 if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
                     self.dev_loss = dev_loss
-                    torch.save(self.model, self.snapshot_path)
+                    if self.save:
+                        torch.save(self.model, self.snapshot_path)
                 else:
                     # stop training with early stopping
                     self.unimproved_iters += 1
@@ -265,7 +270,8 @@ class BertGLUETrainer(object):
                 if dev_loss < self.dev_loss:
                     self.unimproved_iters = 0
                     self.dev_loss = dev_loss
-                    torch.save(self.model, self.snapshot_path)
+                    if self.save:
+                        torch.save(self.model, self.snapshot_path)
 
                 else:
                     # stop training with early stopping

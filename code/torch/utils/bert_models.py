@@ -176,10 +176,12 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
                        bert_model = 'bert-base-uncased',
                        freeze_bert = True,
                        max_layers = 20,
-                       BERT_model = None):
+                       BERT_model = None,
+                       specific_layer = None):
         super(MultiNNLayerParasiteLearnedBERT, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
         self.max_layers = max_layers
+        self.specific_layer = specific_layer
 
         if bert_model == 'bert-base-uncased':
             hidden_state_size = 768
@@ -249,7 +251,11 @@ class MultiNNLayerParasiteLearnedBERT(nn.Module):
 
         for i in range(len(self.parasites)):
             p = self.parasites[i]
-            encoder = self.encoder_layers[0] #switch this to i
+
+            if self.specific_layer is not None:
+                encoder = self.encoder_layers[int(self.specific_layer)] #switch this to i
+            else:
+                encoder = self.encoder_layers[i]
 
             if self.max_layers != 0:
                 if i == 0:

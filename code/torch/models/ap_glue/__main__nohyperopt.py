@@ -17,6 +17,8 @@ from torch.nn import MSELoss
 if __name__ == '__main__':
     # set default configuration in args.py
     args = get_args()
+    if args.adapter_dim == 0:
+        args.adapter_dim = args.max_seq_length
 
     # add some configs depending on checkpoint chosen
     if args.checkpoint == 'bert-base-uncased':
@@ -78,7 +80,7 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(args.seed)
 
     # instantiate model and attach it to device
-    model = AP_GLUE(n_layers=args.n_layers, n_batch_sz=args.batch_size, n_tokens=args.max_seq_length, n_features=args.n_features, n_labels=args.num_labels).to(device)
+    model = AP_GLUE(n_layers=args.n_layers, n_batch_sz=args.batch_size, n_tokens=args.max_seq_length, n_features=args.n_features, n_labels=args.num_labels, adapter_dim = args.adapter_dim).to(device)
     # set data set processor
     processor = dataset_map[args.model]
     # use it to create the train set
