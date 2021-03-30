@@ -169,7 +169,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.6390    | 0.5307     | 0.6354          | 0.5920           |
+|**Accuracy**  | 0.6390    | 0.5307     | 0.7260          | 0.5920           |
 
 ### Results : SST
 
