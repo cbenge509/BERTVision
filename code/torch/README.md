@@ -79,7 +79,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |BERT-base QNLI | BERT-large QNLI | BERTVision-base QNLI |  BERTVision-large QNLI |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.901</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.912</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.903</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.910</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.901</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.912</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.9032</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.910</td></tr></table>|
 
 ### MNLI
 
@@ -113,7 +113,7 @@ python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2
 
 |BERT-base RTE | BERT-large RTE | BERTVision-base RTE |  BERTVision-large RTE |
 |--|--|--|--|
-|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.657</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.664</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.726</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.592</td></tr></table>|
+|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.657</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.664</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.7256</td></tr></table>|<table><tr><th>Dev. Accuracy</th></tr><tr><td>0.592</td></tr></table>|
 
 ### SST
 
