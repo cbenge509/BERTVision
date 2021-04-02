@@ -21,12 +21,6 @@ class H5SearchTrainer(object):
     model : object
         A HuggingFace Classification BERT transformer
 
-    tokenizer: object
-        A HuggingFace tokenizer that fits the HuggingFace transformer
-
-    optimizer: object
-        A compatible Torch optimizer
-
     processor: object
         A Torch Dataset processor that emits data
 

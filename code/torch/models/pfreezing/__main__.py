@@ -12,10 +12,10 @@ from transformers import BertTokenizerFast, BertForSequenceClassification, AdamW
 from torch.cuda.amp import GradScaler
 from loguru import logger
 import pickle as pkl
-
+import gc
 
 # main fun.
-def train_and_evaluate(seed, inject, reject):
+def train_and_evaluate(seed, inject, reject, freeze):
     # set default configuration in args.py
     args = get_args()
     # instantiate data set map; pulls the right processor / data for the task
@@ -38,18 +38,6 @@ def train_and_evaluate(seed, inject, reject):
     save_path = os.path.join(args.save_path, args.checkpoint, args.model)
     os.makedirs(save_path, exist_ok=True)
 
-    # set the location for saving the log
-    log_path = os.path.join(args.log_path, args.checkpoint, args.model)
-    os.makedirs(log_path, exist_ok=True)
-
-    # initialize logging
-    logger.add(log_path + '\\' + args.model + '.log', rotation="5000 MB")
-    logger.info(f"Training model {args.model} on this checkpoint: {args.checkpoint}")
-
-    # set device to gpu/cpu
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # detect number of gpus
-    n_gpu = torch.cuda.device_count()
     args.device = device
     args.n_gpu = n_gpu
     # turn on autocast for fp16
@@ -57,13 +45,13 @@ def train_and_evaluate(seed, inject, reject):
     # set grad scaler
     scaler = GradScaler()
 
-    # don't freeze this select of weights
-    #args.freeze = freeze
+    #python -m models.pfreezing --model RTE --checkpoint bert-base-uncased --batch-size 16 --lr 2e-5 --num-labels 2 --max-seq-length 250 --seed 759
 
-    # set the seed
+    # add some useful information to args to share across processes
     args.seed = seed
     args.inject = inject
     args.reject = reject
+    args.freeze_p = freeze
 
     # make kwargs
     kwargs = args
@@ -102,10 +90,6 @@ def train_and_evaluate(seed, inject, reject):
     model = BertForSequenceClassification.from_pretrained(args.checkpoint,
                                                           num_labels=args.num_labels).to(device)
 
-    # print metrics
-    logger.info(f"Device: {str(device).upper()}")
-    logger.info(f"Number of GPUs: {n_gpu}")
-
     # for multi-GPU
     if n_gpu > 1:
         model = torch.nn.DataParallel(model)
@@ -135,16 +119,34 @@ def train_and_evaluate(seed, inject, reject):
     trainer = BertFreezeTrainer(model, optimizer, processor, scheduler, args, kwargs, scaler, logger)
 
     # begin training / shift to trainer class
-    dev_loss, dev_metric, epoch, freeze_p = trainer.train()
+    dev_loss, dev_metric, epoch, freeze_p, mean_preds = trainer.train()
 
     # return metrics
-    return dev_loss, dev_metric, epoch, freeze_p
+    return dev_loss, dev_metric, epoch, freeze_p, mean_preds
 
 # execution
 if __name__ == '__main__':
 
     # set default configuration in args.py
     args = get_args()
+
+    # set device to gpu/cpu
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # set the location for saving the log
+    log_path = os.path.join(args.log_path, args.checkpoint, args.model)
+    os.makedirs(log_path, exist_ok=True)
+
+    # initialize logging -- should be under: if __name__ == '__main__'
+    logger.add(log_path + '\\' + args.model + '.log', rotation="5000 MB")
+    logger.info(f"Training model {args.model} on this checkpoint: {args.checkpoint}")
+
+    # detect number of gpus
+    n_gpu = torch.cuda.device_count()
+
+    # print metrics
+    logger.info(f"Device: {str(device).upper()}")
+    logger.info(f"Number of GPUs: {n_gpu}")
 
     # set the location for saving the model
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -157,16 +159,21 @@ if __name__ == '__main__':
         seed = int(params['seed'])
         inject = params['inject']
         reject = params['reject']
-        #freeze = params['freeze']
-        #freeze_p = params['freeze_p']
+        freeze = params['freeze']
+
         # print info to user
         logger.info(f"""\n Starting trials with this seed: {seed} and this injection
-                    {inject}""")
+                    {inject}, this injection {freeze}""")
         # collect metrics
-        dev_loss, dev_metric, epoch, freeze_p = train_and_evaluate(seed, inject, reject)
+        dev_loss, dev_metric, epoch, freeze_p, mean_preds = train_and_evaluate(seed, inject, reject, freeze)
+        
+        # manage RAM consumption from this process
+        gc.collect()
+
         # return metrics to trials
         return {'loss': 1, 'status': STATUS_OK, 'metric': dev_metric,
-                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p}
+                'dev_loss': dev_loss, 'epoch': epoch, 'freeze_p': freeze_p,
+                'mean_preds': mean_preds}
 
 
     layers_0_3 = ['bert.encoder.layer.0.intermediate.dense.weight',
@@ -224,16 +231,25 @@ if __name__ == '__main__':
     pooler = ['pooler']
     classifier = ['classifier']
     reject = ['attention']
+    output_dense = ['output.dense.weight']
+    intermediate = ['intermediate.dense.weight']
 
     # search space
-    search_space = {'seed': hp.randint('seed', 1000),
-                    'inject': hp.choice('freeze',
+    search_space = {'seed': hp.randint('seed', 5000),
+                    #'seed': hp.choice('seed',
+                                      #[
+                                       #37,
+                                       #920,
+                                       #838,
+                                       #811,
+                                       #717,
+                                      #823
+                                      #]),
+                    'freeze': hp.uniform('freeze', 0.05, 0.85),
+                    'inject': hp.choice('inject',
                                            [
-                                           pooler,
-                                           classifier,
-                                           pooler + all_FFN,
-                                           classifier + pooler,
-                                           classifier + all_FFN
+                                           #layers_8_11,
+                                           all_FFN,
                                            ]
                                            ),
                     'reject': hp.choice('reject',
@@ -248,6 +264,7 @@ if __name__ == '__main__':
     argmin = fmin(
       fn=train_fn,
       space=search_space,
+      #algo=tpe.suggest,
       algo=rand.suggest,
       max_evals=args.n_trials,
       trials=trials)

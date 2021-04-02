@@ -88,8 +88,10 @@ class BertFreezeTrainer(object):
         # save a copy of initial bert params
         initial_weights = copy.deepcopy(self.model.state_dict())
 
-        # retrieve a freeze value between 0 and 1
-        self.freeze_p = np.random.uniform(0.05, 0.95)
+        # retrieve a freeze value
+        #self.freeze_p = np.random.uniform(0.05, 0.95)
+        self.freeze_p = self.args.freeze_p
+        #self.freeze_p = 1.0
 
         # declare progress
         self.logger.info(f"Freezing this % of params now: {self.freeze_p}")
@@ -98,6 +100,7 @@ class BertFreezeTrainer(object):
         # randomly find weights to take, but take in this condition
         inject = self.args.inject
         reject = self.args.reject
+
 
         # created mask to load weights
         self.locked_masks = {
@@ -118,7 +121,10 @@ class BertFreezeTrainer(object):
                         }
 
         # load trained bert model state
-        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-11_20-14-05.pt')
+        # RTE
+        #self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\RTE\\2021-03-11_20-14-05.pt')
+        # CoLA
+        self.model = torch.load('C:\\BERTVision\\code\\torch\\model_checkpoints\\bert-base-uncased\\CoLA\\2021-03-28_14-25-35.pt')
 
         # create a copy of the weights
         trained_weights = copy.deepcopy(self.model.state_dict())
@@ -129,7 +135,7 @@ class BertFreezeTrainer(object):
         for key, value in initial_weights.items():
             # add the key
             result[key] = []
-            # if True, replace initial value with trained value
+            # if False, replace initial value with trained value
             result[key] = initial_weights[key].cuda().where(self.locked_masks[key].cuda(), trained_weights[key].cuda())
 
         # load the model with the new mix of weights
@@ -222,7 +228,7 @@ class BertFreezeTrainer(object):
                 # train
                 #self.train_epoch(train_dataloader)  # temporarily skip; go straight to evaluation
                 # get dev loss
-                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                dev_acc, dev_precision, dev_recall, dev_f1, dev_loss, mean_preds = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Acc {1: 0.3f}, Dev/Pr. {2: 0.3f}, Dev/Re. {3: 0.3f}, Dev/F1 {4: 0.3f}, Dev/Loss {5: 0.3f}",
                                  epoch+1, dev_acc, dev_precision, dev_recall, dev_f1, dev_loss)
@@ -232,16 +238,16 @@ class BertFreezeTrainer(object):
                 self.epoch.append(epoch+1)
                 self.epoch_freeze_p.append(self.freeze_p)
 
-            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p, mean_preds
 
 
         elif any([self.args.model == 'CoLA']):
 
             for epoch in trange(int(self.args.epochs), desc="Epoch"):
                 # train
-                self.train_epoch(train_dataloader)
+                #self.train_epoch(train_dataloader)  # temporarily skip; go straight to evaluation
                 # get dev loss
-                matthews, dev_loss = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
+                matthews, dev_loss, mean_preds = BertGLUEEvaluator(self.model, self.processor, self.args, self.logger).get_loss(type='dev')
                 # print validation results
                 self.logger.info("Epoch {0: d}, Dev/Matthews {1: 0.3f}, Dev/Loss {2: 0.3f}",
                                  epoch+1, matthews, dev_loss)
@@ -251,7 +257,7 @@ class BertFreezeTrainer(object):
                 self.epoch.append(epoch+1)
                 self.epoch_freeze_p.append(self.freeze_p)
 
-            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p
+            return self.epoch_loss, self.epoch_metric, self.epoch, self.epoch_freeze_p, mean_preds
 
 
         elif any([self.args.model == 'STSB']):

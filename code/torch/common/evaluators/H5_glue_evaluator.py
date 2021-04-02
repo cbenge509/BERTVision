@@ -30,6 +30,16 @@ class H5_GLUE_Evaluator(object):
     args: object
         A argument parser object; see args.py
 
+    logger : object
+        The loguru logger
+
+    Returns
+    ----------
+    metrics : float
+        GLUE-specified metrics
+
+    if args.error : csv
+        If performing error anaylsis, a pandas dataframe is emitted
     '''
     def __init__(self, model, criterion, processor, args, logger):
         # pull in init
@@ -112,7 +122,16 @@ class H5_GLUE_Evaluator(object):
         # get index list
         idx_list = np.array(idx_list)
 
+        # compute avg loss
         avg_loss = self.dev_loss / self.nb_dev_steps
+
+        # if error analysis, then collect the pred labels and target labels
+        if self.args.error is True:
+            import pandas as pd
+            result_df = pd.DataFrame({'pred': predicted_labels,
+                                      'target': target_labels,
+                                      'idx': idx_list})
+            result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
 
         if any([self.args.model == 'AP_SST',
                 self.args.model == 'AP_MSR',
@@ -129,26 +148,19 @@ class H5_GLUE_Evaluator(object):
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
 
-            if any([self.args.model == 'AP_RTE',
-                    self.args.model == 'AP_MSR']):
-                if self.args.error is True:
-                    import pandas as pd
-                    result_df = pd.DataFrame({'pred': predicted_labels,
-                                              'target': target_labels,
-                                              'idx': idx_list})
-                    result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
-
             return accuracy, precision, recall, f1, avg_loss
 
         elif any([self.args.model == 'AP_CoLA']):
 
             matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
+
             return matthew1, avg_loss
 
         elif any([self.args.model == 'AP_STSB']):
 
             pearson = pearsonr(predicted_labels, target_labels)[0]
             spearman = spearmanr(predicted_labels, target_labels)[0]
+            
             return pearson, spearman, avg_loss
 
 
