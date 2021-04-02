@@ -24,7 +24,7 @@ python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased -
 
 For large data sets, e.g., MNLI, QNLI, QQP, and SST, data set sharding is enabled
 automatically, which randomly samples 10% of the data set to train on to speed
-up the parameter search. `shard` is manipulable and can be set by:
+up the parameter search. `--shard` is manipulable and can be set by:
 
 ```
 python -m models.ap_hypersearch --model AP_QQP --checkpoint bert-base-uncased --batch-size 32 --num-labels 2 --max-seq-length 128 --shard 0.3
@@ -280,7 +280,7 @@ python -m models.pfreezing --model MSR --checkpoint bert-base-uncased --batch-si
 
 # Error Analysis
 
-To enable error analysis on MSR or RTE, the following flag is required:
+To enable error analysis any model, the following flag `--error` is required:
 
 ```
 python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.4380e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 734 --error
