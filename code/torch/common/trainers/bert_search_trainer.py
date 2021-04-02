@@ -37,8 +37,14 @@ class BertSearchTrainer(object):
     args: object
         A argument parser object; see args.py
 
+    kwargs: object
+        Custom key-word arguments added for additional arguments
+
     scaler: object
         A gradient scaler object to use FP16
+
+    logger : object
+        The loguru logger
 
     Operations
     -------

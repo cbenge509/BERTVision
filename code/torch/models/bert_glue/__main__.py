@@ -92,7 +92,7 @@ if __name__ == '__main__':
     # exclude these from regularization
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
     # give l2 regularization to any parameter that is not named after no_decay list
-    # give no l2 regulariation to any bias parameter or layernorm bias/weight
+    # give no l2 regularization to any bias parameter or layernorm bias/weight
     optimizer_grouped_parameters = [
         {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': args.l2},
         {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
@@ -106,8 +106,6 @@ if __name__ == '__main__':
     # set linear scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
                                                 num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
-    scheduler = get_linear_schedule_with_warmup(optimizer, num_training_steps=num_train_optimization_steps,
-                                            num_warmup_steps=(args.warmup_proportion * num_train_optimization_steps))
     # initialize the trainer
     trainer = BertGLUETrainer(model, optimizer, processor, scheduler, args, scaler, logger)
     # begin training / shift to trainer class
