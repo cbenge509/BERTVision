@@ -34,6 +34,9 @@ class BertQATrainer(object):
     scaler: object
         A gradient scaler object to use FP16
 
+    logger : object
+        The loguru logger
+
     Operations
     -------
     This trainer:

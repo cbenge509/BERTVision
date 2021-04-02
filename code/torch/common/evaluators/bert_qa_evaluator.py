@@ -20,21 +20,18 @@ class BertQAEvaluator(object):
     Parameters
     ----------
     model : object
-        A huggingface QuestionAnswering BERT transformer
+        A HuggingFace QuestionAnswering BERT transformer
 
-    processor: object
+    processor : object
         A Torch Dataset processor that emits data
 
-    args: object
-        A argument parser object; see args.py
+    args : object
+        An Argument Parser object; see args.py
 
-    Operations
-    -------
-    This trainer:
-        (1) Trains the weights
-        (2) Generates dev set loss
-        (3) Creates start and end logits and collects their original index for scoring
-        (4) Writes their results and saves the file as a checkpoint
+    Returns
+    ----------
+    metrics : float
+        QA-specified metrics; e.g., F1 and EM
 
     '''
     def __init__(self, model, processor, args):

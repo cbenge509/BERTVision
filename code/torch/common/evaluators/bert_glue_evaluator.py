@@ -25,25 +25,28 @@ class BertGLUEEvaluator(object):
     model : object
         A HuggingFace QuestionAnswering BERT transformer
 
-    processor: object
+    processor : object
         A Torch Dataset processor that emits data
 
-    tokenizer: object
-        A HuggingFace tokenizer that fits the HuggingFace transformer
+    args : object
+        An Argument Parser object; see args.py
 
-    args: object
-        A argument parser object; see args.py
+    logger : object
+        The loguru logger
 
-    Operations
-    -------
-    This trainer:
-        (1) Trains the weights
-        (2) Generates dev set loss
-        (3) Creates start and end logits and collects their original index for scoring
-        (4) Writes their results and saves the file as a checkpoint
+    standalone_eval: bool
+        Whether or not to trigger standalone eval
+
+    Returns
+    ----------
+    metrics : float
+        GLUE-specified metrics
+
+    if args.error : csv
+        If performing error anaylsis, a pandas dataframe is emitted
 
     '''
-    def __init__(self, model, processor, args, logger, standalone_eval = False):
+    def __init__(self, model, processor, args, logger, standalone_eval=False):
         # init training objects
         self.args = args
         self.model = model
@@ -109,6 +112,7 @@ class BertGLUEEvaluator(object):
             # if regression:
             if self.args.num_labels == 1:
                 pred = out.logits
+            # else classification:
             else:
                 pred = out.logits.max(1)[1]  # get the index of the max log-probability
 
@@ -136,6 +140,14 @@ class BertGLUEEvaluator(object):
         # get index list
         idx_list = np.array(idx_list)
 
+        # if error analysis, then collect the pred labels and target labels
+        if self.args.error is True:
+            import pandas as pd
+            result_df = pd.DataFrame({'pred': predicted_labels,
+                                      'target': target_labels,
+                                      'idx': idx_list})
+            result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
+
         # metrics
         if any([self.args.model == 'SST',
                 self.args.model == 'MSR',
@@ -151,25 +163,19 @@ class BertGLUEEvaluator(object):
             recall = metrics.recall_score(target_labels, predicted_labels, average='micro')
             f1 = metrics.f1_score(target_labels, predicted_labels, average='micro')
 
-            if any([self.args.model == 'RTE',
-                    self.args.model == 'MSR']):
-                if self.args.error is True:
-                    import pandas as pd
-                    result_df = pd.DataFrame({'pred': predicted_labels,
-                                              'target': target_labels,
-                                              'idx': idx_list})
-                    result_df.to_csv('error_analysis_%s.csv' % self.args.model, index=False)
-
             return accuracy, precision, recall, f1, avg_loss
 
         elif any([self.args.model == 'CoLA']):
+
             matthew1 = metrics.matthews_corrcoef(target_labels, predicted_labels)
+
             return matthew1, avg_loss
 
         elif any([self.args.model == 'STSB']):
 
             pearson1 = pearsonr(predicted_labels, target_labels)[0]
             spearman1 = spearmanr(predicted_labels, target_labels)[0]
+
             return pearson1, spearman1, avg_loss
 
 #

@@ -22,9 +22,6 @@ class BertGLUETrainer(object):
     model : object
         A HuggingFace Classification BERT transformer
 
-    tokenizer: object
-        A HuggingFace tokenizer that fits the HuggingFace transformer
-
     optimizer: object
         A compatible Torch optimizer
 
@@ -40,6 +37,12 @@ class BertGLUETrainer(object):
     scaler: object
         A gradient scaler object to use FP16
 
+    logger : object
+        The loguru logger
+
+    save: bool
+        Whether or not to trigger model checkpoint saving        
+
     Operations
     -------
     This trainer:
@@ -49,7 +52,7 @@ class BertGLUETrainer(object):
         (4) Writes their results and saves the file as a checkpoint
 
     '''
-    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger, save = True):
+    def __init__(self, model, optimizer, processor, scheduler, args, scaler, logger, save=True):
         # pull in objects
         self.args = args
         self.model = model
@@ -127,7 +130,7 @@ class BertGLUETrainer(object):
         # gen. loss
         avg_loss = self.tr_loss / self.nb_tr_steps
 
-        # print end of trainig results
+        # print end of training results
         self.logger.info(f"Training complete! Loss: {avg_loss}")
         return avg_loss
 
@@ -186,7 +189,6 @@ class BertGLUETrainer(object):
 
 
             elif any([self.args.model == 'CoLA']):
-
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
@@ -212,7 +214,6 @@ class BertGLUETrainer(object):
 
 
             elif any([self.args.model == 'STSB']):
-
                 # train
                 self.train_epoch(train_dataloader)
                 # get dev loss
@@ -238,7 +239,6 @@ class BertGLUETrainer(object):
 
 
             elif any([self.args.model == 'MNLI']):
-
                 # train
                 self.train_epoch(train_dataloader)
                 # matched
