@@ -272,6 +272,12 @@ python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-lengt
 
 # Parameter Freezing
 
+Parameter freezing is best known now as parameter injecting and is born out of
+experiments we conducted over the semester to better understand the importance
+of weights across BERTs layers and the extent to which we could define ideal
+starting points for pre-Trained BERT. It remains an area of interest to us and
+its capabilities can be accessed by:
+
 ```
 python -m models.pfreezing --model MSR --checkpoint bert-base-uncased --batch-size 32 --lr 2e-5 --num-labels 2 --max-seq-length 128
 ```
@@ -280,7 +286,8 @@ python -m models.pfreezing --model MSR --checkpoint bert-base-uncased --batch-si
 
 # Error Analysis
 
-To enable error analysis any model, the following flag `--error` is required:
+To enable error analysis (e.g., to output and compare the predicted and true labels)
+for any model, the flag `--error` is required:
 
 ```
 python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.4380e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 734 --error
