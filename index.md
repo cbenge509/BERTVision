@@ -136,7 +136,7 @@ python -m models.ap_glue --model AP_QNLI --checkpoint bert-large-uncased --lr 1e
 
 |              | BERT-base | BERT-large | BERTVision-base | BERTVision-large |
 |:-------------|:---------:|:----------:|:---------------:|:----------------:|
-|**Accuracy**  | 0.9018    | 0.9073     | 0.8920          | 0.9100           |
+|**Accuracy**  | 0.9018    | 0.9073     | 0.9026          | 0.9100           |
 
 ### Results : MNLI
 
