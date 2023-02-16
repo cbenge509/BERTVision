@@ -51,7 +51,7 @@ wrapt = "==1.12.1"
 zipp = "==3.1.0"
 Keras-Preprocessing = "==1.1.2"
 Markdown = "==3.2.2"
-Werkzeug = "==1.0.1"
+Werkzeug = "==2.2.3"
 altair = "==4.1.0"
 
 [requires]
