@@ -70,6 +70,22 @@ BERTVision achieves BERT-level performance with a fraction of the trainable para
   <strong>Right:</strong> BERTVision captures all 24 layers, feeding them to a lightweight adapter for span prediction.
 </p>
 
+<p align="center">
+  <img src="./images/Data_Pipeline_Binary_Classification.png" alt="Binary Classification Pipeline" width="700">
+</p>
+
+<p align="center">
+  <strong>Binary Classification Pipeline:</strong> For tasks like answerability detection, BERT-large extracts CLS token embeddings from all 24 transformer layers. These embeddings are pooled using learned weights and fed into a lightweight dense layer for Answer/No Answer classification.
+</p>
+
+<p align="center">
+  <img src="./images/Data_Pipeline_Span_Annotation.png" alt="Span Annotation Pipeline" width="700">
+</p>
+
+<p align="center">
+  <strong>Span Annotation Pipeline:</strong> For question answering, embeddings are extracted for all 386 tokens across all transformer layers. The learned pooling mechanism combines layer outputs, and a dense layer predicts span start and end positions for answer extraction.
+</p>
+
 ---
 
 ## Quick Start
