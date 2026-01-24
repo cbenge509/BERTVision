@@ -21,26 +21,27 @@
 
 ## Authors
 
-<table align="center" border="0">
-  <tr>
-    <td align="center">
-      <a href="https://jackson.yale.edu/person/casey-king/"><img src="./images/casey.png" width="100" alt="Casey King"></a><br>
-      <a href="https://jackson.yale.edu/person/casey-king/">William Casey King, PhD</a>
-    </td>
-    <td align="center">
-      <a href="https://www.linkedin.com/in/siduojiang/"><img src="./images/stone.png" width="100" alt="Stone Jiang"></a><br>
-      <a href="https://www.linkedin.com/in/siduojiang/">Siduo (Stone) Jiang</a>
-    </td>
-    <td align="center">
-      <a href="https://cbenge509.github.io/"><img src="./images/cbenge.png" width="100" alt="Cristopher Benge"></a><br>
-      <a href="https://cbenge509.github.io/">Cristopher Benge</a>
-    </td>
-    <td align="center">
-      <a href="http://seekinginference.com/"><img src="./images/andrew.png" width="100" alt="Andrew Fogarty"></a><br>
-      <a href="http://seekinginference.com/">Andrew Fogarty</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="https://jackson.yale.edu/person/casey-king/">
+    <img src="./images/casey.png" width="100" alt="Casey King"><br>
+    William Casey King, PhD
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.linkedin.com/in/siduojiang/">
+    <img src="./images/stone.png" width="100" alt="Stone Jiang"><br>
+    Siduo (Stone) Jiang
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://cbenge509.github.io/">
+    <img src="./images/cbenge.png" width="100" alt="Cristopher Benge"><br>
+    Cristopher Benge
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="http://seekinginference.com/">
+    <img src="./images/andrew.png" width="100" alt="Andrew Fogarty"><br>
+    Andrew Fogarty
+  </a>
+</p>
 
 <p align="center">
   <img src="./images/ucb.png" width="120" alt="UC Berkeley"><br>
