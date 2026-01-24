@@ -22,25 +22,10 @@
 ## Authors
 
 <p align="center">
-  <a href="https://jackson.yale.edu/person/casey-king/">
-    <img src="./images/casey.png" width="100" alt="Casey King"><br>
-    William Casey King, PhD
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.linkedin.com/in/siduojiang/">
-    <img src="./images/stone.png" width="100" alt="Stone Jiang"><br>
-    Siduo (Stone) Jiang
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://cbenge509.github.io/">
-    <img src="./images/cbenge.png" width="100" alt="Cristopher Benge"><br>
-    Cristopher Benge
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="http://seekinginference.com/">
-    <img src="./images/andrew.png" width="100" alt="Andrew Fogarty"><br>
-    Andrew Fogarty
-  </a>
+  <a href="https://jackson.yale.edu/person/casey-king/">William Casey King, PhD</a> ⬥
+  <a href="https://www.linkedin.com/in/siduojiang/">Siduo (Stone) Jiang</a> ⬥
+  <a href="https://cbenge509.github.io/">Cristopher Benge</a> ⬥
+  <a href="http://seekinginference.com/">Andrew Fogarty</a>
 </p>
 
 <p align="center">
