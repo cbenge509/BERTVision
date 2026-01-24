@@ -1,0 +1,22 @@
+{
+  "task": "QQP",
+  "taskFullName": "Quora Question Pairs",
+  "category": "glue",
+  "description": "Quora Question Pairs is a paraphrase detection task where the goal is to determine whether two questions are semantically equivalent.",
+  "datasetUrl": "https://www.quora.com/q/quoradata/First-Quora-Dataset-Release-Question-Pairs",
+  "metrics": [
+    {
+      "name": "Accuracy",
+      "bertBase": 0.8962,
+      "bertLarge": 0.8963,
+      "bvBase": 0.886,
+      "bvLarge": 0.897
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32",
+    "python -m models.ap_glue --model AP_QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32",
+    "python -m models.bert_glue --model QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32",
+    "python -m models.ap_glue --model AP_QQP --checkpoint bert-large-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32"
+  ]
+}

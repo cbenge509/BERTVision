@@ -1,0 +1,9 @@
+# BERTVision - Robots.txt
+# https://cbenge509.github.io/BERTVision/
+
+# Allow all crawlers to index the site
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cbenge509.github.io/BERTVision/sitemap.xml

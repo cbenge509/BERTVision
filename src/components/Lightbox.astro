@@ -1,0 +1,495 @@
+---
+/**
+ * Lightbox - Full-screen image viewer modal.
+ *
+ * Features:
+ * - Modal overlay with dark background
+ * - Full-size centered image display
+ * - Close on X button, overlay click, or Escape key
+ * - Navigation arrows for multiple images
+ * - Touch swipe on mobile
+ * - Focus trap within modal
+ */
+---
+
+<div
+  id="lightbox"
+  class="lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+  data-open="false"
+>
+  <div class="lightbox-backdrop" aria-hidden="true"></div>
+
+  <div class="lightbox-container">
+    <!-- Close button -->
+    <button
+      type="button"
+      class="lightbox-close"
+      aria-label="Close image viewer"
+      id="lightbox-close"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+
+    <!-- Navigation - Previous -->
+    <button
+      type="button"
+      class="lightbox-nav lightbox-prev"
+      aria-label="Previous image"
+      id="lightbox-prev"
+      hidden
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 18-6-6 6-6"></path>
+      </svg>
+    </button>
+
+    <!-- Image container -->
+    <div class="lightbox-content">
+      <img
+        id="lightbox-image"
+        class="lightbox-image"
+        src=""
+        alt=""
+        loading="eager"
+      />
+      <p id="lightbox-caption" class="lightbox-caption"></p>
+    </div>
+
+    <!-- Navigation - Next -->
+    <button
+      type="button"
+      class="lightbox-nav lightbox-next"
+      aria-label="Next image"
+      id="lightbox-next"
+      hidden
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m9 18 6-6-6-6"></path>
+      </svg>
+    </button>
+
+    <!-- Image counter -->
+    <div class="lightbox-counter" id="lightbox-counter" hidden>
+      <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox[data-open='true'] {
+    display: flex;
+  }
+
+  .lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .lightbox-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 3rem;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
+    z-index: 10;
+  }
+
+  .lightbox-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .lightbox-close:active {
+    transform: scale(0.95);
+  }
+
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      opacity 0.15s ease;
+    z-index: 10;
+  }
+
+  .lightbox-nav:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .lightbox-nav[hidden] {
+    display: none;
+  }
+
+  .lightbox-prev {
+    left: 1rem;
+  }
+
+  .lightbox-next {
+    right: 1rem;
+  }
+
+  .lightbox-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .lightbox-image {
+    max-width: 100%;
+    max-height: calc(100vh - 10rem);
+    object-fit: contain;
+    border-radius: 0.25rem;
+    opacity: 0;
+    transform: scale(0.95);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .lightbox[data-open='true'] .lightbox-image {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .lightbox-caption {
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    text-align: center;
+    max-width: 600px;
+  }
+
+  .lightbox-caption:empty {
+    display: none;
+  }
+
+  .lightbox-counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 0.875rem;
+    border-radius: 1rem;
+  }
+
+  .lightbox-counter[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .lightbox-container {
+      padding: 1rem;
+    }
+
+    .lightbox-nav {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .lightbox-nav svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .lightbox-close {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox-close,
+    .lightbox-nav,
+    .lightbox-image {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Lightbox controller for full-screen image viewing.
+   */
+
+  interface LightboxImage {
+    src: string;
+    alt: string;
+    caption?: string;
+  }
+
+  let images: LightboxImage[] = [];
+  let currentIndex = 0;
+  let previousActiveElement: Element | null = null;
+
+  function initLightbox(): void {
+    const lightboxEl = document.getElementById('lightbox');
+    const closeBtnEl = document.getElementById('lightbox-close');
+    const prevBtnEl = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
+    const nextBtnEl = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+    const imageElRaw = document.getElementById('lightbox-image') as HTMLImageElement | null;
+    const captionElRaw = document.getElementById('lightbox-caption');
+    const counterElRaw = document.getElementById('lightbox-counter');
+    const currentElRaw = document.getElementById('lightbox-current');
+    const totalElRaw = document.getElementById('lightbox-total');
+
+    if (!lightboxEl || !imageElRaw || !captionElRaw || !counterElRaw || !currentElRaw || !totalElRaw) {
+      return;
+    }
+
+    // Assign to const to help TypeScript with type narrowing in nested functions
+    const lightbox = lightboxEl;
+    const closeBtn = closeBtnEl;
+    const prevBtn = prevBtnEl;
+    const nextBtn = nextBtnEl;
+    const imageEl = imageElRaw;
+    const captionEl = captionElRaw;
+    const counterEl = counterElRaw;
+    const currentEl = currentElRaw;
+    const totalEl = totalElRaw;
+    const backdrop = lightbox.querySelector('.lightbox-backdrop');
+
+    // Touch handling for swipe
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    function open(imageList: LightboxImage[], startIndex = 0): void {
+      images = imageList;
+      currentIndex = startIndex;
+      previousActiveElement = document.activeElement;
+
+      // Show lightbox
+      lightbox.dataset.open = 'true';
+      document.body.style.overflow = 'hidden';
+
+      // Update navigation visibility
+      const hasMultiple = images.length > 1;
+      if (prevBtn) prevBtn.hidden = !hasMultiple;
+      if (nextBtn) nextBtn.hidden = !hasMultiple;
+      counterEl.hidden = !hasMultiple;
+
+      if (hasMultiple) {
+        totalEl.textContent = String(images.length);
+      }
+
+      updateImage();
+
+      // Focus the close button
+      closeBtn?.focus();
+    }
+
+    function close(): void {
+      lightbox.dataset.open = 'false';
+      document.body.style.overflow = '';
+      images = [];
+      currentIndex = 0;
+
+      // Restore focus
+      if (previousActiveElement instanceof HTMLElement) {
+        previousActiveElement.focus();
+      }
+    }
+
+    function updateImage(): void {
+      const image = images[currentIndex];
+      if (!image) return;
+
+      imageEl.src = image.src;
+      imageEl.alt = image.alt;
+      captionEl.textContent = image.caption ?? '';
+      currentEl.textContent = String(currentIndex + 1);
+
+      // Update navigation state
+      if (prevBtn) prevBtn.disabled = currentIndex === 0;
+      if (nextBtn) nextBtn.disabled = currentIndex === images.length - 1;
+    }
+
+    function goToPrev(): void {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateImage();
+      }
+    }
+
+    function goToNext(): void {
+      if (currentIndex < images.length - 1) {
+        currentIndex++;
+        updateImage();
+      }
+    }
+
+    function handleSwipe(): void {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          goToNext();
+        } else {
+          goToPrev();
+        }
+      }
+    }
+
+    // Event listeners
+    closeBtn?.addEventListener('click', close);
+    backdrop?.addEventListener('click', close);
+    prevBtn?.addEventListener('click', goToPrev);
+    nextBtn?.addEventListener('click', goToNext);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (lightbox.dataset.open !== 'true') return;
+
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault();
+          close();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          goToPrev();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          goToNext();
+          break;
+      }
+    });
+
+    // Touch swipe handling
+    lightbox.addEventListener(
+      'touchstart',
+      e => {
+        touchStartX = e.changedTouches[0]?.screenX ?? 0;
+      },
+      {passive: true}
+    );
+
+    lightbox.addEventListener(
+      'touchend',
+      e => {
+        touchEndX = e.changedTouches[0]?.screenX ?? 0;
+        handleSwipe();
+      },
+      {passive: true}
+    );
+
+    // Focus trap
+    lightbox.addEventListener('keydown', e => {
+      if (e.key !== 'Tab' || lightbox.dataset.open !== 'true') return;
+
+      const focusableElements = lightbox.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([hidden])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (!firstElement || !lastElement) return;
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    });
+
+    // Expose open function globally for other components to use
+    (window as unknown as {openLightbox: typeof open}).openLightbox = open;
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLightbox);
+  } else {
+    initLightbox();
+  }
+</script>

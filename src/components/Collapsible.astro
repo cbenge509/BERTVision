@@ -1,0 +1,236 @@
+---
+/**
+ * Collapsible - Expandable/collapsible content section.
+ *
+ * Features:
+ * - Expand/collapse animation
+ * - Chevron icon indicator
+ * - Keyboard interaction (Enter/Space to toggle)
+ * - Accessible with proper ARIA attributes
+ */
+
+interface Props {
+  /** Title displayed in the header */
+  title: string;
+  /** Whether to start in the open state */
+  defaultOpen?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {title, defaultOpen = false, class: className = ''} = Astro.props;
+
+// Generate unique ID for accessibility
+const id = `collapsible-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<div class:list={['collapsible', className]} data-open={String(defaultOpen)}>
+  <button
+    type="button"
+    class="collapsible-trigger"
+    aria-expanded={defaultOpen ? 'true' : 'false'}
+    aria-controls={`${id}-content`}
+    id={`${id}-trigger`}
+  >
+    <span class="collapsible-title">{title}</span>
+    <svg
+      class="collapsible-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6"></path>
+    </svg>
+  </button>
+
+  <div
+    class="collapsible-content"
+    id={`${id}-content`}
+    role="region"
+    aria-labelledby={`${id}-trigger`}
+    hidden={!defaultOpen}
+  >
+    <div class="collapsible-inner">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .collapsible {
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--color-bg);
+  }
+
+  .collapsible-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: none;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .collapsible-trigger:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .collapsible-trigger:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .collapsible-title {
+    flex: 1;
+  }
+
+  .collapsible-icon {
+    flex-shrink: 0;
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s ease;
+  }
+
+  .collapsible[data-open='true'] .collapsible-icon {
+    transform: rotate(180deg);
+  }
+
+  .collapsible-content {
+    overflow: hidden;
+  }
+
+  .collapsible-content[hidden] {
+    display: none;
+  }
+
+  .collapsible-inner {
+    padding: 1rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Animation for opening/closing */
+  .collapsible-content.is-animating {
+    display: block !important;
+    transition: height 0.2s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .collapsible-icon {
+      transition: none;
+    }
+
+    .collapsible-content.is-animating {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Initialize all collapsible components.
+   */
+  function initCollapsibles(): void {
+    const collapsibles = document.querySelectorAll('.collapsible');
+
+    collapsibles.forEach(collapsible => {
+      const trigger = collapsible.querySelector('.collapsible-trigger');
+      const content = collapsible.querySelector('.collapsible-content');
+
+      if (!trigger || !content) return;
+
+      const triggerEl = trigger as HTMLButtonElement;
+      const contentEl = content as HTMLElement;
+
+      /**
+       * Toggle the collapsible state with animation.
+       */
+      function toggle(): void {
+        const isOpen = collapsible.getAttribute('data-open') === 'true';
+        const newState = !isOpen;
+
+        // Check for reduced motion preference
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+
+        if (prefersReducedMotion) {
+          // Instant toggle without animation
+          collapsible.setAttribute('data-open', String(newState));
+          triggerEl.setAttribute('aria-expanded', String(newState));
+          contentEl.hidden = !newState;
+          return;
+        }
+
+        if (newState) {
+          // Opening: animate from 0 to full height
+          contentEl.hidden = false;
+          contentEl.classList.add('is-animating');
+          const height = contentEl.scrollHeight;
+          contentEl.style.height = '0px';
+
+          // Force reflow
+          void contentEl.offsetHeight;
+
+          contentEl.style.height = `${height}px`;
+
+          contentEl.addEventListener(
+            'transitionend',
+            () => {
+              contentEl.classList.remove('is-animating');
+              contentEl.style.height = '';
+            },
+            {once: true}
+          );
+        } else {
+          // Closing: animate from full height to 0
+          contentEl.classList.add('is-animating');
+          const height = contentEl.scrollHeight;
+          contentEl.style.height = `${height}px`;
+
+          // Force reflow
+          void contentEl.offsetHeight;
+
+          contentEl.style.height = '0px';
+
+          contentEl.addEventListener(
+            'transitionend',
+            () => {
+              contentEl.classList.remove('is-animating');
+              contentEl.style.height = '';
+              contentEl.hidden = true;
+            },
+            {once: true}
+          );
+        }
+
+        collapsible.setAttribute('data-open', String(newState));
+        triggerEl.setAttribute('aria-expanded', String(newState));
+      }
+
+      triggerEl.addEventListener('click', toggle);
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCollapsibles);
+  } else {
+    initCollapsibles();
+  }
+</script>

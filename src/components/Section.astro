@@ -1,0 +1,213 @@
+---
+/**
+ * Section - A page section with consistent styling.
+ *
+ * Provides consistent max-width container, anchor ID for navigation,
+ * and scroll-triggered fade-in animation.
+ */
+
+interface Props {
+  /** Section ID for anchor linking */
+  id: string;
+  /** Section title (optional - renders h2 if provided) */
+  title?: string;
+  /** Visual variant */
+  variant?: 'light' | 'dark' | 'alternate';
+  /** Additional CSS classes */
+  class?: string;
+  /** Whether to show the title */
+  showTitle?: boolean;
+}
+
+const {
+  id,
+  title,
+  variant = 'light',
+  class: className = '',
+  showTitle = true,
+} = Astro.props;
+
+const sectionClasses = [
+  'section',
+  `section--${variant}`,
+  className,
+].filter(Boolean).join(' ');
+---
+
+<section id={id} class={sectionClasses} data-animate="fade-in-up">
+  <div class="section-container">
+    {title && showTitle && (
+      <h2 class="section-title">
+        <a href={`#${id}`} class="section-anchor" aria-label={`Link to ${title} section`}>
+          <span class="section-anchor-icon" aria-hidden="true">#</span>
+        </a>
+        {title}
+      </h2>
+    )}
+    <div class="section-content">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding: 4rem 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .section.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section--light {
+    background-color: var(--color-bg);
+  }
+
+  .section--dark {
+    background-color: var(--color-bg-secondary);
+  }
+
+  .section--alternate {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  @media (min-width: 768px) {
+    .section {
+      padding: 5rem 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section {
+      padding: 6rem 0;
+    }
+  }
+
+  .section-container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .section-container {
+      padding: 0 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .section-container {
+      padding: 0 2rem;
+    }
+  }
+
+  .section-title {
+    position: relative;
+    margin-bottom: 2rem;
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  @media (min-width: 768px) {
+    .section-title {
+      font-size: 2.25rem;
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  .section-anchor {
+    position: absolute;
+    left: -1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: opacity 0.2s ease;
+  }
+
+  .section-title:hover .section-anchor {
+    opacity: 1;
+  }
+
+  .section-anchor:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .section-anchor-icon {
+    font-size: 1.25rem;
+    font-weight: 400;
+  }
+
+  @media (max-width: 767px) {
+    .section-anchor {
+      display: none;
+    }
+  }
+
+  .section-content {
+    color: var(--color-text-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initSectionAnimations(): void {
+    const sections = document.querySelectorAll<HTMLElement>('[data-animate="fade-in-up"]');
+
+    if (sections.length === 0) return;
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      // If reduced motion, just show all sections immediately
+      sections.forEach(section => {
+        section.classList.add('animate-in');
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+            // Once animated, no need to observe anymore
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '-50px 0px',
+        threshold: 0.1,
+      }
+    );
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSectionAnimations);
+  } else {
+    initSectionAnimations();
+  }
+</script>

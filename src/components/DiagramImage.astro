@@ -1,0 +1,270 @@
+---
+/**
+ * DiagramImage - Clickable image that opens in a lightbox.
+ *
+ * Features:
+ * - Image optimization with Astro's Image component
+ * - Click to open in Lightbox
+ * - Optional caption display
+ * - Hover effect indicating clickability
+ * - Subtle border/shadow styling
+ */
+
+import {Image} from 'astro:assets';
+
+interface Props {
+  /** Image source - can be an imported image or URL string */
+  src: ImageMetadata | string;
+  /** Alt text for accessibility */
+  alt: string;
+  /** Optional caption displayed below the image */
+  caption?: string;
+  /** Optional width constraint */
+  width?: number;
+  /** Optional height constraint */
+  height?: number;
+  /** Additional CSS classes */
+  class?: string;
+  /** Gallery group for navigation between multiple images */
+  gallery?: string;
+}
+
+const {
+  src,
+  alt,
+  caption,
+  width,
+  height,
+  class: className = '',
+  gallery,
+} = Astro.props;
+
+// Resolve image URL for the lightbox
+const imageUrl = typeof src === 'string' ? src : src.src;
+---
+
+<figure
+  class:list={['diagram-image', className]}
+  data-lightbox
+  data-gallery={gallery}
+  data-src={imageUrl}
+  data-alt={alt}
+  data-caption={caption}
+>
+  <div class="diagram-image-wrapper">
+    {
+      typeof src === 'string' ? (
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading="lazy"
+          class="diagram-img"
+        />
+      ) : width !== undefined && height !== undefined ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading="lazy"
+          class="diagram-img"
+        />
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          loading="lazy"
+          class="diagram-img"
+        />
+      )
+    }
+    <div class="diagram-overlay" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8"></path>
+        <path d="M3 16.2V21m0 0h4.8M3 21l6-6"></path>
+        <path d="M21 7.8V3m0 0h-4.8M21 3l-6 6"></path>
+        <path d="M3 7.8V3m0 0h4.8M3 3l6 6"></path>
+      </svg>
+      <span>Click to enlarge</span>
+    </div>
+  </div>
+  {caption && <figcaption class="diagram-caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .diagram-image {
+    margin: 1.5rem 0;
+    padding: 0;
+  }
+
+  .diagram-image-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .diagram-image-wrapper:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .diagram-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    transition: opacity 0.2s ease;
+  }
+
+  .diagram-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 0.875rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .diagram-image-wrapper:hover .diagram-overlay,
+  .diagram-image-wrapper:focus-within .diagram-overlay {
+    opacity: 1;
+  }
+
+  .diagram-caption {
+    margin-top: 0.75rem;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* Make the wrapper focusable for keyboard users */
+  .diagram-image-wrapper:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .diagram-image-wrapper,
+    .diagram-img,
+    .diagram-overlay {
+      transition: none;
+    }
+
+    .diagram-image-wrapper:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  interface LightboxImage {
+    src: string;
+    alt: string;
+    caption: string | undefined;
+  }
+
+  interface WindowWithLightbox extends Window {
+    openLightbox?: (images: LightboxImage[], startIndex?: number) => void;
+  }
+
+  /**
+   * Initialize click handlers for diagram images.
+   */
+  function initDiagramImages(): void {
+    const diagramImages = document.querySelectorAll<HTMLElement>('[data-lightbox]');
+
+    diagramImages.forEach(figure => {
+      const wrapper = figure.querySelector('.diagram-image-wrapper');
+      if (!wrapper) return;
+
+      // Make wrapper focusable
+      wrapper.setAttribute('tabindex', '0');
+      wrapper.setAttribute('role', 'button');
+      wrapper.setAttribute('aria-label', `View ${figure.dataset.alt} in lightbox`);
+
+      function openImage(): void {
+        const windowWithLightbox = window as WindowWithLightbox;
+        if (!windowWithLightbox.openLightbox) {
+          console.warn('Lightbox not initialized');
+          return;
+        }
+
+        const gallery = figure.dataset.gallery;
+
+        if (gallery) {
+          // Find all images in the same gallery
+          const galleryImages = document.querySelectorAll<HTMLElement>(
+            `[data-lightbox][data-gallery="${gallery}"]`
+          );
+
+          const images: LightboxImage[] = [];
+          let startIndex = 0;
+
+          galleryImages.forEach((img, index) => {
+            if (img === figure) {
+              startIndex = index;
+            }
+            images.push({
+              src: img.dataset.src ?? '',
+              alt: img.dataset.alt ?? '',
+              caption: img.dataset.caption,
+            });
+          });
+
+          windowWithLightbox.openLightbox(images, startIndex);
+        } else {
+          // Single image
+          windowWithLightbox.openLightbox([
+            {
+              src: figure.dataset.src ?? '',
+              alt: figure.dataset.alt ?? '',
+              caption: figure.dataset.caption,
+            },
+          ]);
+        }
+      }
+
+      wrapper.addEventListener('click', openImage);
+      wrapper.addEventListener('keydown', (e: Event) => {
+        const keyboardEvent = e as KeyboardEvent;
+        if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+          e.preventDefault();
+          openImage();
+        }
+      });
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDiagramImages);
+  } else {
+    initDiagramImages();
+  }
+</script>

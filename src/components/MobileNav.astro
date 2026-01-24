@@ -1,0 +1,377 @@
+---
+/**
+ * MobileNav - Slide-out navigation menu for mobile devices.
+ *
+ * Activated by the hamburger button in the main Nav component.
+ * Includes overlay, close button, and all section links.
+ */
+
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+const navLinks: NavLink[] = [
+  {href: '#introduction', label: 'Introduction'},
+  {href: '#how-it-works', label: 'How It Works'},
+  {href: '#data', label: 'Data'},
+  {href: '#results', label: 'Results'},
+  {href: '#replication', label: 'Replication'},
+  {href: '#paper', label: 'Paper'},
+];
+---
+
+<!-- Overlay -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay" aria-hidden="true">
+</div>
+
+<!-- Mobile Navigation Panel -->
+<nav
+  class="mobile-nav-panel"
+  id="mobile-nav"
+  data-open="false"
+  aria-label="Mobile navigation"
+  aria-hidden="true"
+>
+  <div class="mobile-nav-header">
+    <span class="mobile-nav-title">BERTVision</span>
+    <button
+      type="button"
+      class="mobile-nav-close"
+      aria-label="Close menu"
+      id="mobile-nav-close"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <ul class="mobile-nav-links" role="list">
+    {
+      navLinks.map(link => (
+        <li>
+          <a href={link.href} class="mobile-nav-link" data-section={link.href}>
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="mobile-nav-footer">
+    <a
+      href="/BERTVision/paper/BERTVision_2020.pdf"
+      class="mobile-nav-cta"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Read the Paper
+    </a>
+    <a
+      href="https://github.com/cbenge509/BERTVision"
+      class="mobile-nav-cta mobile-nav-cta-outline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      View on GitHub
+    </a>
+  </div>
+</nav>
+
+<style>
+  .mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  .mobile-nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mobile-nav-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    width: 100%;
+    max-width: 320px;
+    background-color: var(--color-bg-elevated);
+    box-shadow: var(--shadow-xl);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mobile-nav-panel[data-open='true'] {
+    transform: translateX(0);
+  }
+
+  .mobile-nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-nav-title {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: var(--color-text);
+  }
+
+  .mobile-nav-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .mobile-nav-close:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover-overlay);
+  }
+
+  .mobile-nav-links {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    padding: 1rem 0;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    padding: 0.875rem 1.25rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .mobile-nav-link:hover {
+    color: var(--color-text);
+    background-color: var(--color-hover-overlay);
+    text-decoration: none;
+  }
+
+  .mobile-nav-link.active {
+    color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb), 0.1);
+  }
+
+  .mobile-nav-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-nav-cta {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition:
+      background-color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .mobile-nav-cta:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  .mobile-nav-cta:not(.mobile-nav-cta-outline) {
+    /* Using blue-700 (#1d4ed8) for WCAG AA contrast with white text (4.68:1 ratio) */
+    background-color: #1d4ed8;
+    color: white;
+  }
+
+  .mobile-nav-cta:not(.mobile-nav-cta-outline):hover {
+    /* Using blue-800 (#1e40af) for hover state */
+    background-color: #1e40af;
+  }
+
+  .mobile-nav-cta-outline {
+    background-color: transparent;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .mobile-nav-cta-outline:hover {
+    background-color: var(--color-hover-overlay);
+    border-color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-nav-overlay,
+    .mobile-nav-panel {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-overlay,
+    .mobile-nav-panel {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initMobileNav(): void {
+    const mobileNav = document.getElementById('mobile-nav');
+    const overlay = document.getElementById('mobile-nav-overlay');
+    const closeBtn = document.getElementById('mobile-nav-close');
+    const menuTrigger = document.getElementById('mobile-menu-trigger');
+
+    if (!mobileNav || !overlay) return;
+
+    function closeMobileNav(): void {
+      if (!mobileNav || !overlay) return;
+
+      mobileNav.dataset.open = 'false';
+      mobileNav.setAttribute('aria-hidden', 'true');
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (menuTrigger) {
+        menuTrigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function openMobileNav(): void {
+      if (!mobileNav || !overlay) return;
+
+      mobileNav.dataset.open = 'true';
+      mobileNav.setAttribute('aria-hidden', 'false');
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      if (menuTrigger) {
+        menuTrigger.setAttribute('aria-expanded', 'true');
+      }
+
+      // Focus the close button for accessibility
+      closeBtn?.focus();
+    }
+
+    // Close button
+    closeBtn?.addEventListener('click', closeMobileNav);
+
+    // Overlay click
+    overlay.addEventListener('click', closeMobileNav);
+
+    // Navigation links - close menu after clicking
+    mobileNav.querySelectorAll<HTMLAnchorElement>('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+
+        closeMobileNav();
+
+        // Smooth scroll after menu closes
+        setTimeout(() => {
+          if (targetId) {
+            const target = document.querySelector(targetId);
+            if (target) {
+              target.scrollIntoView({behavior: 'smooth'});
+              history.pushState(null, '', targetId);
+            }
+          }
+        }, 300);
+      });
+    });
+
+    // Escape key to close
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && mobileNav.dataset.open === 'true') {
+        closeMobileNav();
+      }
+    });
+
+    // Listen for menu trigger from Nav component
+    if (menuTrigger) {
+      menuTrigger.addEventListener('click', () => {
+        if (mobileNav.dataset.open === 'true') {
+          closeMobileNav();
+        } else {
+          openMobileNav();
+        }
+      });
+    }
+
+    // Update active section in mobile nav
+    function updateActiveSection(): void {
+      if (!mobileNav) return;
+
+      const sections = document.querySelectorAll('section[id]');
+      let currentSection = '';
+
+      sections.forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        if (sectionTop < 200) {
+          currentSection = '#' + section.id;
+        }
+      });
+
+      mobileNav.querySelectorAll<HTMLAnchorElement>('.mobile-nav-link').forEach(link => {
+        const isActive = link.getAttribute('href') === currentSection;
+        link.classList.toggle('active', isActive);
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveSection, {passive: true});
+    updateActiveSection();
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileNav);
+  } else {
+    initMobileNav();
+  }
+</script>

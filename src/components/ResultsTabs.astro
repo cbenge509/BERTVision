@@ -1,0 +1,518 @@
+---
+/**
+ * ResultsTabs - Tabbed interface for GLUE and SQuAD results.
+ *
+ * Features:
+ * - Category tabs (GLUE Benchmark / SQuAD 2.0)
+ * - Sub-tabs for individual GLUE tasks
+ * - Keyboard navigation (arrow keys)
+ * - ARIA attributes for accessibility
+ * - Touch swipe on mobile
+ */
+
+import TaskResult from './TaskResult.astro';
+import type {ResultData} from '../content/config';
+
+interface Props {
+  /** GLUE task results */
+  glueResults: ResultData[];
+  /** SQuAD results */
+  squadResults: ResultData[];
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {glueResults, squadResults, class: className = ''} = Astro.props;
+
+// Sort GLUE results by task name
+const sortedGlue = [...glueResults].sort((a, b) =>
+  a.task.localeCompare(b.task)
+);
+---
+
+<div class:list={['results-tabs', className]}>
+  <!-- Main category tabs -->
+  <div class="tabs-container" role="tablist" aria-label="Result categories">
+    <button
+      type="button"
+      role="tab"
+      class="category-tab active"
+      id="tab-glue"
+      aria-selected="true"
+      aria-controls="panel-glue"
+      tabindex="0"
+    >
+      GLUE Benchmark
+      <span class="tab-count">{sortedGlue.length}</span>
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="category-tab"
+      id="tab-squad"
+      aria-selected="false"
+      aria-controls="panel-squad"
+      tabindex="-1"
+    >
+      SQuAD 2.0
+      <span class="tab-count">{squadResults.length}</span>
+    </button>
+  </div>
+
+  <!-- GLUE Panel -->
+  <div
+    role="tabpanel"
+    class="category-panel active"
+    id="panel-glue"
+    aria-labelledby="tab-glue"
+  >
+    <!-- GLUE sub-tabs -->
+    <div class="subtabs-wrapper">
+      <div class="subtabs-container" role="tablist" aria-label="GLUE tasks">
+        {
+          sortedGlue.map((result, index) => (
+            <button
+              type="button"
+              role="tab"
+              class:list={['subtab', {active: index === 0}]}
+              id={`subtab-${result.task.toLowerCase()}`}
+              aria-selected={index === 0 ? 'true' : 'false'}
+              aria-controls={`subpanel-${result.task.toLowerCase()}`}
+              tabindex={index === 0 ? 0 : -1}
+            >
+              {result.task}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- GLUE sub-panels -->
+    {
+      sortedGlue.map((result, index) => (
+        <div
+          role="tabpanel"
+          class:list={['subpanel', {active: index === 0}]}
+          id={`subpanel-${result.task.toLowerCase()}`}
+          aria-labelledby={`subtab-${result.task.toLowerCase()}`}
+          hidden={index !== 0}
+        >
+          <TaskResult result={result} />
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- SQuAD Panel -->
+  <div
+    role="tabpanel"
+    class="category-panel"
+    id="panel-squad"
+    aria-labelledby="tab-squad"
+    hidden
+  >
+    {squadResults.map(result => <TaskResult result={result} />)}
+  </div>
+</div>
+
+<style>
+  .results-tabs {
+    margin: 1.5rem 0;
+  }
+
+  /* Category tabs */
+  .tabs-container {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 1.5rem;
+  }
+
+  .category-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .category-tab:hover {
+    color: var(--color-text);
+  }
+
+  .category-tab:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .category-tab.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-bg-secondary);
+    border-radius: 9999px;
+  }
+
+  .category-tab.active .tab-count {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+  }
+
+  /* Category panels */
+  .category-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .category-panel.active {
+    display: block;
+    animation: panelFadeIn 0.3s ease forwards;
+  }
+
+  @keyframes panelFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Sub-tabs for GLUE tasks */
+  .subtabs-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem;
+    scrollbar-width: none;
+  }
+
+  .subtabs-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subtabs-container {
+    display: flex;
+    gap: 0.25rem;
+    min-width: max-content;
+    padding-bottom: 0.25rem;
+  }
+
+  .subtab {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .subtab:hover {
+    color: var(--color-text);
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .subtab:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .subtab.active {
+    color: white;
+    /* Using blue-700 (#1d4ed8) for WCAG AA contrast with white text (4.68:1 ratio) */
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+  }
+
+  /* Sub-panels */
+  .subpanel {
+    display: none;
+  }
+
+  .subpanel.active {
+    display: block;
+  }
+
+  .subpanel[hidden] {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .category-panel.active {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+
+    .category-tab,
+    .subtab {
+      transition: none;
+    }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .category-tab {
+      flex: 1;
+      justify-content: center;
+      padding: 0.75rem 0.75rem;
+      font-size: 0.9375rem;
+    }
+
+    .subtab {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.8125rem;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Initialize tab functionality for results tabs.
+   */
+  function initResultsTabs(): void {
+    const tabContainers = document.querySelectorAll('.results-tabs');
+
+    tabContainers.forEach(container => {
+      initCategoryTabs(container);
+      initSubTabs(container);
+      initSwipeGestures(container);
+    });
+  }
+
+  /**
+   * Initialize main category tabs (GLUE/SQuAD).
+   */
+  function initCategoryTabs(container: Element): void {
+    const tabs = container.querySelectorAll<HTMLButtonElement>('.category-tab');
+    const panels = container.querySelectorAll('.category-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateTab(tab, tabs, panels);
+      });
+
+      tab.addEventListener('keydown', e => {
+        handleTabKeyboard(e, tabs);
+      });
+    });
+  }
+
+  /**
+   * Initialize sub-tabs for GLUE tasks.
+   */
+  function initSubTabs(container: Element): void {
+    const subtabContainer = container.querySelector('.subtabs-container');
+    if (!subtabContainer) return;
+
+    const subtabs =
+      subtabContainer.querySelectorAll<HTMLButtonElement>('.subtab');
+    const subpanels = container.querySelectorAll('.subpanel');
+
+    subtabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateSubtab(tab, subtabs, subpanels);
+      });
+
+      tab.addEventListener('keydown', e => {
+        handleTabKeyboard(e, subtabs);
+      });
+    });
+  }
+
+  /**
+   * Activate a category tab.
+   */
+  function activateTab(
+    activeTab: HTMLButtonElement,
+    allTabs: NodeListOf<HTMLButtonElement>,
+    panels: NodeListOf<Element>
+  ): void {
+    allTabs.forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+      tab.setAttribute('tabindex', '-1');
+    });
+
+    activeTab.classList.add('active');
+    activeTab.setAttribute('aria-selected', 'true');
+    activeTab.setAttribute('tabindex', '0');
+
+    const panelId = activeTab.getAttribute('aria-controls');
+    panels.forEach(panel => {
+      if (panel.id === panelId) {
+        panel.classList.add('active');
+        panel.removeAttribute('hidden');
+      } else {
+        panel.classList.remove('active');
+        panel.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  /**
+   * Activate a sub-tab.
+   */
+  function activateSubtab(
+    activeTab: HTMLButtonElement,
+    allTabs: NodeListOf<HTMLButtonElement>,
+    panels: NodeListOf<Element>
+  ): void {
+    allTabs.forEach(tab => {
+      tab.classList.remove('active');
+      tab.setAttribute('aria-selected', 'false');
+      tab.setAttribute('tabindex', '-1');
+    });
+
+    activeTab.classList.add('active');
+    activeTab.setAttribute('aria-selected', 'true');
+    activeTab.setAttribute('tabindex', '0');
+
+    const panelId = activeTab.getAttribute('aria-controls');
+    panels.forEach(panel => {
+      if (panel.id === panelId) {
+        panel.classList.add('active');
+        panel.removeAttribute('hidden');
+      } else {
+        panel.classList.remove('active');
+        panel.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  /**
+   * Handle keyboard navigation for tabs.
+   */
+  function handleTabKeyboard(
+    event: KeyboardEvent,
+    tabs: NodeListOf<HTMLButtonElement>
+  ): void {
+    const tabsArray = Array.from(tabs);
+    const currentIndex = tabsArray.findIndex(
+      tab => tab === document.activeElement
+    );
+
+    let newIndex = currentIndex;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        event.preventDefault();
+        newIndex = currentIndex > 0 ? currentIndex - 1 : tabsArray.length - 1;
+        break;
+      case 'ArrowRight':
+      case 'ArrowDown':
+        event.preventDefault();
+        newIndex = currentIndex < tabsArray.length - 1 ? currentIndex + 1 : 0;
+        break;
+      case 'Home':
+        event.preventDefault();
+        newIndex = 0;
+        break;
+      case 'End':
+        event.preventDefault();
+        newIndex = tabsArray.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    const newTab = tabsArray[newIndex];
+    if (newTab) {
+      newTab.focus();
+      newTab.click();
+    }
+  }
+
+  /**
+   * Initialize swipe gestures for mobile.
+   */
+  function initSwipeGestures(container: Element): void {
+    const subtabsWrapper = container.querySelector('.subtabs-wrapper');
+    if (!subtabsWrapper) return;
+
+    let startX = 0;
+    let startY = 0;
+    const threshold = 50;
+
+    subtabsWrapper.addEventListener(
+      'touchstart',
+      (e: Event) => {
+        const touch = (e as TouchEvent).touches[0];
+        if (touch) {
+          startX = touch.clientX;
+          startY = touch.clientY;
+        }
+      },
+      {passive: true}
+    );
+
+    subtabsWrapper.addEventListener(
+      'touchend',
+      (e: Event) => {
+        const touch = (e as TouchEvent).changedTouches[0];
+        if (!touch) return;
+
+        const diffX = touch.clientX - startX;
+        const diffY = touch.clientY - startY;
+
+        // Only trigger if horizontal swipe is dominant
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
+          const subtabs =
+            container.querySelectorAll<HTMLButtonElement>('.subtab');
+          const activeIndex = Array.from(subtabs).findIndex(tab =>
+            tab.classList.contains('active')
+          );
+
+          if (diffX > 0 && activeIndex > 0) {
+            // Swipe right - go to previous
+            subtabs[activeIndex - 1]?.click();
+          } else if (diffX < 0 && activeIndex < subtabs.length - 1) {
+            // Swipe left - go to next
+            subtabs[activeIndex + 1]?.click();
+          }
+        }
+      },
+      {passive: true}
+    );
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initResultsTabs);
+  } else {
+    initResultsTabs();
+  }
+</script>

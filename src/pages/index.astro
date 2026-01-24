@@ -1,0 +1,926 @@
+---
+/**
+ * BERTVision Homepage
+ *
+ * Single-page layout with all sections for the project.
+ * Implements Phase 7 of the migration plan.
+ */
+
+import {getCollection} from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ScrollProgress from '../components/ScrollProgress.astro';
+import Nav from '../components/Nav.astro';
+import MobileNav from '../components/MobileNav.astro';
+import SearchModal from '../components/SearchModal.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import DiagramImage from '../components/DiagramImage.astro';
+import ResultsTabs from '../components/ResultsTabs.astro';
+import Collapsible from '../components/Collapsible.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
+
+// Import images
+import dataPipelineImage from '../assets/images/Data_Pipeline_Span_Annotation.png';
+import qaModelImage from '../assets/images/BERTVision_QA_Model.png';
+import devPipelineImage from '../assets/images/BERTVision_development_pipeline.png';
+import summaryResultsImage from '../assets/images/bert_base_vs_bertvision.png';
+
+// Fetch results data
+const allResults = await getCollection('results');
+const glueResults = allResults
+  .filter(r => r.data.category === 'glue')
+  .map(r => r.data);
+const squadResults = allResults
+  .filter(r => r.data.category === 'squad')
+  .map(r => r.data);
+
+// GLUE task descriptions for the Data section
+const glueTasks = [
+  {task: 'CoLA', name: 'Corpus of Linguistic Acceptability', samples: '8.5k', type: 'Acceptability'},
+  {task: 'SST-2', name: 'Stanford Sentiment Treebank', samples: '67k', type: 'Sentiment'},
+  {task: 'MRPC', name: 'Microsoft Research Paraphrase Corpus', samples: '3.7k', type: 'Paraphrase'},
+  {task: 'STS-B', name: 'Semantic Textual Similarity Benchmark', samples: '5.7k', type: 'Similarity'},
+  {task: 'QQP', name: 'Quora Question Pairs', samples: '364k', type: 'Paraphrase'},
+  {task: 'MNLI', name: 'Multi-Genre Natural Language Inference', samples: '393k', type: 'NLI'},
+  {task: 'QNLI', name: 'Question Natural Language Inference', samples: '105k', type: 'NLI'},
+  {task: 'RTE', name: 'Recognizing Textual Entailment', samples: '2.5k', type: 'NLI'},
+];
+---
+
+<BaseLayout>
+  <ScrollProgress />
+  <Nav />
+  <MobileNav />
+  <SearchModal />
+  <Lightbox />
+
+  <main id="main-content">
+    <!-- Hero Section -->
+    <Hero />
+
+    <!-- Introduction Section -->
+    <Section id="introduction" title="Introduction">
+      <div class="prose prose-lg">
+        <p>
+          <strong>BERTVision</strong> presents a parameter-efficient approach for Question Answering (QA) and text
+          classification that leverages BERT's hidden state activations. By extracting and utilizing the internal
+          transformer layer outputs&mdash;typically discarded during inference&mdash;our method enables efficient
+          fine-tuning with significantly reduced computational requirements.
+        </p>
+        <p>
+          The key insight is that BERT's intermediate layer representations contain rich semantic information
+          that can be harnessed for downstream tasks. Rather than fine-tuning the entire 110M+ parameter model,
+          BERTVision trains lightweight adapter networks on pre-extracted embeddings, achieving competitive
+          performance while using only a fraction of the trainable parameters.
+        </p>
+        <h3>Key Contributions</h3>
+        <ul>
+          <li>
+            <strong>Parameter Efficiency:</strong> Achieves comparable results to full fine-tuning while
+            training only ~0.5% of the original model parameters
+          </li>
+          <li>
+            <strong>Embedding Reuse:</strong> Pre-extracted hidden states can be cached and reused across
+            multiple experiments, dramatically reducing training time
+          </li>
+          <li>
+            <strong>Accessibility:</strong> Enables NLP research on consumer hardware without high-end GPUs
+          </li>
+          <li>
+            <strong>Comprehensive Evaluation:</strong> Tested across 9 GLUE benchmark tasks and SQuAD 2.0
+          </li>
+        </ul>
+        <p>
+          This approach is particularly valuable for researchers and practitioners working with limited
+          computational resources, or when rapid experimentation across multiple tasks is required.
+        </p>
+      </div>
+    </Section>
+
+    <!-- How It Works Section -->
+    <Section id="how-it-works" title="How It Works" variant="alternate">
+      <div class="how-it-works-content">
+        <div class="prose prose-lg">
+          <p>
+            BERTVision operates in two phases: first, we extract hidden state embeddings from all transformer
+            layers during a single forward pass through BERT. Then, we train lightweight adapter networks on
+            these cached embeddings to perform downstream tasks.
+          </p>
+        </div>
+
+        <div class="diagram-section">
+          <h3 class="diagram-title">Data Pipeline & Span Annotation</h3>
+          <p class="diagram-description">
+            For question answering tasks like SQuAD, the data pipeline processes context-question pairs and
+            annotates answer spans. The embeddings capture contextual relationships between the question and
+            passage, enabling the adapter to learn span boundaries efficiently.
+          </p>
+          <DiagramImage
+            src={dataPipelineImage}
+            alt="Data Pipeline and Span Annotation diagram showing how input text is processed through BERT layers"
+            caption="Figure 1: Data pipeline for SQuAD 2.0, showing tokenization, span annotation, and embedding extraction"
+            gallery="architecture"
+          />
+        </div>
+
+        <div class="diagram-section">
+          <h3 class="diagram-title">Model Architecture</h3>
+          <p class="diagram-description">
+            The BERTVision QA model architecture uses an AdapterPooler that processes hidden states from
+            multiple BERT layers. Rather than only using the final layer output, we leverage representations
+            from all 12 (or 24 for BERT-large) transformer layers, capturing both low-level syntactic and
+            high-level semantic features.
+          </p>
+          <DiagramImage
+            src={qaModelImage}
+            alt="BERTVision QA Model architecture diagram"
+            caption="Figure 2: AdapterPooler architecture for question answering, showing multi-layer hidden state processing"
+            gallery="architecture"
+          />
+        </div>
+
+        <div class="diagram-section">
+          <h3 class="diagram-title">Development & Training Pipeline</h3>
+          <p class="diagram-description">
+            The development pipeline shows the complete workflow from raw text to trained adapter models.
+            Embeddings are extracted once and stored as HDF5 files, then reused across multiple training
+            experiments with different hyperparameters, dramatically reducing overall compute time.
+          </p>
+          <DiagramImage
+            src={devPipelineImage}
+            alt="BERTVision development pipeline diagram"
+            caption="Figure 3: End-to-end development pipeline from data preparation to model evaluation"
+            gallery="architecture"
+          />
+        </div>
+
+        <div class="prose prose-lg">
+          <h3>Technical Details</h3>
+          <ul>
+            <li>
+              <strong>Embedding Dimensions:</strong> Each token produces a 768-dim (base) or 1024-dim (large)
+              vector per layer
+            </li>
+            <li>
+              <strong>Storage Format:</strong> HDF5 files with efficient compression for fast I/O
+            </li>
+            <li>
+              <strong>Adapter Architecture:</strong> Multi-head attention pooler with learned layer weights
+            </li>
+            <li>
+              <strong>Training:</strong> AdamW optimizer with linear warmup and cosine decay
+            </li>
+          </ul>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Data Section -->
+    <Section id="data" title="NLP Tasks & Data">
+      <div class="data-content">
+        <div class="prose prose-lg">
+          <p>
+            BERTVision was evaluated on two major NLP benchmarks: SQuAD 2.0 for extractive question answering
+            and the GLUE benchmark for text classification and natural language inference tasks.
+          </p>
+        </div>
+
+        <div class="data-section">
+          <h3 class="data-title">SQuAD 2.0</h3>
+          <p class="data-description">
+            The Stanford Question Answering Dataset 2.0 is a reading comprehension benchmark where models
+            must extract answer spans from passages or determine when questions are unanswerable. SQuAD 2.0
+            contains over 150,000 questions with 50,000 unanswerable questions that require models to
+            abstain rather than guess.
+          </p>
+          <div class="data-stats">
+            <div class="stat-card">
+              <span class="stat-value">150k+</span>
+              <span class="stat-label">Questions</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">50k</span>
+              <span class="stat-label">Unanswerable</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-value">500+</span>
+              <span class="stat-label">Wikipedia Articles</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-section">
+          <h3 class="data-title">GLUE Benchmark</h3>
+          <p class="data-description">
+            The General Language Understanding Evaluation benchmark is a collection of nine diverse natural
+            language understanding tasks, including sentiment analysis, textual similarity, paraphrase
+            detection, and natural language inference.
+          </p>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Full Name</th>
+                  <th>Samples</th>
+                  <th>Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                {glueTasks.map(task => (
+                  <tr>
+                    <td class="task-code">{task.task}</td>
+                    <td>{task.name}</td>
+                    <td>{task.samples}</td>
+                    <td>
+                      <span class="task-type">{task.type}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Results Section -->
+    <Section id="results" title="Results" variant="alternate">
+      <div class="results-content">
+        <div class="prose prose-lg">
+          <p>
+            BERTVision achieves competitive performance across all evaluated tasks while using significantly
+            fewer trainable parameters. In several cases, the parameter-efficient approach matches or exceeds
+            full fine-tuning results, demonstrating that BERT's hidden representations contain sufficient
+            information for effective task adaptation.
+          </p>
+        </div>
+
+        <div class="results-summary">
+          <DiagramImage
+            src={summaryResultsImage}
+            alt="Performance comparison between BERT and BERTVision across tasks"
+            caption="Figure 4: Performance comparison showing BERTVision (blue) vs BERT baseline (gray) across benchmark tasks"
+          />
+        </div>
+
+        <div class="results-tabs-container">
+          <h3 class="results-subtitle">Detailed Results by Task</h3>
+          <p class="results-description">
+            Select a benchmark category and task to view detailed metrics. Each result includes the
+            exact commands needed to replicate the experiments.
+          </p>
+          <ResultsTabs glueResults={glueResults} squadResults={squadResults} />
+        </div>
+
+        <div class="hyperparameters">
+          <h3 class="hyperparameters-title">Hyperparameter Configuration</h3>
+          <p class="hyperparameters-description">
+            Optimal hyperparameters were identified through systematic search using Hyperopt. The table
+            below shows the recommended settings for each task category.
+          </p>
+          <div class="table-container">
+            <table class="data-table hyperparameters-table">
+              <thead>
+                <tr>
+                  <th>Task Category</th>
+                  <th>Learning Rate</th>
+                  <th>Batch Size</th>
+                  <th>Max Seq Length</th>
+                  <th>Num Labels</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>MNLI / QQP / QNLI</td>
+                  <td>1e-5</td>
+                  <td>32</td>
+                  <td>128</td>
+                  <td>2-3</td>
+                </tr>
+                <tr>
+                  <td>RTE</td>
+                  <td>2e-5</td>
+                  <td>16</td>
+                  <td>250</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>SST / MRPC / CoLA</td>
+                  <td>2e-5</td>
+                  <td>16-32</td>
+                  <td>128</td>
+                  <td>2</td>
+                </tr>
+                <tr>
+                  <td>STS-B</td>
+                  <td>2e-5</td>
+                  <td>16</td>
+                  <td>128</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>SQuAD 2.0</td>
+                  <td>2e-5</td>
+                  <td>8-16</td>
+                  <td>384</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Replication Section -->
+    <Section id="replication" title="Replication">
+      <div class="replication-content">
+        <div class="prose prose-lg">
+          <p>
+            All experiments can be replicated using the code in our GitHub repository. The following
+            sections provide the exact commands for generating embeddings and training models for each task.
+          </p>
+          <p>
+            <strong>Prerequisites:</strong> Clone the repository and set up the environment as described in
+            the README. All commands should be run from the <code>code/torch</code> directory.
+          </p>
+        </div>
+
+        <div class="replication-sections">
+          <div class="replication-group">
+            <h3 class="replication-group-title">Embedding Generation</h3>
+            <p class="replication-group-description">
+              Before training adapter models, you must first generate and cache the BERT embeddings.
+              Run these commands from <code>code/torch/gen_embeds/</code>.
+            </p>
+
+            <Collapsible title="GLUE Task Embeddings">
+              <CodeBlock
+                code={`# QQP embeddings
+python qqpairs_embeds.py --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+
+# MNLI embeddings
+python mnli_embeds.py --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+
+# Other GLUE tasks follow similar patterns
+# See gen_embeds/ directory for all available scripts`}
+                language="bash"
+              />
+            </Collapsible>
+
+            <Collapsible title="SQuAD 2.0 Embeddings">
+              <CodeBlock
+                code={`# Generate SQuAD embeddings
+python squad_embeds.py --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8
+
+# For BERT-base
+python squad_embeds.py --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16`}
+                language="bash"
+              />
+            </Collapsible>
+          </div>
+
+          <div class="replication-group">
+            <h3 class="replication-group-title">Model Training</h3>
+            <p class="replication-group-description">
+              Train BERT baseline and BERTVision adapter models. Run from <code>code/torch/</code>.
+            </p>
+
+            <Collapsible title="BERT Fine-tuning (Baseline)">
+              <CodeBlock
+                code={`# GLUE Tasks
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python -m models.bert_glue --model SST --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+
+# SQuAD 2.0
+python -m models.bert_squad --model SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8`}
+                language="bash"
+              />
+            </Collapsible>
+
+            <Collapsible title="BERTVision AdapterPooler">
+              <CodeBlock
+                code={`# GLUE Tasks with AdapterPooler
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32
+python -m models.ap_glue --model AP_QQP --checkpoint bert-base-uncased --lr 1e-5 --num-labels 2 --max-seq-length 128 --batch-size 32
+
+# SQuAD 2.0 with AdapterPooler
+python -m models.ap_squad --model AP_SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8`}
+                language="bash"
+              />
+            </Collapsible>
+
+            <Collapsible title="Hyperparameter Search">
+              <CodeBlock
+                code={`# Run hyperparameter search for optimal configurations
+python -m models.hypersearch --model MSR --checkpoint bert-large-uncased --batch-size 32 --num-labels 2 --max-seq-length 128
+
+# AdapterPooler hyperparameter search
+python -m models.ap_hypersearch --model AP_STSB --checkpoint bert-base-uncased --batch-size 16 --num-labels 1 --max-seq-length 128`}
+                language="bash"
+              />
+            </Collapsible>
+          </div>
+
+          <div class="replication-group">
+            <h3 class="replication-group-title">Error Analysis</h3>
+            <p class="replication-group-description">
+              Generate detailed error analysis with predicted vs. actual labels.
+            </p>
+
+            <Collapsible title="Error Analysis Commands">
+              <CodeBlock
+                code={`# Run with --error flag to output predictions
+python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --error
+
+# AdapterPooler error analysis
+python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 2e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --error`}
+                language="bash"
+              />
+            </Collapsible>
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Paper Section -->
+    <Section id="paper" title="Research Paper" variant="alternate">
+      <div class="paper-content">
+        <div class="prose prose-lg">
+          <p>
+            For detailed methodology, experimental setup, ablation studies, and comprehensive analysis,
+            please refer to our research paper. The paper includes additional experiments on layer-wise
+            contribution analysis and parameter freezing strategies.
+          </p>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-preview">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="paper-icon"
+            >
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <line x1="10" y1="9" x2="8" y2="9" />
+            </svg>
+          </div>
+          <div class="paper-info">
+            <h3 class="paper-title">BERTVision: Parameter-Efficient Transfer Learning for NLP</h3>
+            <p class="paper-authors">Benge, C. et al. (2020)</p>
+            <p class="paper-abstract">
+              We present BERTVision, a parameter-efficient approach to transfer learning for natural
+              language processing tasks. By leveraging hidden state activations from pre-trained BERT
+              models, we achieve competitive performance on GLUE and SQuAD benchmarks while training
+              only a fraction of the parameters required for full fine-tuning.
+            </p>
+            <a
+              href="/BERTVision/paper/BERTVision_2020.pdf"
+              class="paper-download"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download PDF
+            </a>
+          </div>
+        </div>
+
+        <div class="citation-section">
+          <h3 class="citation-title">Citation</h3>
+          <CodeBlock
+            code={`@article{benge2020bertvision,
+  title={BERTVision: Parameter-Efficient Transfer Learning for NLP},
+  author={Benge, Cristopher and others},
+  year={2020},
+  url={https://cbenge509.github.io/BERTVision/}
+}`}
+            language="bibtex"
+          />
+        </div>
+      </div>
+    </Section>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* Prose styling enhancements */
+  .prose {
+    max-width: 75ch;
+  }
+
+  .prose-lg p {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.375rem;
+    color: var(--color-text);
+  }
+
+  .prose ul {
+    margin: 1rem 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .prose code {
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--color-primary);
+    background-color: var(--color-code-bg);
+    border-radius: 0.25rem;
+  }
+
+  /* How It Works Section */
+  .how-it-works-content {
+    max-width: 100%;
+  }
+
+  .diagram-section {
+    margin: 3rem 0;
+  }
+
+  .diagram-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+  }
+
+  .diagram-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 75ch;
+  }
+
+  /* Data Section */
+  .data-content {
+    max-width: 100%;
+  }
+
+  .data-section {
+    margin-top: 2.5rem;
+  }
+
+  .data-title {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+  }
+
+  .data-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 75ch;
+  }
+
+  .data-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    min-width: 120px;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-top: 0.25rem;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .data-table th {
+    background-color: var(--color-bg-secondary);
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr:hover {
+    background-color: var(--color-hover-overlay);
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .task-code {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .task-type {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    /* Using blue-800 (#1e40af) for WCAG AA contrast on light backgrounds */
+    color: #1e40af;
+    background-color: #dbeafe;
+    border-radius: 9999px;
+  }
+
+  .dark .task-type {
+    /* Using blue-200 (#bfdbfe) text on dark blue background for contrast */
+    color: #bfdbfe;
+    background-color: rgba(30, 64, 175, 0.3);
+  }
+
+  /* Results Section */
+  .results-content {
+    max-width: 100%;
+  }
+
+  .results-summary {
+    margin: 2rem 0;
+  }
+
+  .results-tabs-container {
+    margin-top: 3rem;
+  }
+
+  .results-subtitle {
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
+  .results-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 75ch;
+  }
+
+  .hyperparameters {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .hyperparameters-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
+  .hyperparameters-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 75ch;
+  }
+
+  .hyperparameters-table td:first-child {
+    font-weight: 500;
+  }
+
+  /* Replication Section */
+  .replication-content {
+    max-width: 100%;
+  }
+
+  .replication-sections {
+    margin-top: 2rem;
+  }
+
+  .replication-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .replication-group-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
+  .replication-group-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1rem;
+    max-width: 75ch;
+  }
+
+  .replication-group-description code {
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--color-primary);
+    background-color: var(--color-code-bg);
+    border-radius: 0.25rem;
+  }
+
+  /* Paper Section */
+  .paper-content {
+    max-width: 100%;
+  }
+
+  .paper-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+    padding: 2rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 768px) {
+    .paper-card {
+      flex-direction: row;
+      gap: 2rem;
+    }
+  }
+
+  .paper-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    padding: 1.5rem;
+    background-color: var(--color-bg-secondary);
+    border-radius: 0.5rem;
+  }
+
+  .paper-icon {
+    color: var(--color-primary);
+  }
+
+  .paper-info {
+    flex: 1;
+  }
+
+  .paper-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.25rem;
+  }
+
+  .paper-authors {
+    font-size: 0.9375rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: 1rem;
+  }
+
+  .paper-abstract {
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .paper-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    /* Using blue-700 (#1d4ed8) for WCAG AA contrast with white text (4.68:1 ratio) */
+    background-color: #1d4ed8;
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .paper-download:hover {
+    /* Using blue-800 (#1e40af) for hover state */
+    background-color: #1e40af;
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  .citation-section {
+    margin-top: 2.5rem;
+  }
+
+  .citation-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 1rem;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .prose-lg p {
+      font-size: 1rem;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 100px;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+    }
+
+    .data-table {
+      font-size: 0.875rem;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 0.75rem;
+    }
+
+    .paper-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

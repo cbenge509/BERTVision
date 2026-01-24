@@ -1,0 +1,159 @@
+---
+/**
+ * TaskResult - Displays a single task's results with table and replication commands.
+ *
+ * Combines:
+ * - Task description
+ * - ResultsTable for metrics
+ * - Collapsible with CodeBlock for replication commands
+ */
+
+import ResultsTable from './ResultsTable.astro';
+import Collapsible from './Collapsible.astro';
+import CodeBlock from './CodeBlock.astro';
+import type {ResultData} from '../content/config';
+
+interface Props {
+  /** The task result data */
+  result: ResultData;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {result, class: className = ''} = Astro.props;
+
+// Combine replication commands into a single code block
+const replicationCode = result.replicationCommands.join('\n\n');
+---
+
+<article class:list={['task-result', className]}>
+  <header class="task-header">
+    <h3 class="task-title">{result.taskFullName}</h3>
+    {
+      result.datasetUrl && (
+        <a
+          href={result.datasetUrl}
+          class="dataset-link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View Dataset
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
+      )
+    }
+  </header>
+
+  <p class="task-description">{result.description}</p>
+
+  <ResultsTable metrics={result.metrics} />
+
+  <div class="replication-section">
+    <Collapsible title="Replication Commands">
+      <p class="replication-intro">
+        Run the following commands from <code>BERTVision/code/torch</code> to
+        replicate these results:
+      </p>
+      <CodeBlock code={replicationCode} language="bash" />
+    </Collapsible>
+  </div>
+</article>
+
+<style>
+  .task-result {
+    margin-bottom: 2rem;
+  }
+
+  .task-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .task-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .dataset-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    text-decoration: none;
+    background-color: var(--color-primary-light);
+    border-radius: 9999px;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .dataset-link:hover {
+    /* Using blue-700 (#1d4ed8) for WCAG AA contrast with white text (4.68:1 ratio) */
+    background-color: #1d4ed8;
+    color: white;
+  }
+
+  .dataset-link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .task-description {
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  .replication-section {
+    margin-top: 1.25rem;
+  }
+
+  .replication-intro {
+    margin: 0 0 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .replication-intro code {
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-primary);
+    background-color: var(--color-code-bg);
+    border-radius: 0.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .task-title {
+      font-size: 1.125rem;
+    }
+
+    .task-description {
+      font-size: 0.875rem;
+    }
+  }
+</style>

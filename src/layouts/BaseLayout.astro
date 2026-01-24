@@ -1,0 +1,107 @@
+---
+/**
+ * BaseLayout - Root layout component for all pages.
+ *
+ * Provides HTML boilerplate, meta tags, global styles,
+ * skip-to-content link, and theme initialization.
+ */
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = 'BERTVision',
+  description = 'Parameter-efficient QA and text classification using BERT hidden state activations',
+  image = '/BERTVision/images/bertvision.png',
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const siteUrl = 'https://cbenge509.github.io';
+const fullImageUrl = `${siteUrl}${image}`;
+
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:site_name" content="BERTVision" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={fullImageUrl} />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/BERTVision/favicon.svg" />
+
+    <!-- Prevent FOUC (Flash of Unstyled Content) for theme -->
+    <script is:inline>
+      (function () {
+        const THEME_KEY = 'bertvision-theme';
+        const DARK_CLASS = 'dark';
+
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        }
+
+        const stored = getStoredTheme();
+        const theme =
+          stored === 'dark' || stored === 'light' ? stored : getSystemTheme();
+
+        if (theme === 'dark') {
+          document.documentElement.classList.add(DARK_CLASS);
+        } else {
+          document.documentElement.classList.remove(DARK_CLASS);
+        }
+      })();
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200"
+  >
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link"> Skip to main content </a>
+
+    <slot />
+
+    <!-- Theme change listener for system preference changes -->
+    <script>
+      import {initTheme} from '../lib/theme';
+      initTheme();
+    </script>
+  </body>
+</html>

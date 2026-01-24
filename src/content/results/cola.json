@@ -1,0 +1,22 @@
+{
+  "task": "CoLA",
+  "taskFullName": "Corpus of Linguistic Acceptability",
+  "category": "glue",
+  "description": "CoLA is a linguistic acceptability task where the goal is to predict whether an English sentence is grammatically acceptable.",
+  "datasetUrl": "https://nyu-mll.github.io/CoLA/",
+  "metrics": [
+    {
+      "name": "Matthews",
+      "bertBase": 0.5337,
+      "bertLarge": 0.2067,
+      "bvBase": 0.6,
+      "bvLarge": 0.432
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model CoLA --checkpoint bert-base-uncased --lr 9.6296e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 441",
+    "python -m models.ap_glue --model AP_CoLA --checkpoint bert-base-uncased --lr 2.25972e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 563",
+    "python -m models.bert_glue --model CoLA --checkpoint bert-large-uncased --lr 9.4471e-6 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 203",
+    "python -m models.ap_glue --model AP_CoLA --checkpoint bert-large-uncased --lr 2.99619e-5 --num-labels 2 --max-seq-length 128 --batch-size 16 --seed 949"
+  ]
+}

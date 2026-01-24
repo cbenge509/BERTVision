@@ -1,0 +1,22 @@
+{
+  "task": "MSR",
+  "taskFullName": "Microsoft Research Paraphrase Corpus",
+  "category": "glue",
+  "description": "MRPC is a paraphrase detection task where the goal is to determine whether two sentences are semantically equivalent.",
+  "datasetUrl": "https://www.microsoft.com/en-us/download/details.aspx?id=52398",
+  "metrics": [
+    {
+      "name": "Accuracy",
+      "bertBase": 0.8203,
+      "bertLarge": 0.7635,
+      "bvBase": 0.84,
+      "bvLarge": 0.837
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model MSR --checkpoint bert-base-uncased --lr 2.4380e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 734",
+    "python -m models.ap_glue --model AP_MSR --checkpoint bert-base-uncased --lr 0.0007591458513071305 --num-labels 2 --max-seq-length 128 --adapter-dim 16 --batch-size 16 --seed 926",
+    "python -m models.bert_glue --model MSR --checkpoint bert-large-uncased --lr 1.2771e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 158",
+    "python -m models.ap_glue --model AP_MSR --checkpoint bert-large-uncased --lr 1.4399e-5 --num-labels 2 --max-seq-length 128 --batch-size 32 --seed 465"
+  ]
+}

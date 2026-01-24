@@ -1,0 +1,29 @@
+{
+  "task": "STS-B",
+  "taskFullName": "Semantic Textual Similarity Benchmark",
+  "category": "glue",
+  "description": "STS-B is a sentence similarity task where the goal is to predict how semantically similar two sentences are on a scale from 0 to 5.",
+  "datasetUrl": "https://www.aclweb.org/anthology/S17-2001",
+  "metrics": [
+    {
+      "name": "Pearson",
+      "bertBase": 0.8736,
+      "bertLarge": 0.8623,
+      "bvBase": 0.862,
+      "bvLarge": 0.88
+    },
+    {
+      "name": "Spearman",
+      "bertBase": 0.8685,
+      "bertLarge": 0.8618,
+      "bvBase": 0.859,
+      "bvLarge": 0.879
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model STSB --checkpoint bert-base-uncased --lr 1.86524e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 637",
+    "python -m models.ap_glue --model AP_STSB --checkpoint bert-base-uncased --lr 2.7762e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 260",
+    "python -m models.bert_glue --model STSB --checkpoint bert-large-uncased --lr 7.1099e-6 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 701",
+    "python -m models.ap_glue --model AP_STSB --checkpoint bert-large-uncased --lr 2.98363e-5 --num-labels 1 --max-seq-length 128 --batch-size 16 --seed 131"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "task": "RTE",
+  "taskFullName": "Recognizing Textual Entailment",
+  "category": "glue",
+  "description": "RTE is a natural language inference task where the goal is to predict whether a hypothesis is entailed by a given premise.",
+  "datasetUrl": "https://aclweb.org/aclwiki/Textual_Entailment_Resource_Pool",
+  "metrics": [
+    {
+      "name": "Accuracy",
+      "bertBase": 0.639,
+      "bertLarge": 0.5307,
+      "bvBase": 0.726,
+      "bvLarge": 0.592
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model RTE --checkpoint bert-base-uncased --lr 1.2220e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 600",
+    "python -m models.ap_glue --model AP_RTE --checkpoint bert-base-uncased --lr 0.0003593259178474023 --num-labels 2 --max-seq-length 250 --adapter-dim 8 --batch-size 16 --seed 926",
+    "python -m models.bert_glue --model RTE --checkpoint bert-large-uncased --lr 8.3621e-6 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 244",
+    "python -m models.ap_glue --model AP_RTE --checkpoint bert-large-uncased --lr 1.2614e-5 --num-labels 2 --max-seq-length 250 --batch-size 16 --seed 414"
+  ]
+}

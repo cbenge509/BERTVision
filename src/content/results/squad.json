@@ -1,0 +1,29 @@
+{
+  "task": "SQuAD",
+  "taskFullName": "Stanford Question Answering Dataset 2.0",
+  "category": "squad",
+  "description": "SQuAD 2.0 is a reading comprehension task where the goal is to extract the answer span from a passage, or determine that the question is unanswerable.",
+  "datasetUrl": "https://rajpurkar.github.io/SQuAD-explorer/",
+  "metrics": [
+    {
+      "name": "Exact Match",
+      "bertBase": 0.6941,
+      "bertLarge": 0.7758,
+      "bvBase": 0.701,
+      "bvLarge": 0.7696
+    },
+    {
+      "name": "F1",
+      "bertBase": 0.7257,
+      "bertLarge": 0.8058,
+      "bvBase": 0.7342,
+      "bvLarge": 0.8027
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_squad --model SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16",
+    "python -m models.ap_squad --model AP_SQuAD --checkpoint bert-base-uncased --lr 2e-5 --max-seq-length 384 --batch-size 16",
+    "python -m models.bert_squad --model SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8",
+    "python -m models.ap_squad --model AP_SQuAD --checkpoint bert-large-uncased --lr 2e-5 --max-seq-length 384 --batch-size 8"
+  ]
+}

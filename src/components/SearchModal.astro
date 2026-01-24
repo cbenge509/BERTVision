@@ -1,0 +1,524 @@
+---
+/**
+ * SearchModal - Full-screen search overlay with keyboard navigation.
+ *
+ * Opens with Cmd/Ctrl+K shortcut or search button click.
+ * Provides fuzzy search through page content with results preview.
+ */
+---
+
+<div
+  id="search-modal"
+  class="search-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-title"
+  data-open="false"
+>
+  <div class="search-backdrop" aria-hidden="true"></div>
+
+  <div class="search-container">
+    <div class="search-header">
+      <h2 id="search-title" class="sr-only">Search</h2>
+
+      <div class="search-input-wrapper">
+        <svg
+          class="search-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+
+        <input
+          type="search"
+          id="search-input"
+          class="search-input"
+          placeholder="Search documentation..."
+          aria-label="Search documentation"
+          aria-controls="search-results"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+
+        <kbd class="search-kbd">Esc</kbd>
+      </div>
+    </div>
+
+    <div class="search-results" id="search-results" role="listbox">
+      <!-- Screen reader announcements for search results -->
+      <div
+        id="search-status"
+        class="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      ></div>
+
+      <div class="search-empty" id="search-empty">
+        <p>Type to search...</p>
+      </div>
+      <div class="search-no-results" id="search-no-results" hidden>
+        <p>No results found</p>
+      </div>
+      <ul class="search-list" id="search-list" role="listbox"></ul>
+    </div>
+
+    <div class="search-footer">
+      <div class="search-hint">
+        <kbd>↑</kbd><kbd>↓</kbd> to navigate
+      </div>
+      <div class="search-hint">
+        <kbd>↵</kbd> to select
+      </div>
+      <div class="search-hint">
+        <kbd>Esc</kbd> to close
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10vh 1rem;
+  }
+
+  .search-modal[data-open='true'] {
+    display: flex;
+  }
+
+  .search-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  :global(.dark) .search-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  .search-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-elevated);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .search-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .search-icon {
+    flex-shrink: 0;
+    color: var(--color-text-tertiary);
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text);
+    font-size: 1.125rem;
+    font-family: var(--font-sans);
+    outline: none;
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .search-kbd {
+    flex-shrink: 0;
+    padding: 0.25rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-bg-tertiary);
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .search-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    min-height: 200px;
+  }
+
+  .search-empty,
+  .search-no-results {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--color-text-tertiary);
+  }
+
+  .search-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .search-result-item {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+  }
+
+  .search-result-item:hover,
+  .search-result-item[data-selected='true'] {
+    background-color: var(--color-hover-overlay);
+  }
+
+  .search-result-item[data-selected='true'] {
+    /* Using blue-700 (#1d4ed8) for WCAG AA contrast with white text (4.68:1 ratio) */
+    background-color: #1d4ed8;
+    color: white;
+  }
+
+  .search-result-item[data-selected='true'] .search-result-context {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .search-result-title {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .search-result-context {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+
+  .search-footer {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-secondary);
+  }
+
+  .search-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .search-hint kbd {
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    background-color: var(--color-bg-tertiary);
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border);
+  }
+
+  @media (max-width: 640px) {
+    .search-modal {
+      padding: 0;
+    }
+
+    .search-container {
+      max-height: 100vh;
+      border-radius: 0;
+    }
+
+    .search-footer {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-result-item {
+      transition: none;
+    }
+  }
+
+  /* Utility class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+
+<script>
+  import {search, buildSearchIndex, type SearchItem, type SearchResult} from '../lib/search';
+
+  /**
+   * SearchModal controller.
+   */
+  function initSearchModal(): void {
+    const modalEl = document.getElementById('search-modal');
+    const inputEl = document.getElementById('search-input') as HTMLInputElement | null;
+    const resultsListEl = document.getElementById('search-list');
+    const emptyStateEl = document.getElementById('search-empty');
+    const noResultsEl = document.getElementById('search-no-results');
+    const statusEl = document.getElementById('search-status');
+    const searchTrigger = document.getElementById('search-trigger');
+
+    if (!modalEl || !inputEl || !resultsListEl || !emptyStateEl || !noResultsEl || !statusEl) return;
+
+    // Assign to const after null check to help TypeScript narrow types
+    const modal = modalEl;
+    const input = inputEl;
+    const resultsList = resultsListEl;
+    const emptyState = emptyStateEl;
+    const noResults = noResultsEl;
+    const status = statusEl;
+    const backdrop = modal.querySelector('.search-backdrop');
+
+    let searchIndex: SearchItem[] = [];
+    let results: SearchResult[] = [];
+    let selectedIndex = -1;
+    let isOpen = false;
+
+    // Build search index on first open
+    function ensureIndex(): void {
+      if (searchIndex.length === 0) {
+        searchIndex = buildSearchIndex();
+      }
+    }
+
+    function openModal(): void {
+      ensureIndex();
+      isOpen = true;
+      modal.dataset.open = 'true';
+      document.body.style.overflow = 'hidden';
+      input.value = '';
+      input.focus();
+      updateResults('');
+    }
+
+    function closeModal(): void {
+      isOpen = false;
+      modal.dataset.open = 'false';
+      document.body.style.overflow = '';
+      results = [];
+      selectedIndex = -1;
+    }
+
+    /**
+     * Creates a result item element using safe DOM methods.
+     */
+    function createResultItem(result: SearchResult, index: number): HTMLLIElement {
+      const li = document.createElement('li');
+      li.className = 'search-result-item';
+      li.setAttribute('role', 'option');
+      li.dataset.index = String(index);
+      li.dataset.selected = String(index === selectedIndex);
+      li.dataset.href = result.item.href;
+
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'search-result-title';
+      titleDiv.textContent = result.item.title;
+
+      const contextDiv = document.createElement('div');
+      contextDiv.className = 'search-result-context';
+      contextDiv.textContent = result.context;
+
+      li.appendChild(titleDiv);
+      li.appendChild(contextDiv);
+
+      return li;
+    }
+
+    function updateResults(query: string): void {
+      results = search(searchIndex, query);
+      selectedIndex = results.length > 0 ? 0 : -1;
+
+      // Update UI visibility
+      const hasQuery = query.trim().length > 0;
+      const hasResults = results.length > 0;
+
+      emptyState.hidden = hasQuery;
+      noResults.hidden = !hasQuery || hasResults;
+      resultsList.hidden = !hasResults;
+
+      // Announce results to screen readers
+      if (hasQuery) {
+        if (hasResults) {
+          status.textContent = `${results.length} result${results.length === 1 ? '' : 's'} found. Use arrow keys to navigate.`;
+        } else {
+          status.textContent = 'No results found.';
+        }
+      } else {
+        status.textContent = '';
+      }
+
+      // Clear and render results using safe DOM methods
+      resultsList.replaceChildren();
+      results.forEach((result, index) => {
+        resultsList.appendChild(createResultItem(result, index));
+      });
+    }
+
+    function updateSelection(newIndex: number): void {
+      if (results.length === 0) return;
+
+      // Clamp index
+      selectedIndex = Math.max(0, Math.min(results.length - 1, newIndex));
+
+      // Update visual selection
+      resultsList.querySelectorAll('.search-result-item').forEach((item, index) => {
+        const isSelected = index === selectedIndex;
+        (item as HTMLElement).dataset.selected = String(isSelected);
+        if (isSelected) {
+          item.scrollIntoView({block: 'nearest'});
+        }
+      });
+    }
+
+    function selectResult(): void {
+      if (selectedIndex < 0 || selectedIndex >= results.length) return;
+
+      const result = results[selectedIndex];
+      if (!result) return;
+
+      closeModal();
+
+      // Navigate to section
+      const target = document.querySelector(result.item.href);
+      if (target) {
+        target.scrollIntoView({behavior: 'smooth'});
+        history.pushState(null, '', result.item.href);
+      }
+    }
+
+    // Event handlers
+    input.addEventListener('input', () => {
+      updateResults(input.value);
+    });
+
+    input.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          updateSelection(selectedIndex + 1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          updateSelection(selectedIndex - 1);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          selectResult();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          closeModal();
+          break;
+      }
+    });
+
+    // Click on result
+    resultsList.addEventListener('click', e => {
+      const item = (e.target as Element).closest('.search-result-item');
+      if (item) {
+        const index = parseInt((item as HTMLElement).dataset.index ?? '-1', 10);
+        if (index >= 0) {
+          selectedIndex = index;
+          selectResult();
+        }
+      }
+    });
+
+    // Click backdrop to close
+    backdrop?.addEventListener('click', closeModal);
+
+    // Search trigger button
+    searchTrigger?.addEventListener('click', openModal);
+
+    // Focus trap for modal accessibility
+    const container = modal.querySelector('.search-container') as HTMLElement | null;
+    if (container) {
+      container.addEventListener('keydown', e => {
+        const event = e as KeyboardEvent;
+        if (event.key !== 'Tab' || !isOpen) return;
+
+        const focusableElements = container.querySelectorAll<HTMLElement>(
+          'input, button, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) {
+          // Shift+Tab: if on first element, wrap to last
+          if (document.activeElement === firstEl) {
+            event.preventDefault();
+            lastEl?.focus();
+          }
+        } else {
+          // Tab: if on last element, wrap to first
+          if (document.activeElement === lastEl) {
+            event.preventDefault();
+            firstEl?.focus();
+          }
+        }
+      });
+    }
+
+    // Keyboard shortcut: Cmd/Ctrl + K
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (isOpen) {
+          closeModal();
+        } else {
+          openModal();
+        }
+      }
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearchModal);
+  } else {
+    initSearchModal();
+  }
+</script>

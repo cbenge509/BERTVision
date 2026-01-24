@@ -1,0 +1,29 @@
+{
+  "task": "MNLI",
+  "taskFullName": "Multi-Genre Natural Language Inference",
+  "category": "glue",
+  "description": "MNLI is a large-scale natural language inference task where the goal is to predict whether a hypothesis is entailed by, contradicts, or is neutral with respect to a premise.",
+  "datasetUrl": "https://www.nyu.edu/projects/bowman/multinli/",
+  "metrics": [
+    {
+      "name": "Matched Accuracy",
+      "bertBase": 0.8231,
+      "bertLarge": 0.8519,
+      "bvBase": 0.822,
+      "bvLarge": 0.849
+    },
+    {
+      "name": "Mismatched Accuracy",
+      "bertBase": 0.8328,
+      "bertLarge": 0.8513,
+      "bvBase": 0.829,
+      "bvLarge": 0.85
+    }
+  ],
+  "replicationCommands": [
+    "python -m models.bert_glue --model MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32",
+    "python -m models.ap_glue --model AP_MNLI --checkpoint bert-base-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32",
+    "python -m models.bert_glue --model MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32",
+    "python -m models.ap_glue --model AP_MNLI --checkpoint bert-large-uncased --lr 1e-5 --num-labels 3 --max-seq-length 128 --batch-size 32"
+  ]
+}

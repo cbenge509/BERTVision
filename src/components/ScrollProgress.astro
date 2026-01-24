@@ -1,0 +1,92 @@
+---
+/**
+ * ScrollProgress - A progress bar indicating page scroll position.
+ *
+ * Displays at the top of the viewport as a thin bar that fills
+ * from left to right based on scroll position.
+ */
+
+interface Props {
+  /** Height of the progress bar in pixels */
+  height?: number;
+  /** z-index for stacking context */
+  zIndex?: number;
+}
+
+const {height = 3, zIndex = 50} = Astro.props;
+---
+
+<div
+  class="scroll-progress-container"
+  style={`height: ${height}px; z-index: ${zIndex};`}
+  aria-hidden="true"
+>
+  <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
+</div>
+
+<style>
+  .scroll-progress-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: transparent;
+    pointer-events: none;
+  }
+
+  .scroll-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-primary-light) 100%
+    );
+    transition: width 0.1s ease-out;
+    border-radius: 0 2px 2px 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-progress-bar {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initScrollProgress(): void {
+    const progressBar = document.getElementById('scroll-progress-bar');
+    if (!progressBar) return;
+
+    let ticking = false;
+
+    function updateProgress(): void {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+      const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+
+      if (progressBar) {
+        progressBar.style.width = `${Math.min(100, Math.max(0, scrollPercent))}%`;
+      }
+      ticking = false;
+    }
+
+    function onScroll(): void {
+      if (!ticking) {
+        window.requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+    updateProgress();
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollProgress);
+  } else {
+    initScrollProgress();
+  }
+</script>

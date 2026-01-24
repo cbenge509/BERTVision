@@ -1,0 +1,420 @@
+---
+/**
+ * ResultsTable - Displays benchmark results with sortable columns.
+ *
+ * Features:
+ * - Sortable columns (click header to sort)
+ * - Highlights best value in each row
+ * - Responsive with horizontal scroll on mobile
+ * - Accessible with proper table semantics
+ */
+
+interface Metric {
+  name: string;
+  bertBase: number;
+  bertLarge: number;
+  bvBase: number;
+  bvLarge: number;
+}
+
+interface Props {
+  /** Array of metrics to display */
+  metrics: Metric[];
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {metrics, class: className = ''} = Astro.props;
+
+/**
+ * Determine which value is the best (highest) in a row.
+ */
+function getBestColumn(metric: Metric): string {
+  const values = [
+    {key: 'bertBase', value: metric.bertBase},
+    {key: 'bertLarge', value: metric.bertLarge},
+    {key: 'bvBase', value: metric.bvBase},
+    {key: 'bvLarge', value: metric.bvLarge},
+  ];
+
+  const best = values.reduce((max, curr) =>
+    curr.value > max.value ? curr : max
+  );
+
+  return best.key;
+}
+
+/**
+ * Format a metric value for display.
+ */
+function formatValue(value: number): string {
+  // Display as percentage-like format
+  if (value < 1) {
+    return (value * 100).toFixed(2) + '%';
+  }
+  return value.toFixed(2);
+}
+---
+
+<div class:list={['results-table-wrapper', className]}>
+  <table class="results-table" role="grid">
+    <thead>
+      <tr>
+        <th scope="col" class="metric-header" data-sort="metric">
+          <button type="button" class="sort-button" aria-label="Sort by Metric">
+            Metric
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th scope="col" data-sort="bertBase">
+          <button type="button" class="sort-button" aria-label="Sort by BERT-base">
+            BERT-base
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th scope="col" data-sort="bertLarge">
+          <button type="button" class="sort-button" aria-label="Sort by BERT-large">
+            BERT-large
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th scope="col" class="bv-header" data-sort="bvBase">
+          <button type="button" class="sort-button" aria-label="Sort by BERTVision-base">
+            BV-base
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+        <th scope="col" class="bv-header" data-sort="bvLarge">
+          <button type="button" class="sort-button" aria-label="Sort by BERTVision-large">
+            BV-large
+            <span class="sort-indicator" aria-hidden="true"></span>
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        metrics.map(metric => {
+          const bestCol = getBestColumn(metric);
+          return (
+            <tr>
+              <td class="metric-name">{metric.name}</td>
+              <td
+                class:list={[
+                  'metric-value',
+                  {'best-value': bestCol === 'bertBase'},
+                ]}
+                data-column="bertBase"
+                data-value={metric.bertBase}
+              >
+                {formatValue(metric.bertBase)}
+              </td>
+              <td
+                class:list={[
+                  'metric-value',
+                  {'best-value': bestCol === 'bertLarge'},
+                ]}
+                data-column="bertLarge"
+                data-value={metric.bertLarge}
+              >
+                {formatValue(metric.bertLarge)}
+              </td>
+              <td
+                class:list={[
+                  'metric-value',
+                  'bv-value',
+                  {'best-value': bestCol === 'bvBase'},
+                ]}
+                data-column="bvBase"
+                data-value={metric.bvBase}
+              >
+                {formatValue(metric.bvBase)}
+              </td>
+              <td
+                class:list={[
+                  'metric-value',
+                  'bv-value',
+                  {'best-value': bestCol === 'bvLarge'},
+                ]}
+                data-column="bvLarge"
+                data-value={metric.bvLarge}
+              >
+                {formatValue(metric.bvLarge)}
+              </td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .results-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+  }
+
+  .results-table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .results-table thead {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .results-table th {
+    padding: 0;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .results-table th.metric-header {
+    text-align: left;
+  }
+
+  .results-table th.bv-header {
+    background-color: var(--color-primary-light);
+  }
+
+  :global(.dark) .results-table th.bv-header {
+    background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+
+  .sort-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    font-family: var(--font-sans);
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .metric-header .sort-button {
+    justify-content: flex-start;
+  }
+
+  .sort-button:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .sort-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .sort-indicator {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    opacity: 0.3;
+  }
+
+  .sort-indicator::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid currentColor;
+    margin-bottom: 2px;
+  }
+
+  .sort-indicator::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+  }
+
+  th[data-sort-dir='asc'] .sort-indicator {
+    opacity: 1;
+  }
+
+  th[data-sort-dir='asc'] .sort-indicator::after {
+    opacity: 0.3;
+  }
+
+  th[data-sort-dir='desc'] .sort-indicator {
+    opacity: 1;
+  }
+
+  th[data-sort-dir='desc'] .sort-indicator::before {
+    opacity: 0.3;
+  }
+
+  .results-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.15s ease;
+  }
+
+  .results-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .results-table tbody tr:hover {
+    background-color: var(--color-bg-secondary);
+  }
+
+  .results-table td {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+
+  .metric-name {
+    text-align: left;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .bv-value {
+    background-color: var(--color-primary-light);
+    /* Ensure WCAG AA contrast (4.5:1) on light blue background */
+    color: #1e3a5f;
+  }
+
+  :global(.dark) .bv-value {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-text);
+  }
+
+  .best-value {
+    font-weight: 700;
+    color: var(--color-success);
+  }
+
+  .best-value::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-success);
+    border-radius: 50%;
+    margin-right: 0.375rem;
+    vertical-align: middle;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .results-table {
+      font-size: 0.8125rem;
+    }
+
+    .sort-button {
+      padding: 0.625rem 0.5rem;
+    }
+
+    .results-table td {
+      padding: 0.625rem 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Initialize table sorting functionality.
+   */
+  function initResultsTables(): void {
+    const tables = document.querySelectorAll('.results-table');
+
+    tables.forEach(table => {
+      const headers = table.querySelectorAll<HTMLTableCellElement>('th[data-sort]');
+      const tbody = table.querySelector('tbody');
+
+      if (!tbody) return;
+
+      headers.forEach(header => {
+        const sortKey = header.dataset.sort;
+        if (!sortKey) return;
+
+        const button = header.querySelector('.sort-button');
+        if (!button) return;
+
+        button.addEventListener('click', () => {
+          // Determine sort direction
+          const currentDir = header.dataset.sortDir;
+          const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+
+          // Clear all other sort indicators
+          headers.forEach(h => {
+            if (h !== header) {
+              delete h.dataset.sortDir;
+            }
+          });
+
+          // Set new sort direction
+          header.dataset.sortDir = newDir;
+
+          // Get all rows and sort them
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+
+          rows.sort((a, b) => {
+            let aVal: string | number;
+            let bVal: string | number;
+
+            if (sortKey === 'metric') {
+              const aCell = a.querySelector('.metric-name');
+              const bCell = b.querySelector('.metric-name');
+              aVal = aCell?.textContent ?? '';
+              bVal = bCell?.textContent ?? '';
+            } else {
+              const aCell = a.querySelector(`td[data-column="${sortKey}"]`) as HTMLElement | null;
+              const bCell = b.querySelector(`td[data-column="${sortKey}"]`) as HTMLElement | null;
+              aVal = parseFloat(aCell?.dataset.value ?? '0');
+              bVal = parseFloat(bCell?.dataset.value ?? '0');
+            }
+
+            if (typeof aVal === 'string' && typeof bVal === 'string') {
+              return newDir === 'asc'
+                ? aVal.localeCompare(bVal)
+                : bVal.localeCompare(aVal);
+            }
+
+            return newDir === 'asc'
+              ? (aVal as number) - (bVal as number)
+              : (bVal as number) - (aVal as number);
+          });
+
+          // Re-append rows in sorted order
+          rows.forEach(row => tbody.appendChild(row));
+        });
+      });
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initResultsTables);
+  } else {
+    initResultsTables();
+  }
+</script>
