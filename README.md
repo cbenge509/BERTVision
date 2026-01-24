@@ -21,7 +21,7 @@
 
 ## Authors
 
-<table align="center">
+<table align="center" border="0">
   <tr>
     <td align="center">
       <a href="https://jackson.yale.edu/person/casey-king/"><img src="./images/casey.png" width="100" alt="Casey King"></a><br>
