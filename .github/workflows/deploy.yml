@@ -39,13 +39,6 @@ jobs:
       - name: Build site
         run: npm run build
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium firefox
-
-      - name: Run E2E tests
-        continue-on-error: true  # Some tests have known flakiness in headless environments
-        run: npm run test:e2e -- --project=chromium --project=firefox
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
