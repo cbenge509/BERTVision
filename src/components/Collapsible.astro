@@ -69,6 +69,11 @@ const id = `collapsible-${Math.random().toString(36).substring(2, 9)}`;
     border-radius: 0.5rem;
     overflow: hidden;
     background-color: var(--color-bg);
+    max-width: 75ch;
+  }
+
+  .collapsible + .collapsible {
+    margin-top: 0.75rem;
   }
 
   .collapsible-trigger {
